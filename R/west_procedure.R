@@ -93,9 +93,9 @@ west_procedure <- function(
   tab <- do.call(rbind, rows)
 
   if (direction == "forward") {
-    model_bic <- tab$bic_alt
-  } else {
     model_bic <- tab$bic_null
+  } else {
+    model_bic <- tab$bic_alt
   }
   valid <- is.finite(model_bic) & is.finite(tab$p_value)
 
