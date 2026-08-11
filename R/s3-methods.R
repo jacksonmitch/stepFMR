@@ -204,8 +204,8 @@ steps_table.determine_effects <- function(x, ...) {
       return("all heterogeneous")
     }
     paste0(
-      "het: ", paste(het, collapse = ", "),
-      "  |  homo: ", paste(common, collapse = ", ")
+      "heterogeneous: ", paste(het, collapse = ", "),
+      "  |  homogeneous: ", paste(common, collapse = ", ")
     )
   }
   print_steps(
@@ -269,7 +269,7 @@ steps_table.select_variables <- function(x, ...) {
       "  |  excluded: ", paste(excluded, collapse = ", ")
     )
   }
-  print_steps(x$steps, x$all_predictors, x$direction, label_state)
+  print_steps(x$steps, x$predictors, x$direction, label_state)
   invisible(x)
 }
 
@@ -281,7 +281,7 @@ print_steps <- function(steps, all_predictors, direction, label_state) {
     state <- label_state(in_set, out_set)
 
     cat(sprintf("Step %d  (%s)\n", s$step, state))
-    cat(sprintf("  %-20s  %-12s\n", "Candidate", "weighted p-value"))
+    cat(sprintf("  %-20s  %-12s\n", "Candidate", "Weighted p-value"))
     cat(sprintf("  %-20s  %-12s\n", "---------", "-------"))
 
     p_fmt <- formatC(s$p0, format = "e", digits = 2)
@@ -415,9 +415,9 @@ print.fit_fmr <- function(x, ...) {
 #' fit <- westMR(y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3)
 #' print(fit)
 print.westMR <- function(x, ...) {
-  cat("westMR  |  family: ", x$family,
-    "  |  G: ", paste(x$G_values, collapse = ","),
-    "  |  procedure: ", x$procedure, "\n\n",
+  cat("westMR | family: ", x$family,
+    " | G: ", paste(x$G_values, collapse = ","),
+    " | procedure: ", x$procedure, "\n\n",
     sep = ""
   )
 
@@ -537,9 +537,9 @@ summary.westMR <- function(object, ...) {
 #' fit <- westMR(y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3)
 #' print(summary(fit))
 print.summary.westMR <- function(x, ...) {
-  cat("westMR summary  |  family: ", x$family,
-    "  |  G: ", paste(x$G_values, collapse = ","),
-    "  |  procedure: ", x$procedure, "\n\n",
+  cat("westMR summary | family: ", x$family,
+    " | G: ", paste(x$G_values, collapse = ","),
+    " | procedure: ", x$procedure, "\n\n",
     sep = ""
   )
 
