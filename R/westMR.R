@@ -113,6 +113,8 @@ westMR <- function(
     on.exit({future::plan(old_plan)}, add = TRUE)
   }
 
+  formula <- stats::formula(stats::terms(formula, data = data))
+
   if (family == "binomial") {
     coerced <- coerce_binomial_formula(formula, data)
     formula <- coerced$formula
