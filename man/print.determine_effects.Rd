@@ -10,8 +10,8 @@
 \item{x}{An object of class \code{determine_effects}. This is produced
 internally by \code{determine_effects()}, and surfaces to users as the
 \code{effect_determination} component of the list returned by
-\code{\link{westMR}} whenever \code{procedure} includes \code{"effects"}
-(see \code{westMR}'s \strong{Value} section).}
+\code{\link{stepFMR}} whenever \code{procedure} includes \code{"effects"}
+(see \code{stepFMR}'s \strong{Value} section).}
 
 \item{...}{Currently unused.}
 }
@@ -43,10 +43,10 @@ y <- rnorm(n, mean = eta, sd = sigma[z])
 dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3)
 
 # x1 and x3's effects differ by group (heterogeneous); x2's does not
-fit <- westMR(y ~ x1 + x2 + x3, data = dat, G_max = 3, procedure = "effects")
+fit <- stepFMR(y ~ x1 + x2 + x3, data = dat, G_max = 3, procedure = "effects")
 # procedure = "effects" is what populates fit$effect_determination below
 print(fit$effect_determination)
 }
 \seealso{
-\code{\link{westMR}}, \code{\link{steps_table.determine_effects}}
+\code{\link{stepFMR}}, \code{\link{steps_table.determine_effects}}
 }

@@ -7,7 +7,7 @@
 #' \code{control$max_iter} is reached. \code{em_state} is mutated in place
 #' over the course of the iterations.
 #'
-#' @param prepared_data A \code{WMRData} object (from \code{prepare_data()}).
+#' @param prepared_data A \code{FMRData} object (from \code{prepare_data()}).
 #' @param G An integer number of mixture components.
 #' @param em_state An \code{EmState} object holding the initial (and,
 #'   afterward, final) EM state.

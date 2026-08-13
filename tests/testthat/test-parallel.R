@@ -6,18 +6,18 @@ test_data <- do.call(
   )
 )$data
 
-test_that("westMR runs without error with control$parallel = TRUE", {
+test_that("stepFMR runs without error with control$parallel = TRUE", {
   expect_no_error(
-    westMR(formula(test_data), test_data,
+    stepFMR(formula(test_data), test_data,
       control = build_control(parallel = TRUE)
     )
   )
 })
 
-test_that("westMR runs without error with user specified plan", {
+test_that("stepFMR runs without error with user specified plan", {
   future::plan(future::multisession)
   expect_no_error(
-    westMR(formula(test_data), test_data)
+    stepFMR(formula(test_data), test_data)
   )
   future::plan(future::sequential)
 })

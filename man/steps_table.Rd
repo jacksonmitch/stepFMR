@@ -10,7 +10,7 @@ steps_table(x, ...)
 \item{x}{An object of class \code{determine_effects} or
 \code{select_variables}. These are exactly the \code{effect_determination}
 and \code{variable_selection} components of the list returned by
-\code{\link{westMR}} (present only when \code{procedure} included
+\code{\link{stepFMR}} (present only when \code{procedure} included
 \code{"effects"} or \code{"variables"}, respectively).}
 
 \item{...}{Currently unused.}
@@ -43,14 +43,14 @@ eta <- beta[z, "intercept"] + beta[z, "x1"] * x1 + beta[z, "x2"] * x2 +
 y <- rnorm(n, mean = eta, sd = sigma[z])
 dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3, x4 = x4)
 
-fit <- westMR(
+fit <- stepFMR(
   y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3, procedure = "variables"
 )
 # procedure = "variables" is what populates fit$variable_selection below
 steps_table(fit$variable_selection)
 }
 \seealso{
-\code{\link{westMR}}, whose \strong{Value} section documents
+\code{\link{stepFMR}}, whose \strong{Value} section documents
 where \code{variable_selection} and \code{effect_determination} come
 from.
 }

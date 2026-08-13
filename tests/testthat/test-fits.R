@@ -4,7 +4,7 @@ test_that("gaussian fits accurately", {
     c(scenarios$two_group_effects, list(n = 1000, seed = 1))
   )$data
 
-  model <- WMRModel$new(
+  model <- FMRModel$new(
     formula = y ~ x1 + x2 + x3,
     data = dat,
     G_values = 2,
@@ -41,7 +41,7 @@ test_that("poisson fits accurately", {
     c(scenarios$two_group_effects_poisson, list(n = 1500, seed = 2))
   )$data
 
-  model <- WMRModel$new(
+  model <- FMRModel$new(
     formula = y ~ x1 + x2 + x3,
     data = dat,
     G_values = 2,
@@ -75,7 +75,7 @@ test_that("binomial fits accurately", {
   )
   dat$data$.binom_size <- dat$size
 
-  model <- WMRModel$new(
+  model <- FMRModel$new(
     formula = y ~ x1 + x2 + x3,
     data = dat$data,
     G_values = 2,

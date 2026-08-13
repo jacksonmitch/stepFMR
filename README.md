@@ -1,23 +1,23 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# westMR
+# stepFMR
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/jacksonmitch/westMR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jacksonmitch/westMR/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/jacksonmitch/stepFMR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jacksonmitch/stepFMR/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of westMR is to …
+The goal of stepFMR is to …
 
 ## Installation
 
-You can install the development version of westMR from
+You can install the development version of stepFMR from
 [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("pak")
-pak::pak("jacksonmitch/westMR")
+pak::pak("jacksonmitch/stepFMR")
 ```
 
 ## Example
@@ -25,7 +25,7 @@ pak::pak("jacksonmitch/westMR")
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-library(westMR)
+library(stepFMR)
 ## basic example code
 ```
 

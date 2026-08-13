@@ -7,7 +7,7 @@
 #' against a shared baseline fit via \code{test_predictors()}, and the most
 #' eligible candidate (if any) is added (forward) or removed (backward).
 #'
-#' @param model A \code{WMRModel} object.
+#' @param model A \code{FMRModel} object.
 #' @param direction A character string, either \code{"forward"} or
 #'   \code{"backward"}, specifying the stepwise search direction.
 #' @param predictors A character vector of candidate predictor names to

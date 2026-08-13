@@ -6,9 +6,9 @@
 #' Constructs the heterogeneous and common design matrices for a given model
 #' specification from \code{model$formula}/\code{model$data}, and wraps them
 #' (with the response and, for binomial models, the binomial size) in a
-#' validated \code{WMRData} object.
+#' validated \code{FMRData} object.
 #'
-#' @param model A \code{WMRModel} object.
+#' @param model A \code{FMRModel} object.
 #' @param included A character vector of predictor names to include in the
 #'   design. Defaults to all predictors in \code{model}.
 #' @param common A character vector of predictor names, a subset of
@@ -16,7 +16,7 @@
 #'   heterogeneous design matrix). Defaults to \code{NULL} (all included
 #'   predictors are heterogeneous).
 #'
-#' @return A \code{WMRData} object.
+#' @return A \code{FMRData} object.
 #' @noRd
 prepare_data <- function(model, included = model$predictors, common = NULL) {
   mf <- model$mf
@@ -37,7 +37,7 @@ prepare_data <- function(model, included = model$predictors, common = NULL) {
     X_com <- matrix(numeric(0), nrow = length(y), ncol = 0)
   }
 
-  WMRData$new(y = y, X_het = X_het, X_com = X_com, binomial_size = binomial_size_vec)
+  FMRData$new(y = y, X_het = X_het, X_com = X_com, binomial_size = binomial_size_vec)
 }
 
 #' Validated Design-Matrix Container
@@ -55,10 +55,10 @@ prepare_data <- function(model, included = model$predictors, common = NULL) {
 #' @param X_com A numeric matrix, the common/homogeneous design matrix.
 #' @param binomial_size An optional numeric vector of binomial trial counts.
 #'
-#' @return A new \code{WMRData} object.
+#' @return A new \code{FMRData} object.
 #' @noRd
-WMRData <- R6::R6Class(
-  "WMRData",
+FMRData <- R6::R6Class(
+  "FMRData",
   private = list(
     .y = NULL,
     .X_het = NULL,
@@ -122,7 +122,7 @@ WMRData <- R6::R6Class(
     },
     print = function(...) {
       cat(
-        "<WMRData>  n =", self$n,
+        "<FMRData>  n =", self$n,
         " p_het =", self$p_het,
         " p_com =", self$p_com, "\n"
       )

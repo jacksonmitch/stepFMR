@@ -2,7 +2,7 @@
 % Please edit documentation in R/control.R
 \name{build_control}
 \alias{build_control}
-\title{Create a Control Object for westMR Models}
+\title{Create a Control Object for stepFMR Models}
 \usage{
 build_control(
   alpha = 0.05,
@@ -97,7 +97,7 @@ validated control arguments.
 }
 \description{
 Creates and validates a control object of tuning parameters for
-\code{westMR()}. Most users only need \code{alpha}, \code{direction}, and
+\code{stepFMR()}. Most users only need \code{alpha}, \code{direction}, and
 \code{max_iter}/\code{tol} (EM convergence). The remaining parameters govern
 initialization strategies, IRWLS loops, and numerical safeguards. They
 are available for tuning but the defaults are reasonable for most fits.

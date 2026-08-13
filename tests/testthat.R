@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(westMR)
+library(stepFMR)
 
-test_check("westMR")
+test_check("stepFMR")

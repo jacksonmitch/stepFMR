@@ -7,7 +7,7 @@ test_that("determine_effects", {
     )
   )$data
 
-  model <- WMRModel$new(
+  model <- FMRModel$new(
     formula = formula(test_data),
     data = test_data,
     G_values = 2,

@@ -1,7 +1,7 @@
-#' Container for One westMR Model Specification
+#' Container for One stepFMR Model Specification
 #'
 #' An R6 class holding the formula, data, candidate \code{G} values, family,
-#' and control settings for a \code{westMR} run. \code{predictors} and
+#' and control settings for a \code{stepFMR} run. \code{predictors} and
 #' \code{response} are derived from \code{formula} via active bindings and
 #' cannot be set directly.
 #'
@@ -15,11 +15,11 @@
 #'   If \code{control$sigma_floor} is \code{NULL}, it is set here to
 #'   \code{0.05 * sd(response)}.
 #'
-#' @return A new \code{WMRModel} object.
+#' @return A new \code{FMRModel} object.
 #' @importFrom R6 R6Class
 #' @noRd
-WMRModel <- R6::R6Class(
-  "WMRModel",
+FMRModel <- R6::R6Class(
+  "FMRModel",
   public = list(
     data = NULL,
     G_values = NULL,
@@ -56,7 +56,7 @@ WMRModel <- R6::R6Class(
     },
     print = function(...) {
       cat(
-        "<WMRModel>  formula =", format(self$formula),
+        "<FMRModel>  formula =", format(self$formula),
         " predictors =", paste(self$predictors, collapse = ", "),
         " G_values =", paste(self$G_values, collapse = ", "),
         " family =", self$family, "\n"

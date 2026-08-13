@@ -7,7 +7,7 @@
 #' (shared across mixture components). At each step, remaining predictors
 #' are tested against a shared baseline fit via \code{test_predictors()}.
 #'
-#' @param model A \code{WMRModel} object.
+#' @param model A \code{FMRModel} object.
 #' @param direction A character string, either \code{"forward"} or
 #'   \code{"backward"}, specifying the stepwise search direction.
 #' @param predictors A character vector of predictor names to test for

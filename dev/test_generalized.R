@@ -25,7 +25,7 @@ control_gauss <- build_control(
   verbose = FALSE
 )
 
-model_gauss <- WMRModel$new(
+model_gauss <- FMRModel$new(
   formula = y ~ x1 + x2,
   data = dat_gauss,
   G_values = G_values,
@@ -92,7 +92,7 @@ control_pois <- build_control(
   verbose = FALSE
 )
 
-model_pois <- WMRModel$new(
+model_pois <- FMRModel$new(
   formula = y ~ x1 + x2,
   data = dat_pois,
   G_values = G_values,
@@ -180,7 +180,7 @@ control_bin <- build_control(
   verbose = FALSE
 )
 
-model_bin <- WMRModel$new(
+model_bin <- FMRModel$new(
   formula = y ~ x1 + x2,
   data = dat_bin_grouped,
   G_values = G_values,

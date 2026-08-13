@@ -1,6 +1,6 @@
 ^renv$
 ^renv\.lock$
-^westMR\.Rproj$
+^stepFMR\.Rproj$
 ^\.Rproj\.user$
 ^\.positai$
 ^\.claude$

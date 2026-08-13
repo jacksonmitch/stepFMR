@@ -15,13 +15,13 @@
 #' combined into a single BIC-weighted p-value used for the stepwise
 #' eligibility decision.
 #'
-#' @param model A \code{WMRModel} object.
+#' @param model A \code{FMRModel} object.
 #' @param direction A character string, either \code{"forward"} or
 #'   \code{"backward"}, determining whether \code{shared_fits} plays the
 #'   role of the null or the alternative model in the likelihood ratio test.
 #' @param shared_fits A list of \code{fit_fmr} objects (one per value in
 #'   \code{model$G_values}) for the shared/baseline model.
-#' @param candidate_data A \code{WMRData} object (from \code{prepare_data()})
+#' @param candidate_data A \code{FMRData} object (from \code{prepare_data()})
 #'   for the candidate predictor's model specification.
 #'
 #' @return A list of class \code{west_procedure} with elements: \code{p0}

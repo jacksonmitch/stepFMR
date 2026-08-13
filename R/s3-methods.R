@@ -9,12 +9,12 @@
 #' @param x An object of class \code{select_variables}. This is produced
 #'   internally by \code{select_variables()}, and surfaces to users as the
 #'   \code{variable_selection} component of the list returned by
-#'   \code{\link{westMR}} whenever \code{procedure} includes \code{"variables"}
-#'   (see \code{westMR}'s \strong{Value} section).
+#'   \code{\link{stepFMR}} whenever \code{procedure} includes \code{"variables"}
+#'   (see \code{stepFMR}'s \strong{Value} section).
 #' @param ... Currently unused.
 #'
 #' @return \code{x}, invisibly.
-#' @seealso \code{\link{westMR}}, \code{\link{steps_table.select_variables}}
+#' @seealso \code{\link{stepFMR}}, \code{\link{steps_table.select_variables}}
 #' @export
 #'
 #' @examples
@@ -38,7 +38,7 @@
 #' dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3, x4 = x4)
 #'
 #' # x4 has no true effect and should be dropped during selection
-#' fit <- westMR(
+#' fit <- stepFMR(
 #'   y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3, procedure = "variables"
 #' )
 #' # procedure = "variables" is what populates fit$variable_selection below
@@ -65,12 +65,12 @@ print.select_variables <- function(x, ...) {
 #' @param x An object of class \code{determine_effects}. This is produced
 #'   internally by \code{determine_effects()}, and surfaces to users as the
 #'   \code{effect_determination} component of the list returned by
-#'   \code{\link{westMR}} whenever \code{procedure} includes \code{"effects"}
-#'   (see \code{westMR}'s \strong{Value} section).
+#'   \code{\link{stepFMR}} whenever \code{procedure} includes \code{"effects"}
+#'   (see \code{stepFMR}'s \strong{Value} section).
 #' @param ... Currently unused.
 #'
 #' @return \code{x}, invisibly.
-#' @seealso \code{\link{westMR}}, \code{\link{steps_table.determine_effects}}
+#' @seealso \code{\link{stepFMR}}, \code{\link{steps_table.determine_effects}}
 #' @export
 #'
 #' @examples
@@ -93,7 +93,7 @@ print.select_variables <- function(x, ...) {
 #' dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3)
 #'
 #' # x1 and x3's effects differ by group (heterogeneous); x2's does not
-#' fit <- westMR(y ~ x1 + x2 + x3, data = dat, G_max = 3, procedure = "effects")
+#' fit <- stepFMR(y ~ x1 + x2 + x3, data = dat, G_max = 3, procedure = "effects")
 #' # procedure = "effects" is what populates fit$effect_determination below
 #' print(fit$effect_determination)
 print.determine_effects <- function(x, ...) {
@@ -119,12 +119,12 @@ print.determine_effects <- function(x, ...) {
 #' @param x An object of class \code{determine_effects} or
 #'   \code{select_variables}. These are exactly the \code{effect_determination}
 #'   and \code{variable_selection} components of the list returned by
-#'   \code{\link{westMR}} (present only when \code{procedure} included
+#'   \code{\link{stepFMR}} (present only when \code{procedure} included
 #'   \code{"effects"} or \code{"variables"}, respectively).
 #' @param ... Currently unused.
 #'
 #' @return \code{x}, invisibly.
-#' @seealso \code{\link{westMR}}, whose \strong{Value} section documents
+#' @seealso \code{\link{stepFMR}}, whose \strong{Value} section documents
 #'   where \code{variable_selection} and \code{effect_determination} come
 #'   from.
 #' @export
@@ -149,7 +149,7 @@ print.determine_effects <- function(x, ...) {
 #' y <- rnorm(n, mean = eta, sd = sigma[z])
 #' dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3, x4 = x4)
 #'
-#' fit <- westMR(
+#' fit <- stepFMR(
 #'   y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3, procedure = "variables"
 #' )
 #' # procedure = "variables" is what populates fit$variable_selection below
@@ -165,12 +165,12 @@ steps_table <- function(x, ...) UseMethod("steps_table")
 #' @param x An object of class \code{determine_effects}. This is produced
 #'   internally by \code{determine_effects()}, and surfaces to users as the
 #'   \code{effect_determination} component of the list returned by
-#'   \code{\link{westMR}} whenever \code{procedure} includes \code{"effects"}
-#'   (see \code{westMR}'s \strong{Value} section).
+#'   \code{\link{stepFMR}} whenever \code{procedure} includes \code{"effects"}
+#'   (see \code{stepFMR}'s \strong{Value} section).
 #' @param ... Currently unused.
 #'
 #' @return \code{x}, invisibly.
-#' @seealso \code{\link{westMR}}
+#' @seealso \code{\link{stepFMR}}
 #' @export
 #'
 #' @examples
@@ -192,7 +192,7 @@ steps_table <- function(x, ...) UseMethod("steps_table")
 #' y <- rnorm(n, mean = eta, sd = sigma[z])
 #' dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3)
 #'
-#' fit <- westMR(y ~ x1 + x2 + x3, data = dat, G_max = 3, procedure = "effects")
+#' fit <- stepFMR(y ~ x1 + x2 + x3, data = dat, G_max = 3, procedure = "effects")
 #' # procedure = "effects" is what populates fit$effect_determination below
 #' steps_table(fit$effect_determination)
 steps_table.determine_effects <- function(x, ...) {
@@ -223,12 +223,12 @@ steps_table.determine_effects <- function(x, ...) {
 #' @param x An object of class \code{select_variables}. This is produced
 #'   internally by \code{select_variables()}, and surfaces to users as the
 #'   \code{variable_selection} component of the list returned by
-#'   \code{\link{westMR}} whenever \code{procedure} includes \code{"variables"}
-#'   (see \code{westMR}'s \strong{Value} section).
+#'   \code{\link{stepFMR}} whenever \code{procedure} includes \code{"variables"}
+#'   (see \code{stepFMR}'s \strong{Value} section).
 #' @param ... Currently unused.
 #'
 #' @return \code{x}, invisibly.
-#' @seealso \code{\link{westMR}}
+#' @seealso \code{\link{stepFMR}}
 #' @export
 #'
 #' @examples
@@ -251,7 +251,7 @@ steps_table.determine_effects <- function(x, ...) {
 #' y <- rnorm(n, mean = eta, sd = sigma[z])
 #' dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3, x4 = x4)
 #'
-#' fit <- westMR(
+#' fit <- stepFMR(
 #'   y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3, procedure = "variables"
 #' )
 #' # procedure = "variables" is what populates fit$variable_selection below
@@ -315,12 +315,12 @@ print_steps <- function(steps, all_predictors, direction, label_state) {
 #' @param x An object of class \code{fit_fmr}. This is produced internally
 #'   while fitting each candidate number of components, and surfaces to
 #'   users as the \code{best_fit} component of the list returned by
-#'   \code{\link{westMR}} (always present, regardless of \code{procedure}; see
-#'   \code{westMR}'s \strong{Value} section).
+#'   \code{\link{stepFMR}} (always present, regardless of \code{procedure}; see
+#'   \code{stepFMR}'s \strong{Value} section).
 #' @param ... Currently unused.
 #'
 #' @return \code{x}, invisibly.
-#' @seealso \code{\link{westMR}}
+#' @seealso \code{\link{stepFMR}}
 #' @export
 #'
 #' @examples
@@ -343,7 +343,7 @@ print_steps <- function(steps, all_predictors, direction, label_state) {
 #' y <- rnorm(n, mean = eta, sd = sigma[z])
 #' dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3, x4 = x4)
 #'
-#' fit <- westMR(
+#' fit <- stepFMR(
 #'   y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3, procedure = "variables"
 #' )
 #' # fit$best_fit is always populated, at the BIC-optimal G
@@ -376,17 +376,17 @@ print.fit_fmr <- function(x, ...) {
   invisible(x)
 }
 
-# ---- westMR -----------------------------------------------------------------
+# ---- stepFMR -----------------------------------------------------------------
 
-#' Print a westMR Result
+#' Print a stepFMR Result
 #'
-#' Prints a top-level summary of a \code{\link{westMR}} fit: the family, the
+#' Prints a top-level summary of a \code{\link{stepFMR}} fit: the family, the
 #' candidate \code{G} values, and which procedure(s) were run, followed by the
 #' variable-selection result (if run), the effect-determination result (if
 #' run), and the best fit.
 #'
-#' @param x An object of class \code{westMR}, as returned by
-#'   \code{\link{westMR}}.
+#' @param x An object of class \code{stepFMR}, as returned by
+#'   \code{\link{stepFMR}}.
 #' @param ... Currently unused.
 #'
 #' @return \code{x}, invisibly.
@@ -412,10 +412,10 @@ print.fit_fmr <- function(x, ...) {
 #' y <- rnorm(n, mean = eta, sd = sigma[z])
 #' dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3, x4 = x4)
 #'
-#' fit <- westMR(y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3)
+#' fit <- stepFMR(y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3)
 #' print(fit)
-print.westMR <- function(x, ...) {
-  cat("westMR | family: ", x$family,
+print.stepFMR <- function(x, ...) {
+  cat("stepFMR | family: ", x$family,
     " | G: ", paste(x$G_values, collapse = ","),
     " | procedure: ", x$procedure, "\n\n",
     sep = ""
@@ -444,18 +444,18 @@ print.westMR <- function(x, ...) {
   invisible(x)
 }
 
-#' Summarize a westMR Result
+#' Summarize a stepFMR Result
 #'
 #' Collects the call, formula, family, procedure, candidate \code{G} values, best
 #' fit, and (if run) the variable-selection and effect-determination results
-#' and their step-by-step tables into a single \code{summary.westMR} object
+#' and their step-by-step tables into a single \code{summary.stepFMR} object
 #' for printing.
 #'
-#' @param object An object of class \code{westMR}, as returned by
-#'   \code{\link{westMR}}.
+#' @param object An object of class \code{stepFMR}, as returned by
+#'   \code{\link{stepFMR}}.
 #' @param ... Currently unused.
 #'
-#' @return An object of class \code{summary.westMR}: a list containing the
+#' @return An object of class \code{summary.stepFMR}: a list containing the
 #'   call, formula, family, procedure, candidate \code{G} values, the best fit,
 #'   the variable-selection and effect-determination results (if run), and
 #'   their step-by-step tables.
@@ -481,9 +481,9 @@ print.westMR <- function(x, ...) {
 #' y <- rnorm(n, mean = eta, sd = sigma[z])
 #' dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3, x4 = x4)
 #'
-#' fit <- westMR(y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3)
+#' fit <- stepFMR(y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3)
 #' summary(fit)
-summary.westMR <- function(object, ...) {
+summary.stepFMR <- function(object, ...) {
   out <- list(
     call = object$call,
     formula = object$formula,
@@ -497,18 +497,18 @@ summary.westMR <- function(object, ...) {
     effect_determination = object$effect_determination,
     effect_steps = object$effect_determination$steps
   )
-  class(out) <- "summary.westMR"
+  class(out) <- "summary.stepFMR"
   out
 }
 
-#' Print a westMR Summary
+#' Print a stepFMR Summary
 #'
-#' Prints the top-level summary produced by \code{\link{summary.westMR}},
+#' Prints the top-level summary produced by \code{\link{summary.stepFMR}},
 #' including the step-by-step tables for the variable-selection and
 #' effect-determination searches (if run), and the best fit.
 #'
-#' @param x An object of class \code{summary.westMR}, as returned by
-#'   \code{\link{summary.westMR}}.
+#' @param x An object of class \code{summary.stepFMR}, as returned by
+#'   \code{\link{summary.stepFMR}}.
 #' @param ... Currently unused.
 #'
 #' @return \code{x}, invisibly.
@@ -534,10 +534,10 @@ summary.westMR <- function(object, ...) {
 #' y <- rnorm(n, mean = eta, sd = sigma[z])
 #' dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3, x4 = x4)
 #'
-#' fit <- westMR(y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3)
+#' fit <- stepFMR(y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3)
 #' print(summary(fit))
-print.summary.westMR <- function(x, ...) {
-  cat("westMR summary | family: ", x$family,
+print.summary.stepFMR <- function(x, ...) {
+  cat("stepFMR summary | family: ", x$family,
     " | G: ", paste(x$G_values, collapse = ","),
     " | procedure: ", x$procedure, "\n\n",
     sep = ""

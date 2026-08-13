@@ -9,7 +9,7 @@
 #' \code{west_procedure()}, and either adopts the most eligible candidate or
 #' stops.
 #'
-#' @param model A \code{WMRModel} object.
+#' @param model A \code{FMRModel} object.
 #' @param predictors A character vector of all candidate predictor names
 #'   under consideration.
 #' @param included A character vector of predictor names currently included

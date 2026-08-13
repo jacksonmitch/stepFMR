@@ -1,7 +1,7 @@
-#' Create a Control Object for westMR Models
+#' Create a Control Object for stepFMR Models
 #'
 #' Creates and validates a control object of tuning parameters for
-#' \code{westMR()}. Most users only need \code{alpha}, \code{direction}, and
+#' \code{stepFMR()}. Most users only need \code{alpha}, \code{direction}, and
 #' \code{max_iter}/\code{tol} (EM convergence). The remaining parameters govern
 #' initialization strategies, IRWLS loops, and numerical safeguards. They
 #' are available for tuning but the defaults are reasonable for most fits.

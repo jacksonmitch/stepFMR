@@ -3,7 +3,7 @@ test_data <- do.call(
   c(scenarios$two_group_effects, list(n = 300, seed = 1))
 )$data
 
-model <- WMRModel$new(
+model <- FMRModel$new(
   formula = formula(test_data),
   data = test_data,
   G_values = 2:3,

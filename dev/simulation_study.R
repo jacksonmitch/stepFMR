@@ -44,7 +44,7 @@ run_replications <- function(params, n, control = build_control(), verbose = TRU
 run_one_replication <- function(rep_id, sim_data, params, G_max, control = build_control()) {
   t0 <- Sys.time()
   fit <- tryCatch(
-    westMR(
+    stepFMR(
       formula = sim_data$formula,
       data = sim_data$data,
       G_max = G_max,

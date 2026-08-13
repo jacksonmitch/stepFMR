@@ -33,11 +33,11 @@ fit_across_G <- function(model, prepared_data, init_lists = NULL) {
 #' \code{select_best_initialization()}, then runs \code{em_fmr()} to
 #' convergence from that state.
 #'
-#' @param model A \code{WMRModel} object.
+#' @param model A \code{FMRModel} object.
 #' @param G A list of the integer number of mixture components.
 #' @param init_list A named list of candidate \code{tau} initialization
 #'   matrices (n x G), as produced by \code{make_tau_list()}.
-#' @param prepared_data A \code{WMRData} object (from \code{prepare_data()})
+#' @param prepared_data A \code{FMRData} object (from \code{prepare_data()})
 #'   for this model specification.
 #'
 #' @return A list of class \code{fit_fmr} with elements including
