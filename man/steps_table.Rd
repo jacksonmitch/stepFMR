@@ -24,28 +24,15 @@ chosen at each iteration of a stepwise search. Dispatches on the class of
 \code{x} (\code{select_variables} or \code{determine_effects}).
 }
 \examples{
-set.seed(1)
-n <- 500
 pi <- c(0.2, 0.3, 0.5)
-z <- sample(1:3, n, replace = TRUE, prob = pi)
-x1 <- rnorm(n)
-x2 <- rnorm(n)
-x3 <- rnorm(n)
-x4 <- rnorm(n)
 sigma <- c(1, 0.5, 2)
-beta <- rbind(
-  g1 = c(intercept = -4, x1 = -3, x2 = 1.5, x3 = 2, x4 = 0),
-  g2 = c(intercept = 0, x1 = 1, x2 = 1.5, x3 = -1, x4 = 0),
-  g3 = c(intercept = 4, x1 = 3, x2 = 1.5, x3 = 0.5, x4 = 0)
+betas <- rbind(
+  c(-4, -3, 1.5, 2, 0),
+  c(0, 1, 1.5, -1, 0),
+  c(4, 3, 1.5, 0.5, 0)
 )
-eta <- beta[z, "intercept"] + beta[z, "x1"] * x1 + beta[z, "x2"] * x2 +
-  beta[z, "x3"] * x3 + beta[z, "x4"] * x4
-y <- rnorm(n, mean = eta, sd = sigma[z])
-dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3, x4 = x4)
-
-fit <- stepFMR(
-  y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3, procedure = "variables"
-)
+sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
+fit <- stepFMR(sim$formula, sim$data, G_max = 3, procedure = "variables")
 # procedure = "variables" is what populates fit$variable_selection below
 steps_table(fit$variable_selection)
 }

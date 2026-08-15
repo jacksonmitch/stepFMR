@@ -24,25 +24,15 @@ state, every candidate's weighted p-value, and which candidate (if any)
 was chosen.
 }
 \examples{
-set.seed(1)
-n <- 500
 pi <- c(0.2, 0.3, 0.5)
-z <- sample(1:3, n, replace = TRUE, prob = pi)
-x1 <- rnorm(n)
-x2 <- rnorm(n)
-x3 <- rnorm(n)
 sigma <- c(1, 0.5, 2)
-beta <- rbind(
-  g1 = c(intercept = -4, x1 = -3, x2 = 1.5, x3 = 2),
-  g2 = c(intercept = 0, x1 = 1, x2 = 1.5, x3 = -1),
-  g3 = c(intercept = 4, x1 = 3, x2 = 1.5, x3 = 0.5)
+betas <- rbind(
+  c(-4, -3, 1.5, 2),
+  c(0, 1, 1.5, -1),
+  c(4, 3, 1.5, 0.5)
 )
-eta <- beta[z, "intercept"] + beta[z, "x1"] * x1 + beta[z, "x2"] * x2 +
-  beta[z, "x3"] * x3
-y <- rnorm(n, mean = eta, sd = sigma[z])
-dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3)
-
-fit <- stepFMR(y ~ x1 + x2 + x3, data = dat, G_max = 3, procedure = "effects")
+sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
+fit <- stepFMR(sim$formula, sim$data, G_max = 3, procedure = "effects")
 # procedure = "effects" is what populates fit$effect_determination below
 steps_table(fit$effect_determination)
 }

@@ -32,7 +32,9 @@ prepare_data <- function(model, included = model$predictors, common = NULL) {
   X_het <- stats::model.matrix(het_formula, data = mf)
 
   if (length(common) > 0) {
-    X_com <- stats::model.matrix(stats::as.formula(paste("~", paste(common, collapse = " + "), "- 1")), data = mf)
+    X_com <- stats::model.matrix(
+      stats::as.formula(paste("~", paste(common, collapse = " + "), "- 1")), 
+      data = mf)
   } else {
     X_com <- matrix(numeric(0), nrow = length(y), ncol = 0)
   }

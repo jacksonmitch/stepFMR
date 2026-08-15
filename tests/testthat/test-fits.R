@@ -1,12 +1,12 @@
 test_that("gaussian fits accurately", {
-  dat <- do.call(
+  sim <- do.call(
     simulate_fmr,
     c(scenarios$two_group_effects, list(n = 1000, seed = 1))
-  )$data
+  )
 
   model <- FMRModel$new(
-    formula = y ~ x1 + x2 + x3,
-    data = dat,
+    formula = sim$formula,
+    data = sim$data,
     G_values = 2,
     family = "gaussian",
     control = build_control(n_init = 5, n_kmeans_init = 2, max_iter = 200)
@@ -17,13 +17,14 @@ test_that("gaussian fits accurately", {
 
   expect_true(fit$converged)
 
+  fit <- match_groups(fit, sim$true_group)
   em_values <- fit$parameter_values
   true_betas <- scenarios$two_group_effects$betas
 
-  het_truth <- unname(true_betas[, c("Intercept", "x1")])
-  perm <- match_group_order(em_values$beta_g, het_truth)
+  het_truth <- unname(true_betas[, c("(Intercept)", "x1")])
+  print(em_values$beta_g)
+  fitted_het <- unname(em_values$beta_g[, c("(Intercept)", "x1")])
 
-  fitted_het <- unname(em_values$beta_g[perm, , drop = FALSE])
   fitted_common <- unname(em_values$beta)
   common_truth <- unname(true_betas["g1", c("x2", "x3")])
 
@@ -36,14 +37,14 @@ test_that("gaussian fits accurately", {
 })
 
 test_that("poisson fits accurately", {
-  dat <- do.call(
+  sim <- do.call(
     simulate_fmr,
     c(scenarios$two_group_effects_poisson, list(n = 1500, seed = 2))
-  )$data
+  )
 
   model <- FMRModel$new(
-    formula = y ~ x1 + x2 + x3,
-    data = dat,
+    formula = sim$formula,
+    data = sim$data,
     G_values = 2,
     family = "poisson",
     control = build_control(n_init = 5, n_kmeans_init = 2, max_iter = 200)
@@ -54,13 +55,13 @@ test_that("poisson fits accurately", {
 
   expect_true(fit$converged)
 
+  fit <- match_groups(fit, sim$true_group)
   em_values <- fit$parameter_values
   true_betas <- scenarios$two_group_effects_poisson$betas
 
-  het_truth <- unname(true_betas[, c("Intercept", "x1")])
-  perm <- match_group_order(em_values$beta_g, het_truth)
+  het_truth <- unname(true_betas[, c("(Intercept)", "x1")])
+  fitted_het <- unname(em_values$beta_g[, c("(Intercept)", "x1")])
 
-  fitted_het <- unname(em_values$beta_g[perm, , drop = FALSE])
   fitted_common <- unname(em_values$beta)
   common_truth <- unname(true_betas["g1", c("x2", "x3")])
 
@@ -69,15 +70,15 @@ test_that("poisson fits accurately", {
 })
 
 test_that("binomial fits accurately", {
-  dat <- do.call(
+  sim <- do.call(
     simulate_fmr,
     c(scenarios$two_group_effects_binomial, list(n = 1500, seed = 3))
   )
-  dat$data$.binom_size <- dat$size
+  fixed <- coerce_binomial_formula(sim$formula, sim$data)
 
   model <- FMRModel$new(
-    formula = y ~ x1 + x2 + x3,
-    data = dat$data,
+    formula = fixed$formula,
+    data = fixed$data,
     G_values = 2,
     family = "binomial",
     control = build_control(n_init = 5, n_kmeans_init = 2, max_iter = 200)
@@ -88,13 +89,13 @@ test_that("binomial fits accurately", {
 
   expect_true(fit$converged)
 
+  fit <- match_groups(fit, sim$true_group)
   em_values <- fit$parameter_values
   true_betas <- scenarios$two_group_effects_binomial$betas
 
-  het_truth <- unname(true_betas[, c("Intercept", "x1")])
-  perm <- match_group_order(em_values$beta_g, het_truth)
+  het_truth <- unname(true_betas[, c("(Intercept)", "x1")])
+  fitted_het <- unname(em_values$beta_g[, c("(Intercept)", "x1")])
 
-  fitted_het <- unname(em_values$beta_g[perm, , drop = FALSE])
   fitted_common <- unname(em_values$beta)
   common_truth <- unname(true_betas["g1", c("x2", "x3")])
 

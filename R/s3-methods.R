@@ -18,29 +18,15 @@
 #' @export
 #'
 #' @examples
-#' set.seed(1)
-#' n <- 500
+#' betas <- rbind(
+#'   c(-4, -3, 1.5, 2, 0),
+#'   c(0, 1, 1.5, -1, 0),
+#'   c(4, 3, 1.5, 0.5, 0)
+#' )
 #' pi <- c(0.2, 0.3, 0.5)
-#' z <- sample(1:3, n, replace = TRUE, prob = pi)
-#' x1 <- rnorm(n)
-#' x2 <- rnorm(n)
-#' x3 <- rnorm(n)
-#' x4 <- rnorm(n)
 #' sigma <- c(1, 0.5, 2)
-#' beta <- rbind(
-#'   g1 = c(intercept = -4, x1 = -3, x2 = 1.5, x3 = 2, x4 = 0),
-#'   g2 = c(intercept = 0, x1 = 1, x2 = 1.5, x3 = -1, x4 = 0),
-#'   g3 = c(intercept = 4, x1 = 3, x2 = 1.5, x3 = 0.5, x4 = 0)
-#' )
-#' eta <- beta[z, "intercept"] + beta[z, "x1"] * x1 + beta[z, "x2"] * x2 +
-#'   beta[z, "x3"] * x3 + beta[z, "x4"] * x4
-#' y <- rnorm(n, mean = eta, sd = sigma[z])
-#' dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3, x4 = x4)
-#'
-#' # x4 has no true effect and should be dropped during selection
-#' fit <- stepFMR(
-#'   y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3, procedure = "variables"
-#' )
+#' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
+#' fit <- stepFMR(sim$formula, sim$data, G_max = 3, procedure = "variables")
 #' # procedure = "variables" is what populates fit$variable_selection below
 #' print(fit$variable_selection)
 print.select_variables <- function(x, ...) {
@@ -74,26 +60,15 @@ print.select_variables <- function(x, ...) {
 #' @export
 #'
 #' @examples
-#' set.seed(1)
-#' n <- 500
 #' pi <- c(0.2, 0.3, 0.5)
-#' z <- sample(1:3, n, replace = TRUE, prob = pi)
-#' x1 <- rnorm(n)
-#' x2 <- rnorm(n)
-#' x3 <- rnorm(n)
 #' sigma <- c(1, 0.5, 2)
-#' beta <- rbind(
-#'   g1 = c(intercept = -4, x1 = -3, x2 = 1.5, x3 = 2),
-#'   g2 = c(intercept = 0, x1 = 1, x2 = 1.5, x3 = -1),
-#'   g3 = c(intercept = 4, x1 = 3, x2 = 1.5, x3 = 0.5)
+#' betas <- rbind(
+#'   c(-4, -3, 1.5, 2),
+#'   c(0, 1, 1.5, -1),
+#'   c(4, 3, 1.5, 0.5)
 #' )
-#' eta <- beta[z, "intercept"] + beta[z, "x1"] * x1 + beta[z, "x2"] * x2 +
-#'   beta[z, "x3"] * x3
-#' y <- rnorm(n, mean = eta, sd = sigma[z])
-#' dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3)
-#'
-#' # x1 and x3's effects differ by group (heterogeneous); x2's does not
-#' fit <- stepFMR(y ~ x1 + x2 + x3, data = dat, G_max = 3, procedure = "effects")
+#' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
+#' fit <- stepFMR(sim$formula, sim$data, G_max = 3, procedure = "effects")
 #' # procedure = "effects" is what populates fit$effect_determination below
 #' print(fit$effect_determination)
 print.determine_effects <- function(x, ...) {
@@ -130,28 +105,15 @@ print.determine_effects <- function(x, ...) {
 #' @export
 #'
 #' @examples
-#' set.seed(1)
-#' n <- 500
 #' pi <- c(0.2, 0.3, 0.5)
-#' z <- sample(1:3, n, replace = TRUE, prob = pi)
-#' x1 <- rnorm(n)
-#' x2 <- rnorm(n)
-#' x3 <- rnorm(n)
-#' x4 <- rnorm(n)
 #' sigma <- c(1, 0.5, 2)
-#' beta <- rbind(
-#'   g1 = c(intercept = -4, x1 = -3, x2 = 1.5, x3 = 2, x4 = 0),
-#'   g2 = c(intercept = 0, x1 = 1, x2 = 1.5, x3 = -1, x4 = 0),
-#'   g3 = c(intercept = 4, x1 = 3, x2 = 1.5, x3 = 0.5, x4 = 0)
+#' betas <- rbind(
+#'   c(-4, -3, 1.5, 2, 0),
+#'   c(0, 1, 1.5, -1, 0),
+#'   c(4, 3, 1.5, 0.5, 0)
 #' )
-#' eta <- beta[z, "intercept"] + beta[z, "x1"] * x1 + beta[z, "x2"] * x2 +
-#'   beta[z, "x3"] * x3 + beta[z, "x4"] * x4
-#' y <- rnorm(n, mean = eta, sd = sigma[z])
-#' dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3, x4 = x4)
-#'
-#' fit <- stepFMR(
-#'   y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3, procedure = "variables"
-#' )
+#' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
+#' fit <- stepFMR(sim$formula, sim$data, G_max = 3, procedure = "variables")
 #' # procedure = "variables" is what populates fit$variable_selection below
 #' steps_table(fit$variable_selection)
 steps_table <- function(x, ...) UseMethod("steps_table")
@@ -174,25 +136,15 @@ steps_table <- function(x, ...) UseMethod("steps_table")
 #' @export
 #'
 #' @examples
-#' set.seed(1)
-#' n <- 500
 #' pi <- c(0.2, 0.3, 0.5)
-#' z <- sample(1:3, n, replace = TRUE, prob = pi)
-#' x1 <- rnorm(n)
-#' x2 <- rnorm(n)
-#' x3 <- rnorm(n)
 #' sigma <- c(1, 0.5, 2)
-#' beta <- rbind(
-#'   g1 = c(intercept = -4, x1 = -3, x2 = 1.5, x3 = 2),
-#'   g2 = c(intercept = 0, x1 = 1, x2 = 1.5, x3 = -1),
-#'   g3 = c(intercept = 4, x1 = 3, x2 = 1.5, x3 = 0.5)
+#' betas <- rbind(
+#'   c(-4, -3, 1.5, 2),
+#'   c(0, 1, 1.5, -1),
+#'   c(4, 3, 1.5, 0.5)
 #' )
-#' eta <- beta[z, "intercept"] + beta[z, "x1"] * x1 + beta[z, "x2"] * x2 +
-#'   beta[z, "x3"] * x3
-#' y <- rnorm(n, mean = eta, sd = sigma[z])
-#' dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3)
-#'
-#' fit <- stepFMR(y ~ x1 + x2 + x3, data = dat, G_max = 3, procedure = "effects")
+#' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
+#' fit <- stepFMR(sim$formula, sim$data, G_max = 3, procedure = "effects")
 #' # procedure = "effects" is what populates fit$effect_determination below
 #' steps_table(fit$effect_determination)
 steps_table.determine_effects <- function(x, ...) {
@@ -232,28 +184,15 @@ steps_table.determine_effects <- function(x, ...) {
 #' @export
 #'
 #' @examples
-#' set.seed(1)
-#' n <- 500
 #' pi <- c(0.2, 0.3, 0.5)
-#' z <- sample(1:3, n, replace = TRUE, prob = pi)
-#' x1 <- rnorm(n)
-#' x2 <- rnorm(n)
-#' x3 <- rnorm(n)
-#' x4 <- rnorm(n)
 #' sigma <- c(1, 0.5, 2)
-#' beta <- rbind(
-#'   g1 = c(intercept = -4, x1 = -3, x2 = 1.5, x3 = 2, x4 = 0),
-#'   g2 = c(intercept = 0, x1 = 1, x2 = 1.5, x3 = -1, x4 = 0),
-#'   g3 = c(intercept = 4, x1 = 3, x2 = 1.5, x3 = 0.5, x4 = 0)
+#' betas <- rbind(
+#'   c(-4, -3, 1.5, 2, 0),
+#'   c(0, 1, 1.5, -1, 0),
+#'   c(4, 3, 1.5, 0.5, 0)
 #' )
-#' eta <- beta[z, "intercept"] + beta[z, "x1"] * x1 + beta[z, "x2"] * x2 +
-#'   beta[z, "x3"] * x3 + beta[z, "x4"] * x4
-#' y <- rnorm(n, mean = eta, sd = sigma[z])
-#' dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3, x4 = x4)
-#'
-#' fit <- stepFMR(
-#'   y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3, procedure = "variables"
-#' )
+#' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
+#' fit <- stepFMR(sim$formula, sim$data, G_max = 3, procedure = "variables")
 #' # procedure = "variables" is what populates fit$variable_selection below
 #' steps_table(fit$variable_selection)
 steps_table.select_variables <- function(x, ...) {
@@ -324,28 +263,15 @@ print_steps <- function(steps, all_predictors, direction, label_state) {
 #' @export
 #'
 #' @examples
-#' set.seed(1)
-#' n <- 500
 #' pi <- c(0.2, 0.3, 0.5)
-#' z <- sample(1:3, n, replace = TRUE, prob = pi)
-#' x1 <- rnorm(n)
-#' x2 <- rnorm(n)
-#' x3 <- rnorm(n)
-#' x4 <- rnorm(n)
 #' sigma <- c(1, 0.5, 2)
-#' beta <- rbind(
-#'   g1 = c(intercept = -4, x1 = -3, x2 = 1.5, x3 = 2, x4 = 0),
-#'   g2 = c(intercept = 0, x1 = 1, x2 = 1.5, x3 = -1, x4 = 0),
-#'   g3 = c(intercept = 4, x1 = 3, x2 = 1.5, x3 = 0.5, x4 = 0)
+#' betas <- rbind(
+#'   c(-4, -3, 1.5, 2, 0),
+#'   c(0, 1, 1.5, -1, 0),
+#'   c(4, 3, 1.5, 0.5, 0)
 #' )
-#' eta <- beta[z, "intercept"] + beta[z, "x1"] * x1 + beta[z, "x2"] * x2 +
-#'   beta[z, "x3"] * x3 + beta[z, "x4"] * x4
-#' y <- rnorm(n, mean = eta, sd = sigma[z])
-#' dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3, x4 = x4)
-#'
-#' fit <- stepFMR(
-#'   y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3, procedure = "variables"
-#' )
+#' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
+#' fit <- stepFMR(sim$formula, sim$data, G_max = 3)
 #' # fit$best_fit is always populated, at the BIC-optimal G
 #' print(fit$best_fit)
 print.fit_fmr <- function(x, ...) {
@@ -393,26 +319,15 @@ print.fit_fmr <- function(x, ...) {
 #' @export
 #'
 #' @examples
-#' set.seed(1)
-#' n <- 500
 #' pi <- c(0.2, 0.3, 0.5)
-#' z <- sample(1:3, n, replace = TRUE, prob = pi)
-#' x1 <- rnorm(n)
-#' x2 <- rnorm(n)
-#' x3 <- rnorm(n)
-#' x4 <- rnorm(n)
 #' sigma <- c(1, 0.5, 2)
-#' beta <- rbind(
-#'   g1 = c(intercept = -4, x1 = -3, x2 = 1.5, x3 = 2, x4 = 0),
-#'   g2 = c(intercept = 0, x1 = 1, x2 = 1.5, x3 = -1, x4 = 0),
-#'   g3 = c(intercept = 4, x1 = 3, x2 = 1.5, x3 = 0.5, x4 = 0)
+#' betas <- rbind(
+#'   c(-4, -3, 1.5, 2, 0),
+#'   c(0, 1, 1.5, -1, 0),
+#'   c(4, 3, 1.5, 0.5, 0)
 #' )
-#' eta <- beta[z, "intercept"] + beta[z, "x1"] * x1 + beta[z, "x2"] * x2 +
-#'   beta[z, "x3"] * x3 + beta[z, "x4"] * x4
-#' y <- rnorm(n, mean = eta, sd = sigma[z])
-#' dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3, x4 = x4)
-#'
-#' fit <- stepFMR(y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3)
+#' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
+#' fit <- stepFMR(sim$formula, sim$data, G_max = 3)
 #' print(fit)
 print.stepFMR <- function(x, ...) {
   cat("stepFMR | family: ", x$family,
@@ -462,27 +377,16 @@ print.stepFMR <- function(x, ...) {
 #' @export
 #'
 #' @examples
-#' set.seed(1)
-#' n <- 500
 #' pi <- c(0.2, 0.3, 0.5)
-#' z <- sample(1:3, n, replace = TRUE, prob = pi)
-#' x1 <- rnorm(n)
-#' x2 <- rnorm(n)
-#' x3 <- rnorm(n)
-#' x4 <- rnorm(n)
 #' sigma <- c(1, 0.5, 2)
-#' beta <- rbind(
-#'   g1 = c(intercept = -4, x1 = -3, x2 = 1.5, x3 = 2, x4 = 0),
-#'   g2 = c(intercept = 0, x1 = 1, x2 = 1.5, x3 = -1, x4 = 0),
-#'   g3 = c(intercept = 4, x1 = 3, x2 = 1.5, x3 = 0.5, x4 = 0)
+#' betas <- rbind(
+#'   c(-4, -3, 1.5, 2, 0),
+#'   c(0, 1, 1.5, -1, 0),
+#'   c(4, 3, 1.5, 0.5, 0)
 #' )
-#' eta <- beta[z, "intercept"] + beta[z, "x1"] * x1 + beta[z, "x2"] * x2 +
-#'   beta[z, "x3"] * x3 + beta[z, "x4"] * x4
-#' y <- rnorm(n, mean = eta, sd = sigma[z])
-#' dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3, x4 = x4)
-#'
-#' fit <- stepFMR(y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3)
-#' summary(fit)
+#' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
+#' fit <- stepFMR(sim$formula, sim$data, G_max = 3)
+#' summary <- summary(fit)
 summary.stepFMR <- function(object, ...) {
   out <- list(
     call = object$call,
@@ -515,26 +419,16 @@ summary.stepFMR <- function(object, ...) {
 #' @export
 #'
 #' @examples
-#' set.seed(1)
-#' n <- 500
 #' pi <- c(0.2, 0.3, 0.5)
-#' z <- sample(1:3, n, replace = TRUE, prob = pi)
-#' x1 <- rnorm(n)
-#' x2 <- rnorm(n)
-#' x3 <- rnorm(n)
-#' x4 <- rnorm(n)
 #' sigma <- c(1, 0.5, 2)
-#' beta <- rbind(
-#'   g1 = c(intercept = -4, x1 = -3, x2 = 1.5, x3 = 2, x4 = 0),
-#'   g2 = c(intercept = 0, x1 = 1, x2 = 1.5, x3 = -1, x4 = 0),
-#'   g3 = c(intercept = 4, x1 = 3, x2 = 1.5, x3 = 0.5, x4 = 0)
+#' betas <- rbind(
+#'   c(-4, -3, 1.5, 2, 0),
+#'   c(0, 1, 1.5, -1, 0),
+#'   c(4, 3, 1.5, 0.5, 0)
 #' )
-#' eta <- beta[z, "intercept"] + beta[z, "x1"] * x1 + beta[z, "x2"] * x2 +
-#'   beta[z, "x3"] * x3 + beta[z, "x4"] * x4
-#' y <- rnorm(n, mean = eta, sd = sigma[z])
-#' dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3, x4 = x4)
-#'
-#' fit <- stepFMR(y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3)
+#' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
+#' fit <- stepFMR(sim$formula, sim$data, G_max = 3)
+#' summary(fit)
 #' print(summary(fit))
 print.summary.stepFMR <- function(x, ...) {
   cat("stepFMR summary | family: ", x$family,
