@@ -56,7 +56,7 @@
 #'  specified manually while setting this flag as \code{FALSE} for
 #'  hardware-specific customization. Default is \code{FALSE}
 #'
-#' @return A structured list of class \code{"WMRControl"} containing all
+#' @return A structured list of class \code{"FMRControl"} containing all
 #'   validated control arguments.
 #'
 #' @export
@@ -134,6 +134,6 @@ build_control <- function(
   init_burnin <- as.integer(init_burnin)
 
   control <- as.list(environment())
-  class(control) <- "WMRControl"
+  class(control) <- "FMRControl"
   control
 }

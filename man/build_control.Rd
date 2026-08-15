@@ -92,7 +92,7 @@ specified manually while setting this flag as \code{FALSE} for
 hardware-specific customization. Default is \code{FALSE}}
 }
 \value{
-A structured list of class \code{"WMRControl"} containing all
+A structured list of class \code{"FMRControl"} containing all
 validated control arguments.
 }
 \description{

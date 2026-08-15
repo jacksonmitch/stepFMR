@@ -13,7 +13,7 @@
 #'   afterward, final) EM state.
 #' @param family A character string specifying the error distribution:
 #'   \code{"gaussian"}, \code{"poisson"}, or \code{"binomial"}.
-#' @param control A \code{WMRControl} object (from \code{build_control()}).
+#' @param control A \code{FMRControl} object (from \code{build_control()}).
 #'
 #' @return A list with elements: \code{em_state} (the final, mutated
 #'   \code{EmState}), \code{loglik} (final log-likelihood),
