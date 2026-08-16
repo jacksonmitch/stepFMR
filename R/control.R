@@ -125,6 +125,11 @@ build_control <- function(
   checkmate::assert_number(init_eps, lower = 0, upper = 0.5, add = collection)
   checkmate::assert_flag(parallel, add = collection)
 
+  if (!collection$isEmpty()) {
+    err_messages <- paste0("- ", collection$getMessages(), collapse = "\n")
+    stop(err_messages, call. = FALSE)
+  }
+
   max_iter <- as.integer(max_iter)
   n_init <- as.integer(n_init)
   n_best_init <- as.integer(n_best_init)

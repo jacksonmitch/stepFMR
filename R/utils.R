@@ -52,11 +52,11 @@ coerce_binomial_formula <- function(formula, data) {
     stop("Column name '.binom_size' is reserved; please rename your column.")
   }
 
-  resp <- formula[[2]]
+  response <- formula[[2]]
 
-  if (is.call(resp) && identical(resp[[1]], as.name("cbind"))) {
-    success_expr <- resp[[2]]
-    failure_expr <- resp[[3]]
+  if (is.call(response) && identical(response[[1]], as.name("cbind"))) {
+    success_expr <- response[[2]]
+    failure_expr <- response[[3]]
 
     successes <- eval(success_expr, data)
     failures <- eval(failure_expr, data)
@@ -72,13 +72,21 @@ coerce_binomial_formula <- function(formula, data) {
   }
 
   # Plain response: treat as 0/1 (Bernoulli, size = 1)
-  y <- eval(resp, data)
+  y <- eval(response, data)
 
   if (!all(y %in% c(0, 1))) {
     stop("Binomial response must be cbind(successes, failures) or a 0/1 vector.")
   }
 
   data$.binom_size <- rep(1, length(y))
+  warning(
+    "Received Binomial family with Bernoulli/binary response. ",
+    "Each observation carries very little information about its group ",
+    "membership, so mixture regression fits with binary responses tend to ",
+    "be unstable and imprecise. Grouped binomial counts (e.g. cbind(successes, ",
+    "failures) ~ .) are recommended when available.",
+    call. = FALSE
+  )
   list(formula = formula, data = data)
 }
 

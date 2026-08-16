@@ -7,15 +7,6 @@ scenarios <- list(
     pi = c(0.4, 0.6),
     sigma = c(0.5, 0.5)
   ),
-  three_group_four_variables = list(
-    betas = rbind(
-      g1 = c("(Intercept)" = -3, x1 = 0.3, x2 = -0.4, x3 = 0.25, x4 = 0),
-      g2 = c("(Intercept)" = 0, x1 = 0.6, x2 = -0.4, x3 = 0.25, x4 = 0),
-      g3 = c("(Intercept)" = 3, x1 = 0.8, x2 = -0.4, x3 = 0.25, x4 = 0)
-    ),
-    pi = c(0.2, 0.3, 0.5),
-    sigma = c(0.5, 0.5, 0.5)
-  ),
   two_group_effects_poisson = list(
     betas = rbind(
       g1 = c("(Intercept)" = -0.5, x1 = -1.0, x2 = 0.3, x3 = 0.1),
@@ -32,6 +23,23 @@ scenarios <- list(
     pi = c(0.5, 0.5),
     family = "binomial",
     size = 25
+  ),
+  two_group_four_variables = list(
+    betas = rbind(
+      g1 = c("(Intercept)" = -1.0, x1 = -1.5, x2 = 0.5, x3 = 0.3, x4 = 0),
+      g2 = c("(Intercept)" = 1.0, x1 = 1.5, x2 = 0.5, x3 = 0.3, x4 = 0)
+    ),
+    pi = c(0.5, 0.5),
+    sigma = c(1, 1)
+  ),
+  three_group_four_variables = list(
+    betas = rbind(
+      g1 = c("(Intercept)" = -3, x1 = 0.3, x2 = -0.4, x3 = 0.25, x4 = 0),
+      g2 = c("(Intercept)" = 0, x1 = 0.6, x2 = -0.4, x3 = 0.25, x4 = 0),
+      g3 = c("(Intercept)" = 3, x1 = 0.8, x2 = -0.4, x3 = 0.25, x4 = 0)
+    ),
+    pi = c(0.2, 0.3, 0.5),
+    sigma = c(0.5, 0.5, 0.5)
   ),
   three_group_twelve_variables_gaussian = list(
     betas = rbind(
