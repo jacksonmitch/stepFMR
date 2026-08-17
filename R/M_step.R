@@ -77,12 +77,18 @@ m_step_poisson <- function(dat, em_state, control) {
   for (g in seq_len(G)) {
     wg <- pmax(tau[, g], control$weight_floor)
 
-    fit_g <- stats::glm.fit(
+    fit_g <- suppressWarnings(stats::glm.fit(
       x = X,
       y = y,
       weights = wg,
       family = stats::poisson()
-    )
+    ))
+    if (!isTRUE(fit_g$converged)){
+      warning(
+        "Iteration could not converge during fitting.",
+        call. = FALSE
+      )
+    }
 
     coef_g <- fit_g$coefficients
     coef_g[is.na(coef_g)] <- 0
@@ -122,12 +128,20 @@ m_step_binomial <- function(dat, em_state, control) {
   for (g in seq_len(G)) {
     wg <- pmax(tau[, g], control$weight_floor)
 
-    fit_g <- stats::glm.fit(
+    fit_g <- suppressWarnings(stats::glm.fit(
       x = X,
       y = y_bin,
       weights = wg,
       family = stats::binomial()
-    )
+    ))
+    # This will fire multiple times with a 0/1 response. 
+    # A possibility is to control how many with rlang::warn 
+    if (!isTRUE(fit_g$converged)){
+      warning(
+        "Iteration could not converge during fitting.",
+        call. = FALSE
+      )
+    }
 
     coef_g <- fit_g$coefficients
     coef_g[is.na(coef_g)] <- 0

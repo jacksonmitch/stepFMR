@@ -74,7 +74,11 @@ make_initialization_features <- function(prepared_data,
   }
 
   if (family == "poisson") {
-    fit0 <- stats::glm.fit(x = X, y = y, family = stats::poisson())
+    fit0 <- suppressWarnings(stats::glm.fit(
+      x = X, 
+      y = y, 
+      family = stats::poisson()
+    ))
 
     eta0 <- as.numeric(fit0$linear.predictors)
     mu0 <- as.numeric(fit0$fitted.values)
@@ -98,11 +102,11 @@ make_initialization_features <- function(prepared_data,
     binomial_size <- as.numeric(binomial_size)
     y_bin <- cbind(y, binomial_size - y)
 
-    fit0 <- stats::glm.fit(
+    fit0 <- suppressWarnings(stats::glm.fit(
       x = X,
       y = y_bin,
       family = stats::binomial()
-    )
+    ))
 
     eta0 <- as.numeric(X %*% fit0$coefficients)
     mu0 <- as.numeric(fit0$fitted.values)
