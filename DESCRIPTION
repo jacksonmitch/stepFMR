@@ -24,3 +24,6 @@ Imports:
     future.apply,
     R6,
     clue
+Depends: 
+    R (>= 3.5)
+LazyData: true
