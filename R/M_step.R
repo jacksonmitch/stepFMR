@@ -4,6 +4,7 @@ m_step <- function(dat, em_state, family, control) {
     em_state <- switch(family,
       gaussian = m_step_sqr_gaussian(dat, em_state, control),
       poisson  = m_step_sqr_poisson(dat, em_state, control),
+      zip      = m_step_sqr_poisson(dat, em_state, control),
       binomial = m_step_sqr_binomial(dat, em_state, control),
       stop(sprintf("No sQR M-step for family '%s'", family))
     )
@@ -11,6 +12,7 @@ m_step <- function(dat, em_state, family, control) {
     em_state <- switch(family,
       gaussian = m_step_gaussian(dat, em_state, control),
       poisson  = m_step_poisson(dat, em_state, control),
+      zip      = m_step_poisson(dat, em_state, control),
       binomial = m_step_binomial(dat, em_state, control),
       stop(sprintf("No M-step for family '%s'", family))
     )

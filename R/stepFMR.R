@@ -94,7 +94,7 @@ stepFMR <- function(
       , G_max))
   }
   checkmate::assert_choice(family,
-    choices = c("gaussian", "poisson", "binomial"),
+    choices = c("gaussian", "poisson", "binomial", "zip"),
     add = collection
   )
   checkmate::assert_choice(procedure,

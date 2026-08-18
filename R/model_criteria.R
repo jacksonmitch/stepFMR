@@ -1,15 +1,13 @@
 # Model selection helper functions
 
-count_params_fmr <- function(ncol_het,
-                             ncol_common,
-                             G,
-                             family = c("gaussian", "poisson", "binomial")) {
-  family <- match.arg(family)
+count_params_fmr <- function(ncol_het, ncol_common, G, family) {
 
-  k <- G * ncol_het + ncol_common + (G - 1)
-
-  if (family == "gaussian") {
-    k <- k + G
+  k <- if (family == "zip") {
+    (G - 1) * ncol_het + ncol_common + (G - 1)
+  } else if (family == "gaussian") {
+    G * ncol_het + ncol_common + (G - 1) + G
+  } else {
+    G * ncol_het + ncol_common + (G - 1)
   }
 
   k

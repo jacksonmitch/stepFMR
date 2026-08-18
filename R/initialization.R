@@ -50,10 +50,7 @@ rank_partition <- function(score, G) {
   partition
 }
 
-make_initialization_features <- function(prepared_data,
-                                         family = c("gaussian", "poisson", "binomial")) {
-  family <- match.arg(family)
-
+make_initialization_features <- function(prepared_data, family) {
   A <- as.matrix(prepared_data$X_het)
   B <- as.matrix(prepared_data$X_com)
   y <- as.numeric(prepared_data$y)
@@ -72,8 +69,7 @@ make_initialization_features <- function(prepared_data,
       residual = resid0
     ))
   }
-
-  if (family == "poisson") {
+  else if (family == "poisson" || family == "zip") {
     fit0 <- suppressWarnings(stats::glm.fit(
       x = X, 
       y = y, 
@@ -91,8 +87,7 @@ make_initialization_features <- function(prepared_data,
       residual = resid0
     ))
   }
-
-  if (family == "binomial") {
+  else if (family == "binomial") {
     binomial_size <- prepared_data$binomial_size
 
     if (is.null(binomial_size)) {
@@ -125,15 +120,14 @@ make_initialization_features <- function(prepared_data,
       residual = resid0
     ))
   }
+  else stop("family not found when making initialization features")
 }
 
 make_state_list <- function(prepared_data,
                             G,
                             control,
-                            family = c("gaussian", "poisson", "binomial"),
+                            family,
                             features = NULL) {
-  family <- match.arg(family)
-
   n <- prepared_data$n
 
   if (G == 1L) {

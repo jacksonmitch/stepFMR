@@ -48,6 +48,17 @@ e_step_fmr <- function(dat, em_state, family) {
         log = FALSE
       )
     }
+  } else if (family == "zip") {
+    mu <- exp(eta)
+
+    for (g in seq_len(G-1)) {
+      weights[, g] <- pi_g[g] * stats::dpois(
+        x = y,
+        lambda = mu[, g],
+        log = FALSE
+      )
+    }
+    weights[, G] <- pi_g[G] * ifelse(y == 0, 1, 0)
   }
   stopifnot(all(weights >= 0))
 
