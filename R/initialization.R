@@ -321,7 +321,7 @@ make_warm_init_lists <- function(previous_fits, name, model, prepared_data) {
       family = family,
       features = features
     )
-    prev_tau <- as.matrix(prev_fit$parameter_values$tau)
+    prev_tau <- as.matrix(prev_fit$parameter_values[["tau"]])
     warm_list <- stats::setNames(list(EmState$new(tau = prev_tau)), name)
     c(cold_list, warm_list)
   }, G_values, previous_fits)

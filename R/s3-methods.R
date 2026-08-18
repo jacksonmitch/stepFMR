@@ -14,7 +14,7 @@
 #' @param ... Currently unused.
 #'
 #' @return \code{x}, invisibly.
-#' @seealso \code{\link{stepFMR}}, \code{\link{steps_table.select_variables}}
+#' @seealso \code{\link{stepFMR}}, \code{\link{print_steps.select_variables}}
 #' @export
 #'
 #' @examples
@@ -36,6 +36,10 @@ print.select_variables <- function(x, ...) {
     sep = ""
   )
   cat("  Selected:      ", format_none(x$selected), "\n", sep = "")
+  cat("  Not selected:  ", 
+    format_none(setdiff(x$predictors, x$selected)), 
+    "\n", sep = ""
+  )
   cat("  Final formula: ", format_formula(x$final_formula), "\n", sep = "")
   invisible(x)
 }
@@ -56,7 +60,7 @@ print.select_variables <- function(x, ...) {
 #' @param ... Currently unused.
 #'
 #' @return \code{x}, invisibly.
-#' @seealso \code{\link{stepFMR}}, \code{\link{steps_table.determine_effects}}
+#' @seealso \code{\link{stepFMR}}, \code{\link{print_steps.determine_effects}}
 #' @export
 #'
 #' @examples
@@ -83,7 +87,7 @@ print.determine_effects <- function(x, ...) {
   invisible(x)
 }
 
-# ---- steps_table ------------------------------------------------------------
+# ---- print_steps ------------------------------------------------------------
 
 #' Print the step-by-step selection table
 #'
@@ -115,8 +119,8 @@ print.determine_effects <- function(x, ...) {
 #' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
 #' fit <- stepFMR(sim$formula, sim$data, G_max = 3, procedure = "variables")
 #' # procedure = "variables" is what populates fit$variable_selection below
-#' steps_table(fit$variable_selection)
-steps_table <- function(x, ...) UseMethod("steps_table")
+#' print_steps(fit$variable_selection)
+print_steps <- function(x, ...) UseMethod("print_steps")
 
 #' Print the Step-by-Step Effect-Type Determination Table
 #'
@@ -146,8 +150,8 @@ steps_table <- function(x, ...) UseMethod("steps_table")
 #' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
 #' fit <- stepFMR(sim$formula, sim$data, G_max = 3, procedure = "effects")
 #' # procedure = "effects" is what populates fit$effect_determination below
-#' steps_table(fit$effect_determination)
-steps_table.determine_effects <- function(x, ...) {
+#' print_steps(fit$effect_determination)
+print_steps.determine_effects <- function(x, ...) {
   label_state <- function(het, common) {
     if (length(het) == 0) {
       return("all homogeneous")
@@ -160,7 +164,7 @@ steps_table.determine_effects <- function(x, ...) {
       "  |  homogeneous: ", paste(common, collapse = ", ")
     )
   }
-  print_steps(
+  format_steps(
     x$steps, union(x$heterogeneous, x$homogeneous), x$direction, label_state
   )
   invisible(x)
@@ -194,8 +198,8 @@ steps_table.determine_effects <- function(x, ...) {
 #' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
 #' fit <- stepFMR(sim$formula, sim$data, G_max = 3, procedure = "variables")
 #' # procedure = "variables" is what populates fit$variable_selection below
-#' steps_table(fit$variable_selection)
-steps_table.select_variables <- function(x, ...) {
+#' print_steps(fit$variable_selection)
+print_steps.select_variables <- function(x, ...) {
   label_state <- function(included, excluded) {
     if (length(included) == 0) {
       return("none included")
@@ -208,11 +212,11 @@ steps_table.select_variables <- function(x, ...) {
       "  |  excluded: ", paste(excluded, collapse = ", ")
     )
   }
-  print_steps(x$steps, x$predictors, x$direction, label_state)
+  format_steps(x$steps, x$predictors, x$direction, label_state)
   invisible(x)
 }
 
-print_steps <- function(steps, all_predictors, direction, label_state) {
+format_steps <- function(steps, all_predictors, direction, label_state) {
   in_set <- if (direction == "forward") character(0) else all_predictors
 
   for (s in steps) {
@@ -277,26 +281,26 @@ print_steps <- function(steps, all_predictors, direction, label_state) {
 print.fit_fmr <- function(x, ...) {
   cat("Best fit (G: ", x$G, ")\n", sep = "")
 
-  if (!is.null(x$parameter_values$pi_g)) {
+  if (!is.null(x$parameter_values[["pi_g"]])) {
     cat("\nMixing proportions:\n")
-    print(round(x$parameter_values$pi_g, 4))
+    print(round(x$parameter_values[["pi_g"]], 4))
   }
 
-  if (!is.null(x$parameter_values$sigma_g)) {
+  if (!is.null(x$parameter_values[["sigma_g"]])) {
     cat("\nComponent standard deviations:\n")
-    print(round(x$parameter_values$sigma_g, 4))
+    print(round(x$parameter_values[["sigma_g"]], 4))
   }
 
-  if (!is.null(x$parameter_values$beta_g)) {
+  if (!is.null(x$parameter_values[["beta_g"]])) {
     cat("\nHeterogeneous coefficients:\n")
-    print(round(x$parameter_values$beta_g, 4))
+    print(round(x$parameter_values[["beta_g"]], 4))
   }
 
-  beta_present <- !is.null(x$parameter_values$beta) &&
-    length(x$parameter_values$beta) > 0L
+  beta_present <- !is.null(x$parameter_values[["beta"]]) &&
+    length(x$parameter_values[["beta"]]) > 0L
   if (beta_present) {
     cat("\nHomogeneous coefficients:\n")
-    print(round(x$parameter_values$beta, 4))
+    print(round(x$parameter_values[["beta"]], 4))
   }
 
   invisible(x)
@@ -440,13 +444,13 @@ print.summary.stepFMR <- function(x, ...) {
   if (!is.null(x$variable_selection)) {
     print(x$variable_selection)
     cat("\n")
-    steps_table(x$variable_selection)
+    print_steps(x$variable_selection)
   }
 
   if (!is.null(x$effect_determination)) {
     print(x$effect_determination)
     cat("\n")
-    steps_table(x$effect_determination)
+    print_steps(x$effect_determination)
   }
 
   if (is.null(x$effect_determination) &&

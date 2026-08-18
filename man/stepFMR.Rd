@@ -48,13 +48,13 @@ at the BIC-optimal number of components for the final model.}
 \item{variable_selection}{An object of class
 \code{select_variables} recording which predictors were included,
 or \code{NULL} if \code{procedure} did not include \code{"variables"}.
-Pass this to \code{\link{steps_table.select_variables}} to see
+Pass this to \code{\link{print_steps.select_variables}} to see
 the step-by-step search log.}
 \item{effect_determination}{An object of class
 \code{determine_effects} recording which predictors were
 heterogeneous vs. homogeneous, or \code{NULL} if \code{procedure} did
 not include \code{"effects"}. Pass this to
-\code{\link{steps_table.determine_effects}} to see the
+\code{\link{print_steps.determine_effects}} to see the
 step-by-step search log.}
 }
 \description{

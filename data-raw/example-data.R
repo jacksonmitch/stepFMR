@@ -10,7 +10,7 @@ fmr_gaussian_example <- simulate_fmr(
     c(-2, -3, 1, 0),
     c(2, 3, 1, 0)
   ),
-  pi = c(0.4, 0.6),
+  pi = c(0.3, 0.7),
   sigma = 0.5,
   family = "gaussian",
   seed = 1

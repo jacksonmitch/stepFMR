@@ -37,5 +37,5 @@ fit <- stepFMR(sim$formula, sim$data, G_max = 3, procedure = "effects")
 print(fit$effect_determination)
 }
 \seealso{
-\code{\link{stepFMR}}, \code{\link{steps_table.determine_effects}}
+\code{\link{stepFMR}}, \code{\link{print_steps.determine_effects}}
 }

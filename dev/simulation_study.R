@@ -79,12 +79,12 @@ run_one_replication <- function(rep_id, sim_data, params, G_max, control = build
   rmse_het <- NA_real_
   rmse_hom <- NA_real_
   
-  beta_g_hat <- fit$best_fit$parameter_values$beta_g
-  beta_hat <- fit$best_fit$parameter_values$beta
+  beta_g_hat <- fit$best_fit$parameter_values[["beta_g"]]
+  beta_hat <- fit$best_fit$parameter_values[["beta"]]
   het_truth <- params$betas[, true_het, drop = FALSE]
 
   G_hat <- fit$best_fit$G
-  tau <- fit$best_fit$parameter_values$tau
+  tau <- fit$best_fit$parameter_values[["tau"]]
 
   match <- match_groups(tau, sim_data$true_group)
 

@@ -37,5 +37,5 @@ fit <- stepFMR(sim$formula, sim$data, G_max = 3, procedure = "variables")
 print(fit$variable_selection)
 }
 \seealso{
-\code{\link{stepFMR}}, \code{\link{steps_table.select_variables}}
+\code{\link{stepFMR}}, \code{\link{print_steps.select_variables}}
 }
