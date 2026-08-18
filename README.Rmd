@@ -1,9 +1,6 @@
 ---
 output: github_document
 ---
-
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -12,18 +9,20 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 ```
-
 # stepFMR
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/jacksonmitch/stepFMR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jacksonmitch/stepFMR/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of stepFMR is to ...
+Finite Mixture Regression models allows relationships between the response ($\mathbf{Y}$) and the predictors $(\mathbf{X}_1,\dots, \mathbf{X}_p)$ to differ between a finite number of subpopulations. An R package, stepFMR implements stepwise procedures that select predictors having an effect on the response and determines whether each of the selected predictors has homogeneous or heterogeneous effects. The stepwise procedures are based on hypothesis testing where a weighted significance test (WEST) is used. In mixture regression, 
+the unknown number of the subpopulations $G$ (referred as order of the mixture), poses challenges in testing the association between a predictor and the 
+response. With WEST, the significance of a predictor's effects on $y$ is the weighted sum of the significance level of all candidate $G$'s. The package supports the Gaussian, Poisson, and Binomial distribution families, and returns the effect types of each predictor, estimate of their effects, as well as the best-fitting $G$.
 
 ## Installation
 
-You can install the development version of stepFMR from [GitHub](https://github.com/) with:
+You can install the development version of stepFMR from
+[GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("pak")
@@ -32,25 +31,33 @@ pak::pak("jacksonmitch/stepFMR")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+These are basic examples of the function `stepFMR` being used with different distributions, showcasing the different s3 methods to be used with the result:
 
-```{r example}
+```{r gaussian}
 library(stepFMR)
-## basic example code
+
+sim <- fmr_gaussian_example
+
+fit <- stepFMR(sim$formula, sim$data, G_max = 3)
+print(fit)
+# Align fitted components to the known true groups
+aligned <- match_groups(fit, sim$true_group)
+aligned$best_fit$parameter_values[["beta_g"]]
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-```{r cars}
-summary(cars)
+```{r poisson}
+# Poisson
+sim_pois <- fmr_poisson_example
+fit_pois <- stepFMR(sim_pois$formula, sim_pois$data, G_max = 3, family = "poisson")
+summary(fit_pois)
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
-
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
+```{r binomial}
+# Binomial (25 trials per observation)
+sim_bin <- fmr_binomial_example
+fit_bin <- stepFMR(sim_bin$formula, sim_bin$data, G_max = 3, family = "binomial")
+print_steps(fit_bin$variable_selection)
+print_steps(fit_bin$effect_determination)
+print(fit_bin)
 ```
 
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
