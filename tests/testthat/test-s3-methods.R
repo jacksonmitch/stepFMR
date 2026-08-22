@@ -8,7 +8,7 @@ model <- FMRModel$new(
   data = test_data,
   G_values = 2:3,
   family = "gaussian",
-  control = build_control()
+  control = fmr_control()
 )
 
 test_effects <- determine_effects(

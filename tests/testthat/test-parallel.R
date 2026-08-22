@@ -9,7 +9,7 @@ sim <- do.call(
 test_that("stepFMR runs without error with control$parallel = TRUE", {
   expect_no_error(
     stepFMR(sim$formula, sim$data,
-      control = build_control(parallel = TRUE)
+      control = fmr_control(parallel = TRUE)
     )
   )
 })

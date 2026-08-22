@@ -11,7 +11,7 @@
 #'   components.
 #' @param family A character string specifying the error distribution:
 #'   \code{"gaussian"}, \code{"poisson"}, or \code{"binomial"}.
-#' @param control A \code{FMRControl} object (from \code{build_control()}).
+#' @param control A \code{FMRControl} object (from \code{fmr_control()}).
 #'   If \code{control$sigma_floor} is \code{NULL}, it is set here to
 #'   \code{0.05 * sd(response)}.
 #'

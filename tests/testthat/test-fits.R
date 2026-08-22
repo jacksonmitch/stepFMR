@@ -9,7 +9,7 @@ test_that("gaussian fits accurately", {
     data = sim$data,
     G_values = 2,
     family = "gaussian",
-    control = build_control(n_init = 5, n_kmeans_init = 2, max_iter = 200)
+    control = fmr_control(n_init = 5, n_kmeans_init = 2, max_iter = 200)
   )
 
   prepared <- prepare_data(model, common = c("x2", "x3"))
@@ -46,7 +46,7 @@ test_that("poisson fits accurately", {
     data = sim$data,
     G_values = 2,
     family = "poisson",
-    control = build_control(n_init = 5, n_kmeans_init = 2, max_iter = 200)
+    control = fmr_control(n_init = 5, n_kmeans_init = 2, max_iter = 200)
   )
 
   prepared <- prepare_data(model, common = c("x2", "x3"))
@@ -80,7 +80,7 @@ test_that("binomial fits accurately", {
     data = fixed$data,
     G_values = 2,
     family = "binomial",
-    control = build_control(n_init = 5, n_kmeans_init = 2, max_iter = 200)
+    control = fmr_control(n_init = 5, n_kmeans_init = 2, max_iter = 200)
   )
 
   prepared <- prepare_data(model, common = c("x2", "x3"))

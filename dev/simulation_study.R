@@ -26,7 +26,7 @@ match_groups <- function(tau, true_group) {
   match_fitted
 }
 
-run_replications <- function(params, n, control = build_control(), verbose = TRUE) {
+run_replications <- function(params, n, control = fmr_control(), verbose = TRUE) {
   results <- vector("list", n_reps)
 
   for (i in seq_len(n_reps)) {
@@ -41,7 +41,7 @@ run_replications <- function(params, n, control = build_control(), verbose = TRU
   do.call(rbind, results)
 }
 
-run_one_replication <- function(rep_id, sim_data, params, G_max, control = build_control()) {
+run_one_replication <- function(rep_id, sim_data, params, G_max, control = fmr_control()) {
   t0 <- Sys.time()
   fit <- tryCatch(
     stepFMR(
@@ -176,11 +176,11 @@ NoSleepR::with_nosleep({
   # cat("1000 sequential\n")
   # summarize_results(sim_results_1000)
   sim_results_500_parallel <- run_replications(params, 
-    500, build_control(parallel = TRUE), verbose = FALSE)
+    500, fmr_control(parallel = TRUE), verbose = FALSE)
   cat("500 parallel\n")
   summarize_results(sim_results_500_parallel)
   # sim_results_1000_parallel <- run_replications(params,
-  #    1000, build_control(parallel = TRUE), verbose = FALSE)
+  #    1000, fmr_control(parallel = TRUE), verbose = FALSE)
   # cat("1000 parallel\n")
   # summarize_results(sim_results_1000_parallel)
 })

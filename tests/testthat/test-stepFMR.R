@@ -26,7 +26,7 @@ test_that("stepFMR runs end-to-end for each family", {
     c(scenarios$two_group_effects_binomial, list(n = 300, seed = 3))
   )
 
-  ctrl <- build_control(n_init = 5, n_kmeans_init = 2)
+  ctrl <- fmr_control(n_init = 5, n_kmeans_init = 2)
 
   fit_gauss <- stepFMR(gauss$formula, data = gauss$data, G_max = 3,
     family = "gaussian", control = ctrl)
@@ -55,7 +55,7 @@ test_that("stepFMR accepts cbind() binomial formulas as well as 0/1 responses", 
 
   expect_no_error(
     stepFMR(cbind(y, trials - y) ~ x1 + x2 + x3, data = dat_grouped,
-      family = "binomial", G_max = 3, control = build_control())
+      family = "binomial", G_max = 3, control = fmr_control())
   )
 
   dat_bernoulli <- dat_grouped
@@ -64,7 +64,7 @@ test_that("stepFMR accepts cbind() binomial formulas as well as 0/1 responses", 
   expect_no_error(
     expect_warning(
       stepFMR(y ~ x1 + x2 + x3, data = dat_bernoulli,
-        family = "binomial", G_max = 3, control = build_control())
+        family = "binomial", G_max = 3, control = fmr_control())
     )
   )
 })
@@ -94,7 +94,7 @@ test_that("stepFMR skips effect determination when no predictors are selected", 
 
   # alpha = 0 makes every forward-selection candidate ineligible
   fit <- stepFMR(sim$formula, data = sim$data, G_max = 3,
-    control = build_control(alpha = 0))
+    control = fmr_control(alpha = 0))
 
   expect_length(fit$variable_selection$selected, 0)
   expect_null(fit$effect_determination)

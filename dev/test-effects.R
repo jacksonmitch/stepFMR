@@ -12,7 +12,7 @@ model <- FMRModel$new(
   data = test_data,
   G_values = 2:3,
   family = "gaussian",
-  control = build_control(n_init = 5)
+  control = fmr_control(n_init = 5)
 )
 
 forward_fit <- determine_effects(

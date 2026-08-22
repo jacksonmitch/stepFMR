@@ -6,7 +6,7 @@ test_that("select_variables validates direction", {
 
   model <- FMRModel$new(
     formula = y ~ x1, data = dat,
-    G_values = 2, family = "gaussian", control = build_control()
+    G_values = 2, family = "gaussian", control = fmr_control()
   )
 
   expect_error(select_variables(model = model, direction = "sideways"))
@@ -20,7 +20,7 @@ test_that("select_variables drops a null predictor (gaussian)", {
 
   model <- FMRModel$new(
     formula = sim$formula, data = sim$data,
-    G_values = 2, family = "gaussian", control = build_control()
+    G_values = 2, family = "gaussian", control = fmr_control()
   )
 
   fwd <- select_variables(model = model, direction = "forward")
@@ -42,7 +42,7 @@ test_that("select_variables drops a null predictor (poisson)", {
 
   model <- FMRModel$new(
     formula = sim$formula, data = sim$data,
-    G_values = 2, family = "poisson", control = build_control()
+    G_values = 2, family = "poisson", control = fmr_control()
   )
 
   fwd <- select_variables(model = model, direction = "forward")
@@ -60,7 +60,7 @@ test_that("select_variables runs without error for binomial", {
   model <- FMRModel$new(
     formula = binom$formula, data = binom$data,
     G_values = 2, family = "binomial",
-    control = build_control()
+    control = fmr_control()
   )
 
   expect_no_error(select_variables(model = model, direction = "forward"))

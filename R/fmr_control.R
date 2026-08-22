@@ -63,11 +63,11 @@
 #'
 #' @examples
 #' # Generate default control options
-#' ctrl <- build_control()
+#' ctrl <- fmr_control()
 #'
 #' # Customize specific hyper-parameters
-#' custom_ctrl <- build_control(max_iter = 500, verbose = TRUE)
-build_control <- function(
+#' custom_ctrl <- fmr_control(max_iter = 500, verbose = TRUE)
+fmr_control <- function(
   alpha = 0.05,
   max_iter = 300,
   n_init = 10,

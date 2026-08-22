@@ -18,7 +18,7 @@ y <- ifelse(
 
 dat_gauss <- data.frame(y = y, x1 = x1, x2 = x2)
 
-control_gauss <- build_control(
+control_gauss <- fmr_control(
   n_init = 5,
   n_kmeans_init = 2,
   max_iter = 150,
@@ -82,7 +82,7 @@ y <- rpois(n, lambda = mu)
 
 dat_pois <- data.frame(y = y, x1 = x1, x2 = x2)
 
-control_pois <- build_control(
+control_pois <- fmr_control(
   n_init = 10,
   n_kmeans_init = 3,
   max_iter = 150,
@@ -170,7 +170,7 @@ dat_bin_grouped <- data.frame(
   true_g = true_g
 )
 
-control_bin <- build_control(
+control_bin <- fmr_control(
   n_init = 20,
   n_kmeans_init = 5,
   max_iter = 200,
