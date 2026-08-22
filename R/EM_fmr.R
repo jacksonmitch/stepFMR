@@ -2,7 +2,7 @@
 
 #' Run the EM Algorithm to Convergence
 #'
-#' Alternates the M-step (\code{m_step()}) and E-step (\code{e_step_fmr()})
+#' Alternates the M-step (\code{m_step()}) and E-step (\code{e_step()})
 #' until the change in log-likelihood falls below \code{control$tol} or
 #' \code{control$max_iter} is reached. \code{em_state} is mutated in place
 #' over the course of the iterations.
@@ -38,7 +38,7 @@ em_fmr <- function(em_state, prepared_data, G, family, control) {
     irwls_iterations[iter] <- em_state$irwls_iterations
     irwls_converged[iter] <- em_state$irwls_converged
 
-    e_step_fmr(prepared_data, em_state, family)
+    e_step(prepared_data, em_state, family)
 
     loglik_new <- em_state$loglik
     loglik_trace[iter] <- loglik_new

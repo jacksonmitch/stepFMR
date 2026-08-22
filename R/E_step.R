@@ -1,6 +1,6 @@
 # E-step for Gaussian mixture regression
 
-e_step_fmr <- function(dat, em_state, family) {
+e_step <- function(dat, em_state, family) {
   y <- dat$y
   n <- dat$n
 

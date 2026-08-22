@@ -5,7 +5,7 @@
 #' coefficients \code{beta_g}/\code{beta}, Gaussian component standard
 #' deviations \code{sigma_g}, the linear predictor \code{eta}, the current
 #' \code{loglik}, and IRWLS diagnostics. Passed by reference into
-#' \code{m_step()}/\code{e_step_fmr()}/\code{irwls_fmr()}, which mutate it
+#' \code{m_step()}/\code{e_step()}/\code{irwls_fmr()}, which mutate it
 #' in place rather than returning a new object each iteration.
 #'
 #' @param tau A numeric responsibility matrix (n x G).
