@@ -1,6 +1,6 @@
 Package: stepFMR
 Title: Finite Mixture Regression with Variable and Effect-Type Selection
-Version: 0.0.0.9000
+Version: 0.1
 Authors@R: 
     c(person("Tulio", "Martins", email = "tbatista@uoguelph.ca", role = c("aut", "cre")),
       person("Jackson", "Mitchell", email = "jmitch19@uoguelph.ca", role = c("aut")))
@@ -22,7 +22,8 @@ Imports:
     future,
     future.apply,
     R6,
-    clue
+    clue,
+    mclust
 Depends: 
     R (>= 3.5)
 LazyData: true
