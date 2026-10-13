@@ -1,3 +1,9 @@
+# Initialization helpers. A start is a responsibility matrix `tau` (n x G)
+# built from a hard partition of the observations, smoothed so the assigned
+# component gets 1 - eps and the others share eps. Starts are wrapped in
+# EmState objects and compared by a short EM burn-in (see fit_fmr()).
+
+# Turn an integer partition into a smoothed n x G tau matrix.
 make_tau_from_partition <- function(partition, G, eps = 1e-6) {
   partition <- as.integer(partition)
   n <- length(partition)
@@ -20,11 +26,13 @@ make_tau_from_partition <- function(partition, G, eps = 1e-6) {
   tau
 }
 
+# Random partition into G groups of (nearly) equal size.
 random_partition_balanced <- function(n, G) {
   partition <- rep(seq_len(G), length.out = n)
   sample(partition, size = n, replace = FALSE)
 }
 
+# Partition into G (nearly) equal-size groups by ranking `score`.
 rank_partition <- function(score, G) {
   score <- as.numeric(score)
   n <- length(score)
@@ -50,6 +58,10 @@ rank_partition <- function(score, G) {
   partition
 }
 
+# Features used to build starts: a pooled (single-component) fit gives a
+# transformed response, fitted values / linear predictor, and residuals,
+# with family-specific transformations (log for Poisson/zip, logit for
+# binomial).
 make_initialization_features <- function(prepared_data, family) {
   A <- as.matrix(prepared_data$X_het)
   B <- as.matrix(prepared_data$X_com)
@@ -123,6 +135,13 @@ make_initialization_features <- function(prepared_data, family) {
   else stop("family not found when making initialization features")
 }
 
+# Cold starts for one G: quantile partitions of the response and residuals,
+# `control$n_kmeans_init` k-means partitions on the scaled features (plus
+# k-means on the raw design), random balanced partitions up to
+# `control$n_init`, (binomial only) quantile partitions on each
+# heterogeneous predictor, and a model-based start from mclust. Partitions
+# with a group smaller than min_size are skipped. Returns a named list of
+# EmState objects.
 #' @import mclust
 make_state_list <- function(prepared_data,
                             G,
@@ -283,6 +302,9 @@ make_state_list <- function(prepared_data,
   })
 }
 
+# Burn in every start for `control$init_burnin` EM iterations (tol = 0),
+# recording failures, and keep the `control$n_best_init` starts with the
+# highest log-likelihood. Errors only if every start fails.
 select_best_initialization <- function(em_state_list,
                                        prepared_data,
                                        G,
@@ -340,6 +362,9 @@ select_best_initialization <- function(em_state_list,
   )
 }
 
+# Starts for a candidate model: a few cold k-means starts plus one start
+# taken from the shared model's fitted `tau` at the same G (named `name`).
+# Returns one list per value in model$G_values.
 make_warm_init_lists <- function(previous_fits, name, model, prepared_data) {
   G_values <- model$G_values
   family <- model$family
@@ -365,6 +390,7 @@ make_warm_init_lists <- function(previous_fits, name, model, prepared_data) {
   }, G_values, previous_fits)
 }
 
+# Cold starts for every G in G_values (used for the shared baseline fit).
 make_init_lists <- function(prepared_data, G_values, control, family) {
   features <- make_initialization_features(
     prepared_data = prepared_data,

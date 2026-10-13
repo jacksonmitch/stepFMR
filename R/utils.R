@@ -1,3 +1,6 @@
+# Contribution of the common (homogeneous) coefficients to the linear
+# predictor: B %*% beta as a vector, or zeros when there are no common
+# columns.
 common_eta <- function(B, beta = numeric(0)) {
   B <- as.matrix(B)
   beta <- as.numeric(beta)
@@ -19,6 +22,8 @@ common_eta <- function(B, beta = numeric(0)) {
   drop(B %*% beta)
 }
 
+# n x G matrix of linear predictors: heterogeneous part A %*% t(beta_g)
+# plus the shared common part, added to every component.
 linear_predictor_matrix <- function(A, B, beta_g, beta) {
   A <- as.matrix(A)
 
@@ -38,6 +43,7 @@ linear_predictor_matrix <- function(A, B, beta_g, beta) {
   eta
 }
 
+# Collapse a character vector to a comma-separated string, or "none".
 format_none <- function(x) {
   if (is.null(x) || length(x) == 0L) {
     return("none")
@@ -46,6 +52,10 @@ format_none <- function(x) {
   paste(x, collapse = ", ")
 }
 
+# Prepare a binomial model: accept cbind(successes, failures) or a 0/1
+# response, store the trial counts in a reserved `.binom_size` column of
+# `data`, and reduce the formula's response to the success count. Warns for
+# 0/1 responses.
 coerce_binomial_formula <- function(formula, data) {
   # Just in case
   if (".binom_size" %in% names(data)) {
@@ -90,4 +100,5 @@ coerce_binomial_formula <- function(formula, data) {
   list(formula = formula, data = data)
 }
 
+# Drop NULL elements from a list.
 compact <- function(x) Filter(Negate(is.null), x)

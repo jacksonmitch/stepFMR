@@ -20,7 +20,7 @@ simulate_fmr(
 \item{betas}{A numeric matrix of true coefficients, one row per mixture
 component (or a list of numeric vectors, one per component, which
 will be row-bound into a matrix). If column names are supplied, one
-of them must be \code{"(Intercept)"}; if omitted, the first column is
+of them must be \code{"(Intercept)"}. If omitted, the first column is
 assumed to be the intercept and named accordingly.}
 
 \item{pi}{An optional numeric vector of mixing proportions, one per
@@ -42,7 +42,7 @@ simulation.}
 \value{
 A list with elements: \code{data} (a data.frame with the response
 \code{y}, the covariates, and — for \code{family = "binomial"} — a \code{size} trial
-count column), \code{formula} (ready to pass to \code{stepFMR()}; a
+count column), \code{formula} (ready to pass to \code{\link[=stepFMR]{stepFMR()}} or \code{\link[=fitFMR]{fitFMR()}}, using a
 \code{cbind(y, size - y) ~ .} form for binomial), and \code{true_group} (the
 simulated integer group labels, for use with \code{match_groups()}).
 }

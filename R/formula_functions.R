@@ -1,3 +1,9 @@
+# Helpers for building and inspecting formulas. make_formula() builds
+# `response ~ predictors` (or `~ 1` for no predictors). get_response() and
+# get_predictors() read them back, and make_effects_formula() builds the
+# display formula used by the effect-determination result, with homogeneous
+# terms as-is and heterogeneous terms as `(x | group)`.
+
 make_formula <- function(predictors, response = NULL) {
   if (length(predictors) == 0 || is.null(predictors)) {
     predictors <- "1"

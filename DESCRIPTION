@@ -5,15 +5,20 @@ Authors@R:
     c(person("Tulio", "Martins", email = "tbatista@uoguelph.ca", role = c("aut", "cre")),
       person("Jackson", "Mitchell", email = "jmitch19@uoguelph.ca", role = c("aut")))
 Description: Implements finite mixture regression models for Gaussian, Poisson,
-    and binomial responses, with procedures for selecting predictors and
+    binomial, and (experimentally) zero-inflated Poisson responses, with procedures for selecting predictors and
     determining whether covariate effects are heterogeneous or homogeneous across
     mixture components. Estimation is performed using EM algorithms,
     with weighted least squares and structured QR decompositions used in the
     M-step.
+URL: https://github.com/jacksonmitch/stepFMR
+BugReports: https://github.com/jacksonmitch/stepFMR/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
+VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
 Suggests: 
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/roxygen2/version: 8.1.0
 Config/testthat/edition: 3

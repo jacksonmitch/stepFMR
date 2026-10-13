@@ -98,7 +98,7 @@ summary(fit_pois)
 #>   Candidate             Weighted p-value
 #>   ---------             -------     
 #>   x1                    6.97e-40   *
-#>   x2                    6.69e-07    
+#>   x2                    6.70e-07    
 #>   x3                    4.75e-03    
 #>   Chosen: x1
 #> 
@@ -225,4 +225,41 @@ print(fit_bin)
 #> Homogeneous coefficients:
 #>    x2 
 #> 0.553
+```
+
+If you already know which predictors have common effects, `fitFMR()`
+fits that model directly over a range of components you choose, without
+the stepwise search:
+
+``` r
+# x2 has the same effect in every component, comparing G = 2 and G = 3
+fit_fixed <- fitFMR(sim$formula, sim$data, G = 2:3, common = "x2")
+fit_fixed
+#> fitFMR | family: gaussian | G: 2,3
+#>   Formula:       y ~ x1 + x2 + x3
+#>   Heterogeneous: x1, x3
+#>   Homogeneous:   x2
+#> 
+#>  G  loglik num_parameters     bic  
+#>  2 -677.04             10 1416.24 *
+#>  3 -673.50             15 1440.21  
+#> 
+#> Best fit (G: 2)
+#> 
+#> Mixing proportions:
+#>     g1     g2 
+#> 0.3744 0.6256 
+#> 
+#> Component standard deviations:
+#>     g1     g2 
+#> 0.5469 0.5117 
+#> 
+#> Heterogeneous coefficients:
+#>    (Intercept)      x1      x3
+#> g1     -2.0119 -2.9806  0.0738
+#> g2      1.9935  3.0216 -0.0429
+#> 
+#> Homogeneous coefficients:
+#>     x2 
+#> 1.0209
 ```

@@ -1,5 +1,26 @@
-# Universal weighted least square structured QR decomposition function
-
+#' Weighted Least Squares via Structured QR
+#'
+#' Solves the stacked weighted least squares problem for a mixture
+#' regression with component-specific (\code{X_het}) and shared
+#' (\code{X_com}) coefficients without forming normal equations. Stage 1
+#' takes a QR decomposition of the weighted heterogeneous design within
+#' each component, which eliminates \code{beta_g} from the problem. Stage 2
+#' takes a QR decomposition of the stacked residualized common design to
+#' solve for the shared \code{beta}. The component coefficients are then
+#' recovered by back-substitution.
+#'
+#' @param dat A \code{FMRData} object.
+#' @param z A numeric vector (recycled across components, e.g. the Gaussian
+#'   response) or an n x G matrix of working responses.
+#' @param weights An n x G matrix of non-negative observation weights.
+#' @param control A \code{FMRControl} object. If
+#'   \code{return_qr_parts} is \code{TRUE}, the intermediate factors are
+#'   also returned.
+#'
+#' @return A list with \code{beta_g} (G x p_het matrix) and \code{beta}
+#'   (numeric vector of length p_com), plus \code{R1_list}, \code{E_list}
+#'   and \code{R2} when \code{control$return_qr_parts} is \code{TRUE}.
+#' @noRd
 wls_sqr <- function(dat, z, weights, control) {
   A <- dat$X_het
   B <- dat$X_com

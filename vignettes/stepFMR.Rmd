@@ -1,0 +1,117 @@
+---
+title: "Getting started with stepFMR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with stepFMR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+## What stepFMR does
+
+A finite mixture regression (FMR) lets the relationship between a response
+and its predictors differ across an unknown number $G$ of latent
+subpopulations. `stepFMR` answers two questions for such a model:
+
+1. **Variable selection.** Which predictors have any effect on the response?
+2. **Effect type.** Is each selected predictor's effect *heterogeneous*
+   (a different coefficient in every component) or *homogeneous* (one
+   coefficient shared by all components)?
+
+The difficulty is that a test of a predictor depends on $G$, which is
+unknown. The weighted significance test (WEST) computes a likelihood-ratio
+p-value at every candidate $G$ in `2:G_max` and combines them into one
+p-value, weighting each $G$ by $\exp(-\mathrm{BIC}_G/2)$. Predictors are then
+added (or removed) one at a time in a stepwise search.
+
+Gaussian, Poisson, and binomial responses are supported. Fitting uses an EM
+algorithm. The M-step solves weighted least squares with a structured QR
+decomposition (and IRWLS for non-Gaussian families).
+
+## A first fit
+
+The package ships with simulated example data. `x1` is heterogeneous, `x2`
+is homogeneous, and `x3` has no effect.
+
+```{r fit}
+library(stepFMR)
+
+sim <- fmr_gaussian_example
+fit <- stepFMR(sim$formula, sim$data, G_max = 3)
+fit
+```
+
+The result reports the selected variables, which of them are heterogeneous
+or homogeneous, and the parameter estimates at the BIC-optimal number of
+components.
+
+## Following the search
+
+`summary()` adds the step-by-step tables. Each step lists every remaining
+candidate's weighted p-value, and marks the one chosen. You can also print a
+single log:
+
+```{r steps}
+print_steps(fit$variable_selection)
+print_steps(fit$effect_determination)
+```
+
+## Choosing which procedure to run
+
+The `procedure` argument controls the search:
+
+* `"complete"` (default): variable selection, then effect determination on
+  the selected predictors.
+* `"variables"`: variable selection only.
+* `"effects"`: effect determination on all predictors in the formula.
+
+```{r procedure, eval = FALSE}
+stepFMR(sim$formula, sim$data, G_max = 3, procedure = "variables")
+```
+
+## Other families
+
+```{r families, eval = FALSE}
+# Poisson counts
+stepFMR(fmr_poisson_example$formula, fmr_poisson_example$data,
+        G_max = 3, family = "poisson")
+
+# Binomial: cbind(successes, failures) ~ predictors
+stepFMR(fmr_binomial_example$formula, fmr_binomial_example$data,
+        G_max = 3, family = "binomial")
+```
+
+A 0/1 binomial response is accepted but triggers a warning, since binary
+responses carry little information about component membership, so grouped
+counts are preferred.
+
+## Tuning
+
+`fmr_control()` collects the tuning parameters. Most users only need:
+
+* `alpha`: the significance level (default 0.05),
+* `direction`: `"forward"` or `"backward"`,
+* `max_iter` and `tol`: EM convergence,
+* `parallel`: run candidate tests in parallel.
+
+```{r control, eval = FALSE}
+ctrl <- fmr_control(alpha = 0.01, direction = "backward")
+stepFMR(sim$formula, sim$data, G_max = 3, control = ctrl)
+```
+
+The remaining arguments govern initialization and numerical safeguards.
+
+## Checking against known truth
+
+When data are simulated, `simulate_fmr()` returns the true component labels.
+Because mixture components have no natural order, `match_groups()` relabels
+the fit so its components line up with the truth:
+
+```{r match}
+aligned <- match_groups(fit, sim$true_group)
+aligned$best_fit$parameter_values[["beta_g"]]
+```

@@ -1,5 +1,21 @@
-# E-step for Gaussian mixture regression
-
+#' E-Step
+#'
+#' Computes each component's mixing-weighted density for every observation
+#' under the given family, normalizes across components to update the
+#' responsibilities \code{tau}, and updates the mixing proportions
+#' \code{pi_g} (floored at 1e-16 and renormalized). For \code{"zip"}, the
+#' first \code{G - 1} components are Poisson and component \code{G} is a
+#' point mass at zero. \code{em_state} is mutated in place.
+#'
+#' @param dat A \code{FMRData} object.
+#' @param em_state An \code{EmState} object holding \code{pi_g},
+#'   \code{sigma_g} (Gaussian only) and the linear predictor \code{eta}.
+#' @param family One of \code{"gaussian"}, \code{"poisson"},
+#'   \code{"binomial"}, or \code{"zip"}.
+#'
+#' @return Called for its side effect of updating \code{em_state}
+#'   (\code{loglik}, \code{tau}, \code{pi_g}, \code{eta}).
+#' @noRd
 e_step <- function(dat, em_state, family) {
   y <- dat$y
   n <- dat$n

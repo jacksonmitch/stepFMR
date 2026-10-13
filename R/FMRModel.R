@@ -9,8 +9,9 @@
 #' @param data A data.frame containing the variables in \code{formula}.
 #' @param G_values An integer vector of candidate numbers of mixture
 #'   components.
-#' @param family A character string specifying the error distribution:
-#'   \code{"gaussian"}, \code{"poisson"}, or \code{"binomial"}.
+#' @param family A character string specifying the response distribution:
+#'   \code{"gaussian"}, \code{"poisson"}, \code{"binomial"}, or
+#'   \code{"zip"}.
 #' @param control A \code{FMRControl} object (from \code{fmr_control()}).
 #'   If \code{control$sigma_floor} is \code{NULL}, it is set here to
 #'   \code{0.05 * sd(response)}.
