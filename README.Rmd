@@ -61,3 +61,13 @@ print_steps(fit_bin$effect_determination)
 print(fit_bin)
 ```
 
+If you already know which predictors have common effects, `fitFMR()` fits
+that model directly over a range of components you choose, without
+the stepwise search:
+
+```{r fit}
+# x2 has the same effect in every component, comparing G = 2 and G = 3
+fit_fixed <- fitFMR(sim$formula, sim$data, G = 2:3, common = "x2")
+fit_fixed
+```
+

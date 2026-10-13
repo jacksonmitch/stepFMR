@@ -10,8 +10,8 @@
 \item{x}{An object of class \code{fit_fmr}. This is produced internally
 while fitting each candidate number of components, and surfaces to
 users as the \code{best_fit} component of the list returned by
-\code{\link{stepFMR}} (always present, regardless of \code{procedure}; see
-\code{stepFMR}'s \strong{Value} section).}
+\code{\link{stepFMR}}. It is always present, regardless of
+\code{procedure} (see \code{stepFMR}'s \strong{Value} section).}
 
 \item{...}{Currently unused.}
 }

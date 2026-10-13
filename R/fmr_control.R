@@ -1,10 +1,13 @@
-#' Create a Control Object for stepFMR Models
+#' Create a Control Object for stepFMR and fitFMR Models
 #'
 #' Creates and validates a control object of tuning parameters for
-#' \code{stepFMR()}. Most users only need \code{alpha}, \code{direction}, and
-#' \code{max_iter}/\code{tol} (EM convergence). The remaining parameters govern
-#' initialization strategies, IRWLS loops, and numerical safeguards. They
-#' are available for tuning but the defaults are reasonable for most fits.
+#' \code{\link{stepFMR}} and \code{\link{fitFMR}}. Most users only need
+#' \code{alpha}, \code{direction}, and \code{max_iter}/\code{tol} (EM
+#' convergence). The remaining parameters govern initialization strategies,
+#' IRWLS loops, and numerical safeguards. They are available for tuning but
+#' the defaults are reasonable for most fits. \code{fitFMR()} ignores
+#' \code{alpha}, \code{direction}, \code{parallel}, and \code{verbose},
+#' which only apply to the stepwise search in \code{stepFMR()}.
 #'
 #' @param alpha A numeric value between 0 and 1 specifying the significance
 #'  level. Default is 0.05.
@@ -18,7 +21,7 @@
 #'  \code{"backward"}, specifying the testing direction. Default is
 #'  \code{"forward"}.
 #' @param verbose A logical flag. If \code{TRUE}, detailed execution logs are
-#'  printed to the console during execution Default is \code{FALSE}.
+#'  printed to the console during execution. Default is \code{FALSE}.
 #' @param tol A non-negative numeric value specifying the iteration
 #'  tolerance threshold. Default is 1e-6.
 #' @param n_kmeans_init A non-negative integer, no larger than
@@ -34,7 +37,7 @@
 #'  families. Default is 50.
 #' @param irwls_tol A non-negative numeric value specifying the convergence
 #'  tolerance for the IRWLS iterations used for the Poisson and binomial
-#'  distribution families; iteration stops when the largest absolute
+#'  distribution families. Iteration stops when the largest absolute
 #'  change in coefficients falls below this value. Default is 1e-8.
 #' @param weight_floor A non-negative numeric value establishing a lower
 #'  bound for the working weights used in the IRWLS loop, to prevent
@@ -54,7 +57,7 @@
 #'  computation. If \code{TRUE}, a general \code{future::multisession} plan overrides
 #'  the current one, which is restored on exit. A \code{future} can be
 #'  specified manually while setting this flag as \code{FALSE} for
-#'  hardware-specific customization. Default is \code{FALSE}
+#'  hardware-specific customization. Default is \code{FALSE}.
 #'
 #' @return A structured list of class \code{"FMRControl"} containing all
 #'   validated control arguments.
@@ -105,7 +108,7 @@ fmr_control <- function(
     add = collection
   )
   checkmate::assert_flag(verbose, add = collection)
-  checkmate::assert_number(tol, lower = 0, add = collection) # TODO: allows 0
+  checkmate::assert_number(tol, lower = 1e-16, add = collection) 
   checkmate::assert_int(n_kmeans_init, lower = 0, add = collection)
   if (n_kmeans_init > n_init) {
     collection$push(sprintf(

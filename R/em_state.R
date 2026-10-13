@@ -9,7 +9,7 @@
 #' in place rather than returning a new object each iteration.
 #'
 #' @param tau A numeric responsibility matrix (n x G).
-#' @param pi_g An optional numeric vector of mixing proportions; defaults to
+#' @param pi_g An optional numeric vector of mixing proportions. Defaults to
 #'   \code{colMeans(tau)}.
 #' @param beta_g An optional numeric matrix of heterogeneous coefficients
 #'   (G x p).

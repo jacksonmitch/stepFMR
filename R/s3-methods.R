@@ -258,8 +258,8 @@ format_steps <- function(steps, all_predictors, direction, label_state) {
 #' @param x An object of class \code{fit_fmr}. This is produced internally
 #'   while fitting each candidate number of components, and surfaces to
 #'   users as the \code{best_fit} component of the list returned by
-#'   \code{\link{stepFMR}} (always present, regardless of \code{procedure}; see
-#'   \code{stepFMR}'s \strong{Value} section).
+#'   \code{\link{stepFMR}}. It is always present, regardless of
+#'   \code{procedure} (see \code{stepFMR}'s \strong{Value} section).
 #' @param ... Currently unused.
 #'
 #' @return \code{x}, invisibly.
@@ -463,5 +463,136 @@ print.summary.stepFMR <- function(x, ...) {
     print(x$best_fit)
   }
 
+  invisible(x)
+}
+
+# ---- fitFMR ------------------------------------------------------------------
+
+#' Print a fitFMR Result
+#'
+#' Prints the family, formula, and which predictors are heterogeneous or
+#' homogeneous, a table of log-likelihood, number of parameters, and BIC for
+#' each fitted number of components (the selected one is marked with
+#' \code{*}), and the estimates of the selected fit.
+#'
+#' @param x An object of class \code{fitFMR}, as returned by
+#'   \code{\link{fitFMR}}.
+#' @param ... Currently unused.
+#'
+#' @return \code{x}, invisibly.
+#' @seealso \code{\link{fitFMR}}, \code{\link{summary.fitFMR}}
+#' @export
+#'
+#' @examples
+#' sim <- fmr_gaussian_example
+#' fit <- fitFMR(sim$formula, sim$data, G = 2:3, common = "x2")
+#' print(fit)
+print.fitFMR <- function(x, ...) {
+  cat("fitFMR | family: ", x$family,
+    " | G: ", paste(x$G_values, collapse = ","), "\n",
+    sep = ""
+  )
+  cat("  Formula:       ", format_formula(x$formula), "\n", sep = "")
+  cat("  Heterogeneous: ", format_none(x$heterogeneous), "\n", sep = "")
+  cat("  Homogeneous:   ", format_none(x$common), "\n\n", sep = "")
+
+  tab <- x$table[, c("G", "loglik", "num_parameters", "bic")]
+  tab$loglik <- round(tab$loglik, 2)
+  tab$bic <- round(tab$bic, 2)
+  tab[[" "]] <- ifelse(tab$G == x$selected_G, "*", "")
+  print(tab, row.names = FALSE)
+  cat("\n")
+
+  print(x$best_fit)
+  invisible(x)
+}
+
+#' Summarize a fitFMR Result
+#'
+#' Collects the call, formula, family, effect types, the table of fits for
+#' each number of components, the selected fit, and its initialization
+#' diagnostics into a \code{summary.fitFMR} object for printing.
+#'
+#' @param object An object of class \code{fitFMR}, as returned by
+#'   \code{\link{fitFMR}}.
+#' @param ... Currently unused.
+#'
+#' @return An object of class \code{summary.fitFMR}: a list containing the
+#'   call, formula, family, candidate \code{G} values, common and
+#'   heterogeneous predictors, the table of fits, the selected \code{G}, the
+#'   selected fit, and its initialization diagnostics.
+#' @seealso \code{\link{fitFMR}}, \code{\link{print.fitFMR}}
+#' @export
+#'
+#' @examples
+#' sim <- fmr_gaussian_example
+#' fit <- fitFMR(sim$formula, sim$data, G = 2:3, common = "x2")
+#' summary(fit)
+summary.fitFMR <- function(object, ...) {
+  out <- list(
+    call = object$call,
+    formula = object$formula,
+    family = object$family,
+    G_values = object$G_values,
+    common = object$common,
+    heterogeneous = object$heterogeneous,
+    table = object$table,
+    selected_G = object$selected_G,
+    best_fit = object$best_fit,
+    initialization = object$best_fit$initialization
+  )
+  class(out) <- "summary.fitFMR"
+  out
+}
+
+#' Print a fitFMR Summary
+#'
+#' Prints the summary produced by \code{\link{summary.fitFMR}}: the model
+#' structure, the full table of fits (including iterations and convergence),
+#' a one-line initialization summary for the selected fit, and the selected
+#' fit's estimates.
+#'
+#' @param x An object of class \code{summary.fitFMR}, as returned by
+#'   \code{\link{summary.fitFMR}}.
+#' @param ... Currently unused.
+#'
+#' @return \code{x}, invisibly.
+#' @seealso \code{\link{fitFMR}}
+#' @export
+#'
+#' @examples
+#' sim <- fmr_gaussian_example
+#' fit <- fitFMR(sim$formula, sim$data, G = 2:3, common = "x2")
+#' print(summary(fit))
+print.summary.fitFMR <- function(x, ...) {
+  cat("fitFMR summary | family: ", x$family,
+    " | G: ", paste(x$G_values, collapse = ","), "\n",
+    sep = ""
+  )
+  cat("  Formula:       ", format_formula(x$formula), "\n", sep = "")
+  cat("  Heterogeneous: ", format_none(x$heterogeneous), "\n", sep = "")
+  cat("  Homogeneous:   ", format_none(x$common), "\n\n", sep = "")
+
+  tab <- x$table
+  tab$loglik <- round(tab$loglik, 2)
+  tab$bic <- round(tab$bic, 2)
+  tab[[" "]] <- ifelse(tab$G == x$selected_G, "*", "")
+  print(tab, row.names = FALSE)
+  cat("\n")
+
+  init <- x$initialization
+  cat(sprintf(
+    "Initialization (G = %d): %d starts tried, %d kept; best start: %s\n",
+    x$selected_G, init$n_starts, init$n_kept, x$best_fit$best_init_name
+  ))
+  if (any(!x$table$converged)) {
+    cat("Note: EM did not converge for G = ",
+      paste(x$table$G[!x$table$converged], collapse = ", "), "\n",
+      sep = ""
+    )
+  }
+  cat("\n")
+
+  print(x$best_fit)
   invisible(x)
 }

@@ -2,7 +2,7 @@
 
 #' Shared Stepwise Search Driver
 #'
-#' Drives the greedy forward/backward stepwise search shared by
+#' Drives the forward/backward stepwise search shared by
 #' \code{select_variables()} and \code{determine_effects()}. At each step,
 #' it fits a baseline ("shared") model plus one candidate model per
 #' remaining predictor, compares each candidate to the shared fit via

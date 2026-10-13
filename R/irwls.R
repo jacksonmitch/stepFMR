@@ -1,3 +1,22 @@
+#' Iteratively Reweighted Least Squares M-Step
+#'
+#' M-step for the Poisson and binomial families when the design has common
+#' predictors. Starting from the current coefficients (or, if none exist, a
+#' weighted fit to a transformed response), repeatedly forms the working
+#' response and weights for the log/logit link, multiplies the weights by
+#' the responsibilities \code{tau}, and re-solves with \code{wls_sqr()}
+#' until the largest coefficient change is below \code{control$irwls_tol}
+#' or \code{control$irwls_max_iter} is reached. \code{em_state} is updated
+#' in place.
+#'
+#' @param dat A \code{FMRData} object.
+#' @param em_state An \code{EmState} object.
+#' @param control A \code{FMRControl} object.
+#' @param family Either \code{"poisson"} or \code{"binomial"}.
+#'
+#' @return The updated \code{em_state}, with \code{beta_g}, \code{beta},
+#'   \code{eta}, \code{irwls_iterations} and \code{irwls_converged} set.
+#' @noRd
 irwls_fmr <- function(dat, em_state, control,
                       family = c("poisson", "binomial")) {
   family <- match.arg(family)

@@ -2,3 +2,30 @@ url: ~
 template:
   bootstrap: 5
 
+reference:
+  - title: Fitting
+    contents:
+      - stepFMR
+      - fitFMR
+      - fmr_control
+  - title: Inspecting results
+    contents:
+      - print.stepFMR
+      - summary.stepFMR
+      - print.summary.stepFMR
+      - print.fitFMR
+      - summary.fitFMR
+      - print.summary.fitFMR
+      - print.select_variables
+      - print.determine_effects
+      - print.fit_fmr
+      - print_steps
+      - print_steps.select_variables
+      - print_steps.determine_effects
+  - title: Simulation and evaluation
+    contents:
+      - simulate_fmr
+      - match_groups
+  - title: Example data
+    contents:
+      - starts_with("fmr_")

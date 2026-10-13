@@ -50,7 +50,7 @@
 #'     and \code{x3} has a true coefficient of 0 in both components
 #'     (null).}
 #'   \item{formula}{The model formula,
-#'     \code{cbind(y, n_trials - y) ~ x1 + x2 + x3}.}
+#'     \code{cbind(y, size - y) ~ x1 + x2 + x3}.}
 #'   \item{true_group}{An integer vector of the simulated component
 #'     membership of the response, for use with \code{match_groups()}.}
 #' }

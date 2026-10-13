@@ -1,4 +1,23 @@
 # Wrapper function for M-Steps across families and method
+#' M-Step Dispatcher
+#'
+#' Chooses the M-step for the family. If the design has common
+#' (homogeneous) predictors (\code{dat$p_com > 0}), the structured-QR
+#' version (\code{m_step_sqr_*}) is used. Otherwise the plain
+#' per-component fit (\code{lm.wfit}/\code{glm.fit}) is used. The
+#' \code{"zip"} family reuses the Poisson M-steps. \code{em_state} is
+#' mutated in place.
+#'
+#' @param dat A \code{FMRData} object.
+#' @param em_state An \code{EmState} object.
+#' @param family One of \code{"gaussian"}, \code{"poisson"},
+#'   \code{"binomial"}, or \code{"zip"}.
+#' @param control A \code{FMRControl} object.
+#'
+#' @return Called for its side effect of updating \code{em_state}
+#'   (\code{beta_g}, \code{beta}, \code{eta}, and \code{sigma_g} for
+#'   Gaussian).
+#' @noRd
 m_step <- function(dat, em_state, family, control) {
   if (dat$p_com > 0) {
     em_state <- switch(family,
@@ -19,6 +38,9 @@ m_step <- function(dat, em_state, family, control) {
   }
 }
 
+# Gaussian M-step, no common predictors: one weighted least squares fit per
+# component (lm.wfit, weights = tau), then component SDs from the weighted
+# residuals, floored at control$sigma_floor.
 m_step_gaussian <- function(dat, em_state, control) {
   tau <- em_state$tau
   G <- em_state$G
@@ -66,6 +88,8 @@ m_step_gaussian <- function(dat, em_state, control) {
   em_state$sigma_g <- sigma_g
 }
 
+# Poisson M-step, no common predictors: one weighted glm.fit per component
+# (weights = tau, floored at control$weight_floor). Also used for "zip".
 m_step_poisson <- function(dat, em_state, control) {
   tau <- em_state$tau
   G <- em_state$G
@@ -109,6 +133,8 @@ m_step_poisson <- function(dat, em_state, control) {
   em_state$eta <- eta
 }
 
+# Binomial M-step, no common predictors: one weighted glm.fit per component
+# on the (successes, failures) response, using dat$binomial_size for trials.
 m_step_binomial <- function(dat, em_state, control) {
   tau <- em_state$tau
   G <- em_state$G

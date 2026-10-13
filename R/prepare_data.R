@@ -32,9 +32,13 @@ prepare_data <- function(model, included = model$predictors, common = NULL) {
   X_het <- stats::model.matrix(het_formula, data = mf)
 
   if (length(common) > 0) {
+    # Keep the intercept while building the design so factors get k - 1
+    # treatment dummies, then drop it: the intercept is always
+    # component-specific (it lives in X_het).
     X_com <- stats::model.matrix(
-      stats::as.formula(paste("~", paste(common, collapse = " + "), "- 1")), 
+      stats::as.formula(paste("~", paste(common, collapse = " + "))),
       data = mf)
+    X_com <- X_com[, colnames(X_com) != "(Intercept)", drop = FALSE]
   } else {
     X_com <- matrix(numeric(0), nrow = length(y), ncol = 0)
   }
@@ -48,7 +52,7 @@ prepare_data <- function(model, included = model$predictors, common = NULL) {
 #' mixture regression fitting: the response \code{y}, the heterogeneous
 #' design matrix \code{X_het}, the common design matrix \code{X_com}, and
 #' (for binomial models) \code{binomial_size}. All fields are read-only
-#' active bindings; structural checks (matching dimensions, no missing
+#' active bindings. Structural checks (matching dimensions, no missing
 #' values, \code{n > ncol(X_het)}) run once in \code{initialize()}.
 #'
 #' @param y A numeric response vector.
@@ -113,7 +117,7 @@ FMRData <- R6::R6Class(
         ))
       }
 
-      # na.fail in model.frame covers y and X_het; X_com is built separately
+      # na.fail in model.frame covers y and X_het, while X_com is built separately
       if (anyNA(X_com)) {
         stop("X_com contains missing values.")
       }
