@@ -2,8 +2,11 @@ Package: stepFMR
 Title: Finite Mixture Regression with Variable and Effect-Type Selection
 Version: 0.1
 Authors@R: 
-    c(person("Tulio", "Martins", email = "tbatista@uoguelph.ca", role = c("aut", "cre")),
-      person("Jackson", "Mitchell", email = "jmitch19@uoguelph.ca", role = c("aut")))
+    c(person("Tulio", "Martins", email = "tbatista@uoguelph.ca", role = c("aut", "cre", "cph")),
+      person("Jackson", "Mitchell", email = "jmitch19@uoguelph.ca", role = c("aut", "cph")),
+      person("Zeny", "Feng", email = "zfeng@uoguelph.ca", role = c("ctb", "ths", "cph")),
+      person("Allan", "Willms", email = "awillms@uoguelph.ca", role = c("ctb", "ths", "cph")),
+      person("Chong", "Gan", email = "", role = c()))
 Description: Implements finite mixture regression models for Gaussian, Poisson,
     binomial, and (experimentally) zero-inflated Poisson responses, with procedures for selecting predictors and
     determining whether covariate effects are heterogeneous or homogeneous across

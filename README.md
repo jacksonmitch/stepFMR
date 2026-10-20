@@ -9,7 +9,7 @@
 Finite Mixture Regression models allows relationships between the
 response ($\mathbf{Y}$) and the predictors
 $(\mathbf{X}_1,\dots, \mathbf{X}_p)$ to differ between a finite number
-of subpopulations. An R package, stepFMR implements stepwise procedures
+of subpopulations. The R package, stepFMR implements stepwise procedures
 that select predictors having an effect on the response and determines
 whether each of the selected predictors has homogeneous or heterogeneous
 effects. The stepwise procedures are based on hypothesis testing where a
@@ -34,15 +34,56 @@ pak::pak("jacksonmitch/stepFMR")
 
 ## Example
 
-These are basic examples of the function `stepFMR` being used with
-different distributions, showcasing the different s3 methods to be used
-with the result:
+This example simulates data from a two-component mixture where the true
+answer is known, runs the stepwise WEST procedure, and then fits a model
+with a specified structure. The vignette (`vignette("stepFMR")`)
+explains each step in more detail.
+
+### 1. Data generation
+
+`simulate_fmr()` creates data from a mixture regression with
+coefficients that you choose, so the fitted results can be checked
+against the truth. Each row of `betas` holds the coefficients of one
+component, with columns for the intercept and each predictor. Here the
+first covariate, `x1`, is heterogeneous, `x2` is homogeneous, and `x3`
+has no effect. `pi` is the mixing proportions of each component and
+`sigma` is the group specific standard deviations.
 
 ``` r
-library(stepFMR)
+suppressPackageStartupMessages(library(stepFMR))
 
-sim <- fmr_gaussian_example
+betas <- rbind(
+  c(-2, -3, 1, 0),
+  c(2, 3, 1, 0)
+)
+colnames(betas) <- c("(Intercept)", "x1", "x2", "x3")
 
+sim <- simulate_fmr(
+  n = 1000, betas = betas, pi = c(0.3, 0.7), sigma = c(0.5, 0.25),
+  family = "gaussian", seed = 1
+)
+```
+
+The result is a list. `sim$data` is a data frame with the response `y`
+and the predictors `x1`, `x2` and `x3`. `sim$formula` is the model
+formula `y ~ x1 + x2 + x3`, which names the response on the left and the
+predictors on the right, just as in `lm()`. `sim$true_group` records
+which component each observation came from. With your own data, pass
+your own formula and data frame instead, for example
+`stepFMR(y ~ x1 + x2 + x3, data = my_data)`.
+
+### 2. WEST procedure
+
+The number of components $G$ is unknown, and whether a predictor matters
+can depend on it. `stepFMR()` therefore tests each predictor under every
+number of components from 2 to `G_max` and combines the results into one
+weighted p-value (WEST). It runs in two stages. Variable selection
+decides which predictors have an effect. Effect determination then
+decides whether each selected predictor is heterogeneous or homogeneous.
+`G_max = 3` means that models with 2 and 3 components are compared, and
+the one with the lowest BIC is reported.
+
+``` r
 fit <- stepFMR(sim$formula, sim$data, G_max = 3)
 print(fit)
 #> stepFMR | family: gaussian | G: 2,3 | procedure: complete
@@ -55,184 +96,81 @@ print(fit)
 #> 
 #> Effect-type determination
 #>   Direction: forward  |  Alpha: 0.05
-#>   Heterogeneous: x1, x2
-#>   Homogeneous:   none
-#>   Final formula: y ~ (x1 + x2 | group)
+#>   Heterogeneous: x1
+#>   Homogeneous:   x2
+#>   Final formula: y ~ x2 + (x1 | group)
 #> 
 #> Best fit (G: 2)
 #> 
 #> Mixing proportions:
 #>     g1     g2 
-#> 0.3739 0.6261 
+#> 0.3047 0.6953 
 #> 
 #> Component standard deviations:
 #>     g1     g2 
-#> 0.5452 0.5134 
+#> 0.5141 0.2440 
 #> 
 #> Heterogeneous coefficients:
-#>    (Intercept)      x1     x2
-#> g1     -2.0123 -2.9878 0.9595
-#> g2      1.9927  3.0204 1.0594
-# Align fitted components to the known true groups
-aligned <- match_groups(fit, sim$true_group)
-aligned$best_fit$parameter_values[["beta_g"]]
-#>    (Intercept)       x1        x2
-#> g1   -2.012291 -2.98783 0.9595001
-#> g2    1.992688  3.02040 1.0593727
+#>    (Intercept)      x1
+#> g1     -2.0488 -2.9971
+#> g2      2.0010  3.0164
+#> 
+#> Homogeneous coefficients:
+#>     x2 
+#> 0.9977
 ```
 
+The printed result lists the selected predictors, how each effect was
+classified, and the estimates at the best number of components. To see
+the WEST procedure, `print_steps()` shows the weighted p-value of every
+candidate at each step. A candidate is added when its p-value is below
+`alpha` (0.05 by default).
+
 ``` r
-# Poisson
-sim_pois <- fmr_poisson_example
-fit_pois <- stepFMR(sim_pois$formula, sim_pois$data, G_max = 3, family = "poisson")
-summary(fit_pois)
-#> stepFMR summary | family: poisson | G: 2,3 | procedure: complete
-#> 
-#> Variable selection
-#>   Direction: forward  |  Alpha: 0.05
-#>   Selected:      x1, x2
-#>   Not selected:  x3
-#>   Final formula: y ~ x1 + x2
-#> 
+print_steps(fit$variable_selection)
 #> Step 1  (none included)
 #>   Candidate             Weighted p-value
 #>   ---------             -------     
-#>   x1                    6.97e-40   *
-#>   x2                    6.70e-07    
-#>   x3                    4.75e-03    
+#>   x1                    0.00e+00   *
+#>   x2                    2.34e-18    
+#>   x3                    5.41e-01    
 #>   Chosen: x1
 #> 
 #> Step 2  (included: x1  |  excluded: x2, x3)
 #>   Candidate             Weighted p-value
 #>   ---------             -------     
-#>   x2                    4.97e-20   *
-#>   x3                    2.19e-01    
+#>   x2                    0.00e+00   *
+#>   x3                    9.33e-01    
 #>   Chosen: x2
 #> 
 #> Step 3  (included: x1, x2  |  excluded: x3)
 #>   Candidate             Weighted p-value
 #>   ---------             -------     
-#>   x3                    6.68e-02    
+#>   x3                    1.34e-01    
 #>   No eligible candidate -- stopping.
-#> 
-#> Effect-type determination
-#>   Direction: forward  |  Alpha: 0.05
-#>   Heterogeneous: x1
-#>   Homogeneous:   x2
-#>   Final formula: y ~ x2 + (x1 | group)
-#> 
+print_steps(fit$effect_determination)
 #> Step 1  (all homogeneous)
 #>   Candidate             Weighted p-value
 #>   ---------             -------     
-#>   x1                    6.29e-24   *
-#>   x2                    1.03e-02    
+#>   x1                    2.61e-311  *
+#>   x2                    2.85e-01    
 #>   Chosen: x1
 #> 
 #> Step 2  (heterogeneous: x1  |  homogeneous: x2)
 #>   Candidate             Weighted p-value
 #>   ---------             -------     
-#>   x2                    9.29e-01    
+#>   x2                    7.67e-02    
 #>   No eligible candidate -- stopping.
-#> 
-#> Best fit (G: 2)
-#> 
-#> Mixing proportions:
-#>     g1     g2 
-#> 0.3812 0.6188 
-#> 
-#> Heterogeneous coefficients:
-#>    (Intercept)      x1
-#> g1     -0.3487 -0.9570
-#> g2      0.5004  0.9483
-#> 
-#> Homogeneous coefficients:
-#>    x2 
-#> 0.365
 ```
 
-``` r
-# Binomial (25 trials per observation)
-sim_bin <- fmr_binomial_example
-fit_bin <- stepFMR(sim_bin$formula, sim_bin$data, G_max = 3, family = "binomial")
-print_steps(fit_bin$variable_selection)
-#> Step 1  (none included)
-#>   Candidate             Weighted p-value
-#>   ---------             -------     
-#>   x1                    1.94e-114  *
-#>   x2                    3.31e-04    
-#>   x3                    3.73e-04    
-#>   Chosen: x1
-#> 
-#> Step 2  (included: x1  |  excluded: x2, x3)
-#>   Candidate             Weighted p-value
-#>   ---------             -------     
-#>   x2                    3.12e-72   *
-#>   x3                    5.36e-03    
-#>   Chosen: x2
-#> 
-#> Step 3  (included: x1, x2  |  excluded: x3)
-#>   Candidate             Weighted p-value
-#>   ---------             -------     
-#>   x3                    2.19e-03   *
-#>   Chosen: x3
-print_steps(fit_bin$effect_determination)
-#> Step 1  (all homogeneous)
-#>   Candidate             Weighted p-value
-#>   ---------             -------     
-#>   x1                    1.77e-182  *
-#>   x2                    3.90e-01    
-#>   x3                    6.30e-03    
-#>   Chosen: x1
-#> 
-#> Step 2  (heterogeneous: x1  |  homogeneous: x3, x2)
-#>   Candidate             Weighted p-value
-#>   ---------             -------     
-#>   x2                    1.47e-01    
-#>   x3                    2.09e-03   *
-#>   Chosen: x3
-#> 
-#> Step 3  (heterogeneous: x1, x3  |  homogeneous: x2)
-#>   Candidate             Weighted p-value
-#>   ---------             -------     
-#>   x2                    1.12e-01    
-#>   No eligible candidate -- stopping.
-print(fit_bin)
-#> stepFMR | family: binomial | G: 2,3 | procedure: complete
-#> 
-#> Variable selection
-#>   Direction: forward  |  Alpha: 0.05
-#>   Selected:      x1, x2, x3
-#>   Not selected:  none
-#>   Final formula: y ~ x1 + x2 + x3
-#> 
-#> Effect-type determination
-#>   Direction: forward  |  Alpha: 0.05
-#>   Heterogeneous: x1, x3
-#>   Homogeneous:   x2
-#>   Final formula: y ~ x2 + (x1 + x3 | group)
-#> 
-#> Best fit (G: 2)
-#> 
-#> Mixing proportions:
-#>     g1     g2 
-#> 0.5949 0.4051 
-#> 
-#> Heterogeneous coefficients:
-#>    (Intercept)      x1      x3
-#> g1      1.0408  1.5209 -0.0222
-#> g2     -0.9977 -1.5368  0.1357
-#> 
-#> Homogeneous coefficients:
-#>    x2 
-#> 0.553
-```
+### 3. Fitting
 
-If you already know which predictors have common effects, `fitFMR()`
-fits that model directly over a range of components you choose, without
-the stepwise search:
+If you already know which predictors have a common effect, `fitFMR()`
+fits that structure directly, without the stepwise search.
+`common = "x2"` makes `x2` homogeneous, and `G = 2:3` compares models
+with 2 and 3 components by BIC.
 
 ``` r
-# x2 has the same effect in every component, comparing G = 2 and G = 3
 fit_fixed <- fitFMR(sim$formula, sim$data, G = 2:3, common = "x2")
 fit_fixed
 #> fitFMR | family: gaussian | G: 2,3
@@ -241,25 +179,122 @@ fit_fixed
 #>   Homogeneous:   x2
 #> 
 #>  G  loglik num_parameters     bic  
-#>  2 -677.04             10 1416.24 *
-#>  3 -673.50             15 1440.21  
+#>  2 -804.01             10 1677.10 *
+#>  3 -794.38             15 1692.38  
 #> 
 #> Best fit (G: 2)
 #> 
 #> Mixing proportions:
 #>     g1     g2 
-#> 0.3744 0.6256 
+#> 0.3049 0.6951 
 #> 
 #> Component standard deviations:
 #>     g1     g2 
-#> 0.5469 0.5117 
+#> 0.5134 0.2432 
 #> 
 #> Heterogeneous coefficients:
-#>    (Intercept)      x1      x3
-#> g1     -2.0119 -2.9806  0.0738
-#> g2      1.9935  3.0216 -0.0429
+#>    (Intercept)      x1     x3
+#> g1     -2.0484 -2.9993 0.0235
+#> g2      1.9998  3.0158 0.0168
 #> 
 #> Homogeneous coefficients:
 #>     x2 
-#> 1.0209
+#> 0.9977
+```
+
+Mixture components have no natural order, so the fitted components can
+be numbered differently from the simulated ones. Because the true groups
+are known here, `match_groups()` relabels the fit to agree with them.
+The rows of the matrix below can then be compared directly with the rows
+of `betas`.
+
+``` r
+aligned <- match_groups(fit, sim$true_group)
+aligned$best_fit$parameter_values[["beta_g"]]
+#>    (Intercept)        x1
+#> g1   -2.048839 -2.997093
+#> g2    2.000963  3.016419
+```
+
+### Other families
+
+The package supports `family = "poisson"` and `family = "binomial"`. For
+binomial data the response is `cbind(successes, failures)`, which
+`simulate_fmr()` builds for you from the number of trials given by
+`size`.
+
+``` r
+sim_pois <- simulate_fmr(
+  n = 500,
+  betas = rbind(c(-0.5, -1, 0.3, 0), c(0.5, 1, 0.3, 0)),
+  pi = c(0.4, 0.6), family = "poisson", seed = 2
+)
+fit_pois <- stepFMR(sim_pois$formula, sim_pois$data, G_max = 3, family = "poisson")
+print(fit_pois)
+#> stepFMR | family: poisson | G: 2,3 | procedure: complete
+#> 
+#> Variable selection
+#>   Direction: forward  |  Alpha: 0.05
+#>   Selected:      x1, x2
+#>   Not selected:  x3
+#>   Final formula: y ~ x1 + x2
+#> 
+#> Effect-type determination
+#>   Direction: forward  |  Alpha: 0.05
+#>   Heterogeneous: x1
+#>   Homogeneous:   x2
+#>   Final formula: y ~ x2 + (x1 | group)
+#> 
+#> Best fit (G: 2)
+#> 
+#> Mixing proportions:
+#>     g1     g2 
+#> 0.3814 0.6186 
+#> 
+#> Heterogeneous coefficients:
+#>    (Intercept)      x1
+#> g1     -0.3451 -0.9554
+#> g2      0.4997  0.9490
+#> 
+#> Homogeneous coefficients:
+#>     x2 
+#> 0.3647
+```
+
+``` r
+sim_bin <- simulate_fmr(
+  n = 500,
+  betas = rbind(c(-1, -3, 0.5, 0), c(1, 3, 0.5, 0)),
+  pi = c(0.4, 0.6), family = "binomial", size = 25, seed = 3
+)
+fit_bin <- stepFMR(sim_bin$formula, sim_bin$data, G_max = 3, family = "binomial")
+print(fit_bin)
+#> stepFMR | family: binomial | G: 2,3 | procedure: complete
+#> 
+#> Variable selection
+#>   Direction: forward  |  Alpha: 0.05
+#>   Selected:      x1, x2
+#>   Not selected:  x3
+#>   Final formula: y ~ x1 + x2
+#> 
+#> Effect-type determination
+#>   Direction: forward  |  Alpha: 0.05
+#>   Heterogeneous: x1
+#>   Homogeneous:   x2
+#>   Final formula: y ~ x2 + (x1 | group)
+#> 
+#> Best fit (G: 2)
+#> 
+#> Mixing proportions:
+#>     g1     g2 
+#> 0.5896 0.4104 
+#> 
+#> Heterogeneous coefficients:
+#>    (Intercept)      x1
+#> g1      1.0062  3.0487
+#> g2     -1.0151 -3.0145
+#> 
+#> Homogeneous coefficients:
+#>     x2 
+#> 0.5557
 ```
