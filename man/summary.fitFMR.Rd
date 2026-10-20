@@ -14,7 +14,7 @@
 }
 \value{
 An object of class \code{summary.fitFMR}: a list containing the
-call, formula, family, candidate \code{G} values, common and
+call, formula, family, candidate \code{G} values, homogeneous and
 heterogeneous predictors, the table of fits, the selected \code{G}, the
 selected fit, and its initialization diagnostics.
 }
@@ -29,5 +29,5 @@ fit <- fitFMR(sim$formula, sim$data, G = 2:3, common = "x2")
 summary(fit)
 }
 \seealso{
-\code{\link{fitFMR}}, \code{\link{print.fitFMR}}
+\code{\link{fitFMR}}
 }

@@ -41,7 +41,7 @@ simulation.}
 }
 \value{
 A list with elements: \code{data} (a data.frame with the response
-\code{y}, the covariates, and — for \code{family = "binomial"} — a \code{size} trial
+\code{y}, the covariates, and for \code{family = "binomial"} a \code{size} trial
 count column), \code{formula} (ready to pass to \code{\link[=stepFMR]{stepFMR()}} or \code{\link[=fitFMR]{fitFMR()}}, using a
 \code{cbind(y, size - y) ~ .} form for binomial), and \code{true_group} (the
 simulated integer group labels, for use with \code{match_groups()}).

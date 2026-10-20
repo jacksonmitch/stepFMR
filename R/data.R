@@ -15,6 +15,7 @@
 #'     membership of the response, for use with \code{match_groups()}.}
 #' }
 #' @seealso \code{\link{simulate_fmr}}, \code{\link{match_groups}}
+#' @keywords internal
 "fmr_gaussian_example"
 
 #' Example Poisson Mixture Regression Data
@@ -34,6 +35,7 @@
 #'     membership of the response, for use with \code{match_groups()}.}
 #' }
 #' @seealso \code{\link{simulate_fmr}}, \code{\link{match_groups}}
+#' @keywords internal
 "fmr_poisson_example"
 
 #' Example Binomial Mixture Regression Data
@@ -55,4 +57,5 @@
 #'     membership of the response, for use with \code{match_groups()}.}
 #' }
 #' @seealso \code{\link{simulate_fmr}}, \code{\link{match_groups}}
+#' @keywords internal
 "fmr_binomial_example"

@@ -20,7 +20,6 @@ fmr_control(
   weight_floor = 1e-10,
   init_burnin = 10,
   init_eps = 1e-06,
-  return_qr_parts = FALSE,
   parallel = FALSE
 )
 }
@@ -80,10 +79,6 @@ an initial responsibility matrix (\code{tau}) built from a cluster or
 quantile partition is to a hard assignment: the assigned component gets
 probability \code{1 - init_eps} and the rest share \code{init_eps}.
 Default is 1e-6.}
-
-\item{return_qr_parts}{A logical flag. If \code{TRUE}, the structured-QR
-M-step retains its intermediate QR decomposition components in its
-output instead of discarding them. Default is \code{FALSE}.}
 
 \item{parallel}{A logical flag for enabling user-friendly parallel
 computation. If \code{TRUE}, a general \code{future::multisession} plan overrides

@@ -42,9 +42,6 @@
 #' @param weight_floor A non-negative numeric value establishing a lower
 #'  bound for the working weights used in the IRWLS loop, to prevent
 #'  numerical instabilities. Default is 1e-10.
-#' @param return_qr_parts A logical flag. If \code{TRUE}, the structured-QR
-#'  M-step retains its intermediate QR decomposition components in its
-#'  output instead of discarding them. Default is \code{FALSE}.
 #' @param init_burnin A positive integer specifying the number of EM
 #'  iterations run for each candidate initialization during the burn-in
 #'  stage used to pick the best starting point. Default is 10.
@@ -86,7 +83,6 @@ fmr_control <- function(
   weight_floor = 1e-10,
   init_burnin = 10,
   init_eps = 1e-6,
-  return_qr_parts = FALSE,
   parallel = FALSE
 ) {
   # User Input checks
@@ -108,7 +104,7 @@ fmr_control <- function(
     add = collection
   )
   checkmate::assert_flag(verbose, add = collection)
-  checkmate::assert_number(tol, lower = 1e-16, add = collection) 
+  checkmate::assert_number(tol, lower = 1e-10, add = collection)
   checkmate::assert_int(n_kmeans_init, lower = 0, add = collection)
   if (n_kmeans_init > n_init) {
     collection$push(sprintf(

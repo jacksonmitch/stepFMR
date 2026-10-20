@@ -13,13 +13,10 @@
 #' @param z A numeric vector (recycled across components, e.g. the Gaussian
 #'   response) or an n x G matrix of working responses.
 #' @param weights An n x G matrix of non-negative observation weights.
-#' @param control A \code{FMRControl} object. If
-#'   \code{return_qr_parts} is \code{TRUE}, the intermediate factors are
-#'   also returned.
+#' @param control A \code{FMRControl} object.
 #'
 #' @return A list with \code{beta_g} (G x p_het matrix) and \code{beta}
-#'   (numeric vector of length p_com), plus \code{R1_list}, \code{E_list}
-#'   and \code{R2} when \code{control$return_qr_parts} is \code{TRUE}.
+#'   (numeric vector of length p_com).
 #' @noRd
 wls_sqr <- function(dat, z, weights, control) {
   A <- dat$X_het
@@ -93,10 +90,8 @@ wls_sqr <- function(dat, z, weights, control) {
 
   if (q > 0) {
     qrB <- qr(Bhat)
-    R2 <- qr.R(qrB)[seq_len(q), seq_len(q), drop = FALSE]
     beta <- as.numeric(qr.coef(qrB, zhat)[seq_len(q)])
   } else {
-    R2 <- matrix(numeric(0), nrow = 0, ncol = 0)
     beta <- numeric(0)
   }
 
@@ -112,17 +107,8 @@ wls_sqr <- function(dat, z, weights, control) {
     beta_g[g, ] <- backsolve(R1_list[[g]], rhs)
   }
 
-  out <- list(
+  list(
     beta_g = beta_g,
     beta = beta
   )
-
-
-  if (isTRUE(control$return_qr_parts)) {
-    out$R1_list <- R1_list
-    out$E_list <- E_list
-    out$R2 <- R2
-  }
-
-  out
 }

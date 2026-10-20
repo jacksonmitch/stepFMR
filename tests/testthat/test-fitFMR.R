@@ -24,7 +24,7 @@ test_that("fitFMR returns the documented object for a vector of G", {
 
   expect_s3_class(fit, "fitFMR")
   expect_named(fit, c(
-    "call", "formula", "family", "G_values", "common", "heterogeneous",
+    "call", "formula", "family", "G_values", "homogeneous", "heterogeneous",
     "fits", "table", "selected_G", "best_fit", "control"
   ))
   expect_equal(fit$G_values, 2:3)
@@ -41,7 +41,7 @@ test_that("fitFMR returns the documented object for a vector of G", {
     fit$fits[[paste0("G", fit$selected_G)]]
   )
   expect_equal(fit$heterogeneous, c("x1", "x2", "x3"))
-  expect_equal(fit$common, character(0))
+  expect_equal(fit$homogeneous, character(0))
 })
 
 test_that("fitFMR with a scalar G fits exactly one model", {
@@ -66,7 +66,7 @@ test_that("common predictors get one shared coefficient", {
   )
   pv <- fit$best_fit$parameter_values
 
-  expect_equal(fit$common, "x2")
+  expect_equal(fit$homogeneous, "x2")
   expect_equal(fit$heterogeneous, c("x1", "x3"))
   expect_equal(names(pv$beta), "x2")
   expect_equal(colnames(pv$beta_g), c("(Intercept)", "x1", "x3"))
@@ -148,7 +148,7 @@ test_that("summary.fitFMR collects the results and prints them", {
 
   expect_s3_class(s, "summary.fitFMR")
   expect_named(s, c(
-    "call", "formula", "family", "G_values", "common", "heterogeneous",
+    "call", "formula", "family", "G_values", "homogeneous", "heterogeneous",
     "table", "selected_G", "best_fit", "initialization"
   ))
   expect_equal(s$selected_G, fit$selected_G)

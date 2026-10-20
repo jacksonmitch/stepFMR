@@ -73,13 +73,13 @@
 #'  \item{variable_selection}{An object of class
 #'  \code{select_variables} recording which predictors were included,
 #'  or \code{NULL} if \code{procedure} did not include \code{"variables"}.
-#'  Pass this to \code{\link{print_steps.select_variables}} to see
+#'  Pass this to \code{\link{print_steps}} to see
 #'  the step-by-step search log.}
 #'  \item{effect_determination}{An object of class
 #'  \code{determine_effects} recording which predictors were
 #'  heterogeneous vs. homogeneous, or \code{NULL} if \code{procedure} did
 #'  not include \code{"effects"}. Pass this to
-#'  \code{\link{print_steps.determine_effects}} to see the
+#'  \code{\link{print_steps}} to see the
 #'  step-by-step search log.}
 #'
 #' @seealso \code{\link{fmr_control}} for tuning parameters,
@@ -103,6 +103,7 @@
 #' x4 <- rnorm(n)
 #'
 #' # True parameters for 3 group mixture model
+#' # x1 and x3 are heterogeneous, x2 is homogeneous and x4 has no effect
 #' beta <- rbind(
 #'   g1 = c(intercept = -4, x1 = -3, x2 = 1.5, x3 = 2, x4 = 0),
 #'   g2 = c(intercept = 0, x1 = 1, x2 = 1.5, x3 = -1, x4 = 0),

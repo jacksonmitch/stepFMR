@@ -15,6 +15,7 @@
 #'
 #' @return \code{x}, invisibly.
 #' @seealso \code{\link{stepFMR}}, \code{\link{print_steps.select_variables}}
+#' @noRd
 #' @export
 #'
 #' @examples
@@ -36,8 +37,8 @@ print.select_variables <- function(x, ...) {
     sep = ""
   )
   cat("  Selected:      ", format_none(x$selected), "\n", sep = "")
-  cat("  Not selected:  ", 
-    format_none(setdiff(x$predictors, x$selected)), 
+  cat("  Not selected:  ",
+    format_none(setdiff(x$predictors, x$selected)),
     "\n", sep = ""
   )
   cat("  Final formula: ", format_formula(x$final_formula), "\n", sep = "")
@@ -61,6 +62,7 @@ print.select_variables <- function(x, ...) {
 #'
 #' @return \code{x}, invisibly.
 #' @seealso \code{\link{stepFMR}}, \code{\link{print_steps.determine_effects}}
+#' @noRd
 #' @export
 #'
 #' @examples
@@ -137,6 +139,7 @@ print_steps <- function(x, ...) UseMethod("print_steps")
 #'
 #' @return \code{x}, invisibly.
 #' @seealso \code{\link{stepFMR}}
+#' @noRd
 #' @export
 #'
 #' @examples
@@ -185,6 +188,7 @@ print_steps.determine_effects <- function(x, ...) {
 #'
 #' @return \code{x}, invisibly.
 #' @seealso \code{\link{stepFMR}}
+#' @noRd
 #' @export
 #'
 #' @examples
@@ -264,6 +268,7 @@ format_steps <- function(steps, all_predictors, direction, label_state) {
 #'
 #' @return \code{x}, invisibly.
 #' @seealso \code{\link{stepFMR}}
+#' @noRd
 #' @export
 #'
 #' @examples
@@ -320,6 +325,7 @@ print.fit_fmr <- function(x, ...) {
 #' @param ... Currently unused.
 #'
 #' @return \code{x}, invisibly.
+#' @noRd
 #' @export
 #'
 #' @examples
@@ -420,6 +426,7 @@ summary.stepFMR <- function(object, ...) {
 #' @param ... Currently unused.
 #'
 #' @return \code{x}, invisibly.
+#' @noRd
 #' @export
 #'
 #' @examples
@@ -481,6 +488,7 @@ print.summary.stepFMR <- function(x, ...) {
 #'
 #' @return \code{x}, invisibly.
 #' @seealso \code{\link{fitFMR}}, \code{\link{summary.fitFMR}}
+#' @noRd
 #' @export
 #'
 #' @examples
@@ -494,7 +502,7 @@ print.fitFMR <- function(x, ...) {
   )
   cat("  Formula:       ", format_formula(x$formula), "\n", sep = "")
   cat("  Heterogeneous: ", format_none(x$heterogeneous), "\n", sep = "")
-  cat("  Homogeneous:   ", format_none(x$common), "\n\n", sep = "")
+  cat("  Homogeneous:   ", format_none(x$homogeneous), "\n\n", sep = "")
 
   tab <- x$table[, c("G", "loglik", "num_parameters", "bic")]
   tab$loglik <- round(tab$loglik, 2)
@@ -518,10 +526,10 @@ print.fitFMR <- function(x, ...) {
 #' @param ... Currently unused.
 #'
 #' @return An object of class \code{summary.fitFMR}: a list containing the
-#'   call, formula, family, candidate \code{G} values, common and
+#'   call, formula, family, candidate \code{G} values, homogeneous and
 #'   heterogeneous predictors, the table of fits, the selected \code{G}, the
 #'   selected fit, and its initialization diagnostics.
-#' @seealso \code{\link{fitFMR}}, \code{\link{print.fitFMR}}
+#' @seealso \code{\link{fitFMR}}
 #' @export
 #'
 #' @examples
@@ -534,7 +542,7 @@ summary.fitFMR <- function(object, ...) {
     formula = object$formula,
     family = object$family,
     G_values = object$G_values,
-    common = object$common,
+    homogeneous = object$homogeneous,
     heterogeneous = object$heterogeneous,
     table = object$table,
     selected_G = object$selected_G,
@@ -558,6 +566,7 @@ summary.fitFMR <- function(object, ...) {
 #'
 #' @return \code{x}, invisibly.
 #' @seealso \code{\link{fitFMR}}
+#' @noRd
 #' @export
 #'
 #' @examples
@@ -571,7 +580,7 @@ print.summary.fitFMR <- function(x, ...) {
   )
   cat("  Formula:       ", format_formula(x$formula), "\n", sep = "")
   cat("  Heterogeneous: ", format_none(x$heterogeneous), "\n", sep = "")
-  cat("  Homogeneous:   ", format_none(x$common), "\n\n", sep = "")
+  cat("  Homogeneous:   ", format_none(x$homogeneous), "\n\n", sep = "")
 
   tab <- x$table
   tab$loglik <- round(tab$loglik, 2)
@@ -580,11 +589,6 @@ print.summary.fitFMR <- function(x, ...) {
   print(tab, row.names = FALSE)
   cat("\n")
 
-  init <- x$initialization
-  cat(sprintf(
-    "Initialization (G = %d): %d starts tried, %d kept; best start: %s\n",
-    x$selected_G, init$n_starts, init$n_kept, x$best_fit$best_init_name
-  ))
   if (any(!x$table$converged)) {
     cat("Note: EM did not converge for G = ",
       paste(x$table$G[!x$table$converged], collapse = ", "), "\n",

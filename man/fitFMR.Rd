@@ -41,7 +41,9 @@ is reduced to the success count (the trial counts are carried
 internally).}
 \item{family}{The response family used.}
 \item{G_values}{The numbers of components fit, sorted.}
-\item{common}{Predictors with a shared (homogeneous) coefficient.}
+\item{homogeneous}{Predictors with a shared (homogeneous) coefficient,
+the same in every component. These are the predictors named in
+\code{common}.}
 \item{heterogeneous}{Predictors with component-specific coefficients
 (the intercept is always component-specific and not listed).}
 \item{fits}{A named list (\code{"G2"}, \code{"G3"}, ...) of
