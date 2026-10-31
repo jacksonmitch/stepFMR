@@ -6,8 +6,8 @@ gauss <- do.call(
 )
 
 test_that("fitFMR validates inputs", {
-  expect_error(fitFMR(gauss$formula, gauss$data, G = 1), "G")
-  expect_error(fitFMR(gauss$formula, gauss$data, G = 2.5))
+  expect_error(fitFMR(gauss$formula, gauss$data, G_max = 1), "G_max")
+  expect_error(fitFMR(gauss$formula, gauss$data, G_max = 2.5))
   expect_error(fitFMR(gauss$formula, gauss$data, family = "gamma"), "family")
   expect_error(fitFMR(gauss$formula, gauss$data, family = "zip"), "family")
   expect_error(fitFMR(gauss$formula, gauss$data, common = "zz"), "zz")
@@ -19,8 +19,8 @@ test_that("fitFMR validates inputs", {
   expect_error(fitFMR(gauss$formula, as.matrix(gauss$data)))
 })
 
-test_that("fitFMR returns the documented object for a vector of G", {
-  fit <- fitFMR(gauss$formula, gauss$data, G = 2:3, control = ctrl)
+test_that("fitFMR returns the documented object", {
+  fit <- fitFMR(gauss$formula, gauss$data, G_max = 3, control = ctrl)
 
   expect_s3_class(fit, "fitFMR")
   expect_named(fit, c(
@@ -44,25 +44,18 @@ test_that("fitFMR returns the documented object for a vector of G", {
   expect_equal(fit$homogeneous, character(0))
 })
 
-test_that("fitFMR with a scalar G fits exactly one model", {
-  fit <- fitFMR(gauss$formula, gauss$data, G = 2, control = ctrl)
+test_that("fitFMR with G_max = 2 fits exactly one model", {
+  fit <- fitFMR(gauss$formula, gauss$data, G_max = 2, control = ctrl)
 
   expect_length(fit$fits, 1L)
   expect_equal(nrow(fit$table), 1L)
   expect_equal(fit$selected_G, 2L)
 })
 
-test_that("fitFMR sorts and de-duplicates G", {
-  fit <- fitFMR(gauss$formula, gauss$data, G = c(3, 2, 3), control = ctrl)
-
-  expect_equal(fit$G_values, 2:3)
-  expect_named(fit$fits, c("G2", "G3"))
-})
-
 test_that("common predictors get one shared coefficient", {
   fit <- fitFMR(
     gauss$formula, gauss$data,
-    G = 2, common = "x2", control = ctrl
+    G_max = 2, common = "x2", control = ctrl
   )
   pv <- fit$best_fit$parameter_values
 
@@ -75,7 +68,7 @@ test_that("common predictors get one shared coefficient", {
 test_that("fitFMR works when every predictor is common", {
   fit <- fitFMR(
     gauss$formula, gauss$data,
-    G = 2, common = c("x1", "x2", "x3"), control = ctrl
+    G_max = 2, common = c("x1", "x2", "x3"), control = ctrl
   )
   pv <- fit$best_fit$parameter_values
 
@@ -95,10 +88,10 @@ test_that("fitFMR runs for poisson and binomial responses", {
   )
 
   fit_pois <- fitFMR(pois$formula, pois$data,
-    G = 2:3, family = "poisson", common = "x2", control = ctrl
+    G_max = 3, family = "poisson", common = "x2", control = ctrl
   )
   fit_binom <- fitFMR(binom$formula, binom$data,
-    G = 2:3, family = "binomial", common = "x2", control = ctrl
+    G_max = 3, family = "binomial", common = "x2", control = ctrl
   )
 
   for (fit in list(fit_pois, fit_binom)) {
@@ -114,11 +107,11 @@ test_that("fitFMR warns when EM does not converge", {
   # a tiny tol with only 1 iteration cannot meet the relative-change
   # stopping rule
   no_conv <- fmr_control(
-    n_init = 3, n_kmeans_init = 1, tol = 1e-16, max_iter = 1
+    n_init = 3, n_kmeans_init = 1, tol = 1e-10, max_iter = 1
   )
 
   expect_warning(
-    fitFMR(gauss$formula, gauss$data, G = 2, control = no_conv),
+    fitFMR(gauss$formula, gauss$data, G_max = 2, control = no_conv),
     "did not converge"
   )
 })
@@ -126,7 +119,7 @@ test_that("fitFMR warns when EM does not converge", {
 test_that("print.fitFMR shows the BIC table and the selected fit", {
   fit <- fitFMR(
     gauss$formula, gauss$data,
-    G = 2:3, common = "x2", control = ctrl
+    G_max = 3, common = "x2", control = ctrl
   )
   output <- capture.output(res <- print(fit))
 
@@ -142,7 +135,7 @@ test_that("print.fitFMR shows the BIC table and the selected fit", {
 test_that("summary.fitFMR collects the results and prints them", {
   fit <- fitFMR(
     gauss$formula, gauss$data,
-    G = 2:3, common = "x2", control = ctrl
+    G_max = 3, common = "x2", control = ctrl
   )
   s <- summary(fit)
 
@@ -157,16 +150,15 @@ test_that("summary.fitFMR collects the results and prints them", {
   expect_identical(res, s)
   expect_match(output[[1]], "^fitFMR summary \\| family: gaussian")
   expect_true(any(grepl("converged", output)))
-  expect_true(any(grepl("Initialization \\(G = ", output)))
   expect_true(any(grepl("Best fit", output)))
 })
 
 test_that("print.summary.fitFMR notes non-convergence", {
   no_conv <- fmr_control(
-    n_init = 3, n_kmeans_init = 1, tol = 1e-16, max_iter = 1
+    n_init = 3, n_kmeans_init = 1, tol = 1e-10, max_iter = 1
   )
   fit <- suppressWarnings(
-    fitFMR(gauss$formula, gauss$data, G = 2, control = no_conv)
+    fitFMR(gauss$formula, gauss$data, G_max = 2, control = no_conv)
   )
   output <- capture.output(print(summary(fit)))
 
@@ -174,7 +166,7 @@ test_that("print.summary.fitFMR notes non-convergence", {
 })
 
 test_that("match_groups relabels the selected fit of a fitFMR object", {
-  fit <- fitFMR(gauss$formula, gauss$data, G = 2, control = ctrl)
+  fit <- fitFMR(gauss$formula, gauss$data, G_max = 2, control = ctrl)
   aligned <- match_groups(fit, gauss$true_group)
 
   expect_s3_class(aligned, "fitFMR")
