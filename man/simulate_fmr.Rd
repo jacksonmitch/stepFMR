@@ -48,9 +48,9 @@ simulated integer group labels, for use with \code{match_groups()}).
 }
 \description{
 Simulates covariates, group membership, and a response from a specified
-finite mixture regression model. Column/row names on \code{betas} are
-optional. If omitted, columns become \verb{"(Intercept)", "x1", "x2", ...}
-and rows become \verb{"g1", "g2", ...}.
+finite mixture regression model. Column and row names on \code{betas} are
+optional. If omitted, the columns are named \code{"(Intercept)"}, \code{"x1"},
+\code{"x2"}, and so on, and the rows \code{"g1"}, \code{"g2"}, and so on.
 }
 \examples{
 betas <- rbind(

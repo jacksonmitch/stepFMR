@@ -2,7 +2,7 @@
 #' M-Step Dispatcher
 #'
 #' Chooses the M-step for the family. If the design has common
-#' (homogeneous) predictors (\code{dat$p_com > 0}), the structured-QR
+#' (homogeneous) covariates (\code{dat$p_com > 0}), the structured-QR
 #' version (\code{m_step_sqr_*}) is used. Otherwise the plain
 #' per-component fit (\code{lm.wfit}/\code{glm.fit}) is used. The
 #' \code{"zip"} family reuses the Poisson M-steps. \code{em_state} is

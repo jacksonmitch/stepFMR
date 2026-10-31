@@ -3,7 +3,7 @@
 #' Print a Variable Selection Result
 #'
 #' Prints a short summary of a stepwise variable-selection run: the search
-#' direction, significance level, the final set of selected predictors, and
+#' direction, significance level, the final set of selected covariates, and
 #' the resulting formula.
 #'
 #' @param x An object of class \code{select_variables}. This is produced
@@ -26,7 +26,7 @@
 #' )
 #' pi <- c(0.2, 0.3, 0.5)
 #' sigma <- c(1, 0.5, 2)
-#' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
+#' sim <- simulate_fmr(n = 300, betas = betas, pi = pi, sigma = sigma, seed = 1)
 #' fit <- stepFMR(sim$formula, sim$data, G_max = 3, procedure = "variables")
 #' # procedure = "variables" is what populates fit$variable_selection below
 #' print(fit$variable_selection)
@@ -50,7 +50,7 @@ print.select_variables <- function(x, ...) {
 #' Print an Effect-Type Determination Result
 #'
 #' Prints a short summary of a stepwise effect-type determination run: the
-#' search direction, significance level, which predictors ended up
+#' search direction, significance level, which covariates ended up
 #' heterogeneous vs. homogeneous, and the resulting formula.
 #'
 #' @param x An object of class \code{determine_effects}. This is produced
@@ -73,7 +73,7 @@ print.select_variables <- function(x, ...) {
 #'   c(0, 1, 1.5, -1),
 #'   c(4, 3, 1.5, 0.5)
 #' )
-#' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
+#' sim <- simulate_fmr(n = 300, betas = betas, pi = pi, sigma = sigma, seed = 1)
 #' fit <- stepFMR(sim$formula, sim$data, G_max = 3, procedure = "effects")
 #' # procedure = "effects" is what populates fit$effect_determination below
 #' print(fit$effect_determination)
@@ -118,7 +118,7 @@ print.determine_effects <- function(x, ...) {
 #'   c(0, 1, 1.5, -1, 0),
 #'   c(4, 3, 1.5, 0.5, 0)
 #' )
-#' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
+#' sim <- simulate_fmr(n = 300, betas = betas, pi = pi, sigma = sigma, seed = 1)
 #' fit <- stepFMR(sim$formula, sim$data, G_max = 3, procedure = "variables")
 #' # procedure = "variables" is what populates fit$variable_selection below
 #' print_steps(fit$variable_selection)
@@ -150,7 +150,7 @@ print_steps <- function(x, ...) UseMethod("print_steps")
 #'   c(0, 1, 1.5, -1),
 #'   c(4, 3, 1.5, 0.5)
 #' )
-#' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
+#' sim <- simulate_fmr(n = 300, betas = betas, pi = pi, sigma = sigma, seed = 1)
 #' fit <- stepFMR(sim$formula, sim$data, G_max = 3, procedure = "effects")
 #' # procedure = "effects" is what populates fit$effect_determination below
 #' print_steps(fit$effect_determination)
@@ -176,7 +176,7 @@ print_steps.determine_effects <- function(x, ...) {
 #' Print the Step-by-Step Variable Selection Table
 #'
 #' For each step of the search, prints the current included/excluded state,
-#' every candidate predictor's weighted p-value, and which candidate (if
+#' every candidate covariate's weighted p-value, and which candidate (if
 #' any) was chosen.
 #'
 #' @param x An object of class \code{select_variables}. This is produced
@@ -199,7 +199,7 @@ print_steps.determine_effects <- function(x, ...) {
 #'   c(0, 1, 1.5, -1, 0),
 #'   c(4, 3, 1.5, 0.5, 0)
 #' )
-#' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
+#' sim <- simulate_fmr(n = 300, betas = betas, pi = pi, sigma = sigma, seed = 1)
 #' fit <- stepFMR(sim$formula, sim$data, G_max = 3, procedure = "variables")
 #' # procedure = "variables" is what populates fit$variable_selection below
 #' print_steps(fit$variable_selection)
@@ -279,7 +279,7 @@ format_steps <- function(steps, all_predictors, direction, label_state) {
 #'   c(0, 1, 1.5, -1, 0),
 #'   c(4, 3, 1.5, 0.5, 0)
 #' )
-#' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
+#' sim <- simulate_fmr(n = 300, betas = betas, pi = pi, sigma = sigma, seed = 1)
 #' fit <- stepFMR(sim$formula, sim$data, G_max = 3)
 #' # fit$best_fit is always populated, at the BIC-optimal G
 #' print(fit$best_fit)
@@ -336,7 +336,7 @@ print.fit_fmr <- function(x, ...) {
 #'   c(0, 1, 1.5, -1, 0),
 #'   c(4, 3, 1.5, 0.5, 0)
 #' )
-#' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
+#' sim <- simulate_fmr(n = 300, betas = betas, pi = pi, sigma = sigma, seed = 1)
 #' fit <- stepFMR(sim$formula, sim$data, G_max = 3)
 #' print(fit)
 print.stepFMR <- function(x, ...) {
@@ -394,7 +394,7 @@ print.stepFMR <- function(x, ...) {
 #'   c(0, 1, 1.5, -1, 0),
 #'   c(4, 3, 1.5, 0.5, 0)
 #' )
-#' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
+#' sim <- simulate_fmr(n = 300, betas = betas, pi = pi, sigma = sigma, seed = 1)
 #' fit <- stepFMR(sim$formula, sim$data, G_max = 3)
 #' summary <- summary(fit)
 summary.stepFMR <- function(object, ...) {
@@ -437,7 +437,7 @@ summary.stepFMR <- function(object, ...) {
 #'   c(0, 1, 1.5, -1, 0),
 #'   c(4, 3, 1.5, 0.5, 0)
 #' )
-#' sim <- simulate_fmr(n = 500, betas = betas, pi = pi, sigma = sigma, seed = 1)
+#' sim <- simulate_fmr(n = 300, betas = betas, pi = pi, sigma = sigma, seed = 1)
 #' fit <- stepFMR(sim$formula, sim$data, G_max = 3)
 #' summary(fit)
 #' print(summary(fit))
@@ -477,7 +477,7 @@ print.summary.stepFMR <- function(x, ...) {
 
 #' Print a fitFMR Result
 #'
-#' Prints the family, formula, and which predictors are heterogeneous or
+#' Prints the family, formula, and which covariates are heterogeneous or
 #' homogeneous, a table of log-likelihood, number of parameters, and BIC for
 #' each fitted number of components (the selected one is marked with
 #' \code{*}), and the estimates of the selected fit.
@@ -493,7 +493,7 @@ print.summary.stepFMR <- function(x, ...) {
 #'
 #' @examples
 #' sim <- fmr_gaussian_example
-#' fit <- fitFMR(sim$formula, sim$data, G = 2:3, common = "x2")
+#' fit <- fitFMR(sim$formula, sim$data, G_max = 3, common = "x2")
 #' print(fit)
 print.fitFMR <- function(x, ...) {
   cat("fitFMR | family: ", x$family,
@@ -527,14 +527,14 @@ print.fitFMR <- function(x, ...) {
 #'
 #' @return An object of class \code{summary.fitFMR}: a list containing the
 #'   call, formula, family, candidate \code{G} values, homogeneous and
-#'   heterogeneous predictors, the table of fits, the selected \code{G}, the
+#'   heterogeneous covariates, the table of fits, the selected \code{G}, the
 #'   selected fit, and its initialization diagnostics.
 #' @seealso \code{\link{fitFMR}}
 #' @export
 #'
 #' @examples
 #' sim <- fmr_gaussian_example
-#' fit <- fitFMR(sim$formula, sim$data, G = 2:3, common = "x2")
+#' fit <- fitFMR(sim$formula, sim$data, G_max = 3, common = "x2")
 #' summary(fit)
 summary.fitFMR <- function(object, ...) {
   out <- list(
@@ -571,7 +571,7 @@ summary.fitFMR <- function(object, ...) {
 #'
 #' @examples
 #' sim <- fmr_gaussian_example
-#' fit <- fitFMR(sim$formula, sim$data, G = 2:3, common = "x2")
+#' fit <- fitFMR(sim$formula, sim$data, G_max = 3, common = "x2")
 #' print(summary(fit))
 print.summary.fitFMR <- function(x, ...) {
   cat("fitFMR summary | family: ", x$family,

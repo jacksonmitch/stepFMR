@@ -6,9 +6,9 @@
 # candidate_data : prepared_data for the candidate side (already built
 #                           by the caller for this specific predictor).
 
-#' Compare a Candidate Predictor Against a Shared Baseline Fit
+#' Compare a Candidate Covariate Against a Shared Baseline Fit
 #'
-#' For one candidate predictor, fits the candidate model across all values
+#' For one candidate covariate, fits the candidate model across all values
 #' of \code{model$G_values} (warm-started from the shared fit's
 #' responsibilities) and compares it to the shared/baseline fit at each
 #' \code{G} via a likelihood ratio test. The per-\code{G} p-values are then
@@ -22,7 +22,7 @@
 #' @param shared_fits A list of \code{fit_fmr} objects (one per value in
 #'   \code{model$G_values}) for the shared/baseline model.
 #' @param candidate_data A \code{FMRData} object (from \code{prepare_data()})
-#'   for the candidate predictor's model specification.
+#'   for the candidate covariate's model specification.
 #'
 #' @return A list of class \code{west_procedure} with elements: \code{p0}
 #'   (the BIC-weighted p-value), \code{reject} (whether \code{p0 < alpha}),

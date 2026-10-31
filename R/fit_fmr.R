@@ -36,7 +36,7 @@ fit_across_G <- function(model, prepared_data, init_lists = NULL) {
 #' Fit One Model Specification at a Given G
 #'
 #' Fits a finite mixture regression model for a fixed number of components
-#' \code{G} and a fixed design (heterogeneous/common predictor split). Burns
+#' \code{G} and a fixed design (heterogeneous/common covariate split). Burns
 #' in each initialization in \code{init_em_state_list} for a few EM iterations,
 #' selects the best-starting initialization by log-likelihood via
 #' \code{select_best_initialization()}, then runs \code{em_fmr()} to

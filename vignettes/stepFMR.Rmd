@@ -14,18 +14,18 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ## What stepFMR does
 
 A finite mixture regression (FMR) lets the relationship between a response
-and its predictors differ across an unknown number $G$ of latent
+and its covariates differ across an unknown number $G$ of latent
 subpopulations. `stepFMR` answers two questions for such a model:
 
-1. **Variable selection.** Which predictors have any effect on the response?
-2. **Effect type.** Is each selected predictor's effect *heterogeneous*
+1. **Variable selection.** Which covariates have any effect on the response?
+2. **Effect type.** Is each selected covariate's effect *heterogeneous*
    (a different coefficient in every component) or *homogeneous* (one
    coefficient shared by all components)?
 
-The difficulty is that a test of a predictor depends on $G$, which is
+The difficulty is that a test of a covariate depends on $G$, which is
 unknown. The weighted significance test (WEST) computes a likelihood-ratio
 p-value at every candidate $G$ in `2:G_max` and combines them into one
-p-value, weighting each $G$ by $\exp(-\mathrm{BIC}_G/2)$. Predictors are then
+p-value, weighting each $G$ by $\exp(-\mathrm{BIC}_G/2)$. Covariates are then
 added (or removed) one at a time in a stepwise search.
 
 Gaussian, Poisson, and binomial responses are supported. Fitting uses an EM
@@ -34,15 +34,14 @@ decomposition (and IRWLS for non-Gaussian families).
 
 ## A first fit
 
-The package ships with simulated example data. `x1` is heterogeneous, `x2`
-is homogeneous, and `x3` has no effect.
+The package ships with simulated example data. For the Gaussian example `x1` is heterogeneous, `x2` is homogeneous, and `x3` has no effect.
 
 ```{r fit}
 library(stepFMR)
 
 sim <- fmr_gaussian_example
 fit <- stepFMR(sim$formula, sim$data, G_max = 3)
-fit
+print(fit)
 ```
 
 The result reports the selected variables, which of them are heterogeneous
@@ -53,7 +52,7 @@ components.
 
 `summary()` adds the step-by-step tables. Each step lists every remaining
 candidate's weighted p-value, and marks the one chosen. You can also print a
-single log:
+single log using the print steps function:
 
 ```{r steps}
 print_steps(fit$variable_selection)
@@ -65,9 +64,9 @@ print_steps(fit$effect_determination)
 The `procedure` argument controls the search:
 
 * `"complete"` (default): variable selection, then effect determination on
-  the selected predictors.
+  the selected covariates.
 * `"variables"`: variable selection only.
-* `"effects"`: effect determination on all predictors in the formula.
+* `"effects"`: effect determination on all covariates in the formula.
 
 ```{r procedure, eval = FALSE}
 stepFMR(sim$formula, sim$data, G_max = 3, procedure = "variables")
@@ -75,14 +74,24 @@ stepFMR(sim$formula, sim$data, G_max = 3, procedure = "variables")
 
 ## Other families
 
+There are also examples for both poisson and binomial data that are generated via `simulate_fmr()`.
+
 ```{r families, eval = FALSE}
 # Poisson counts
-stepFMR(fmr_poisson_example$formula, fmr_poisson_example$data,
-        G_max = 3, family = "poisson")
+sim_pois <- simulate_fmr(
+  n = 500,
+  betas = rbind(c(-0.5, -1, 0.3, 0), c(0.5, 1, 0.3, 0)),
+  pi = c(0.4, 0.6), family = "poisson", seed = 2
+)
+stepFMR(sim_pois$formula, sim_pois$data, G_max = 3, family = "poisson")
 
-# Binomial: cbind(successes, failures) ~ predictors
-stepFMR(fmr_binomial_example$formula, fmr_binomial_example$data,
-        G_max = 3, family = "binomial")
+# Binomial: cbind(successes, failures) ~ covariates, 25 trials each
+sim_bin <- simulate_fmr(
+  n = 500,
+  betas = rbind(c(-1, -3, 0.5, 0), c(1, 3, 0.5, 0)),
+  pi = c(0.4, 0.6), family = "binomial", size = 25, seed = 3
+)
+stepFMR(sim_bin$formula, sim_bin$data, G_max = 3, family = "binomial")
 ```
 
 A 0/1 binomial response is accepted but triggers a warning, since binary

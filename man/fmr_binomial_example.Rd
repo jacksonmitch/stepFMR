@@ -7,7 +7,7 @@
 \format{
 A list with elements:
 \describe{
-\item{data}{A data.frame with response \code{y}, predictors
+\item{data}{A data.frame with response \code{y}, covariates
 \code{x1}, \code{x2}, \code{x3}, and trial counts \code{size}.
 \code{x1}'s coefficient differs across components (heterogeneous),
 \code{x2}'s coefficient is the same across components (homogeneous),

@@ -7,20 +7,20 @@
 <!-- badges: end -->
 
 Finite Mixture Regression models allows relationships between the
-response ($\mathbf{Y}$) and the predictors
+response ($\mathbf{Y}$) and the covariates
 $(\mathbf{X}_1,\dots, \mathbf{X}_p)$ to differ between a finite number
 of subpopulations. The R package, stepFMR implements stepwise procedures
-that select predictors having an effect on the response and determines
-whether each of the selected predictors has homogeneous or heterogeneous
+that select covariates having an effect on the response and determines
+whether each of the selected covariates has homogeneous or heterogeneous
 effects. The stepwise procedures are based on hypothesis testing where a
 weighted significance test (WEST) is used. In mixture regression, the
 unknown number of the subpopulations $G$ (referred as order of the
 mixture), poses challenges in testing the association between a
-predictor and the response. With WEST, the significance of a predictor’s
+covariate and the response. With WEST, the significance of a covariate’s
 effects on $y$ is the weighted sum of the significance level of all
 candidate $G$’s. The package supports the Gaussian, Poisson, and
 Binomial distribution families, and returns the effect types of each
-predictor, estimate of their effects, as well as the best-fitting $G$.
+covariate, estimate of their effects, as well as the best-fitting $G$.
 
 ## Installation
 
@@ -44,7 +44,7 @@ explains each step in more detail.
 `simulate_fmr()` creates data from a mixture regression with
 coefficients that you choose, so the fitted results can be checked
 against the truth. Each row of `betas` holds the coefficients of one
-component, with columns for the intercept and each predictor. Here the
+component, with columns for the intercept and each covariate. Here the
 first covariate, `x1`, is heterogeneous, `x2` is homogeneous, and `x3`
 has no effect. `pi` is the mixing proportions of each component and
 `sigma` is the group specific standard deviations.
@@ -65,21 +65,21 @@ sim <- simulate_fmr(
 ```
 
 The result is a list. `sim$data` is a data frame with the response `y`
-and the predictors `x1`, `x2` and `x3`. `sim$formula` is the model
+and the covariates `x1`, `x2` and `x3`. `sim$formula` is the model
 formula `y ~ x1 + x2 + x3`, which names the response on the left and the
-predictors on the right, just as in `lm()`. `sim$true_group` records
+covariates on the right, just as in `lm()`. `sim$true_group` records
 which component each observation came from. With your own data, pass
 your own formula and data frame instead, for example
 `stepFMR(y ~ x1 + x2 + x3, data = my_data)`.
 
 ### 2. WEST procedure
 
-The number of components $G$ is unknown, and whether a predictor matters
-can depend on it. `stepFMR()` therefore tests each predictor under every
+The number of components $G$ is unknown, and whether a covariate matters
+can depend on it. `stepFMR()` therefore tests each covariate under every
 number of components from 2 to `G_max` and combines the results into one
 weighted p-value (WEST). It runs in two stages. Variable selection
-decides which predictors have an effect. Effect determination then
-decides whether each selected predictor is heterogeneous or homogeneous.
+decides which covariates have an effect. Effect determination then
+decides whether each selected covariate is heterogeneous or homogeneous.
 `G_max = 3` means that models with 2 and 3 components are compared, and
 the one with the lowest BIC is reported.
 
@@ -120,7 +120,7 @@ print(fit)
 #> 0.9977
 ```
 
-The printed result lists the selected predictors, how each effect was
+The printed result lists the selected covariates, how each effect was
 classified, and the estimates at the best number of components. To see
 the WEST procedure, `print_steps()` shows the weighted p-value of every
 candidate at each step. A candidate is added when its p-value is below
@@ -165,13 +165,13 @@ print_steps(fit$effect_determination)
 
 ### 3. Fitting
 
-If you already know which predictors have a common effect, `fitFMR()`
+If you already know which covariates have a common effect, `fitFMR()`
 fits that structure directly, without the stepwise search.
-`common = "x2"` makes `x2` homogeneous, and `G = 2:3` compares models
+`common = "x2"` makes `x2` homogeneous, and `G_max = 3` compares models
 with 2 and 3 components by BIC.
 
 ``` r
-fit_fixed <- fitFMR(sim$formula, sim$data, G = 2:3, common = "x2")
+fit_fixed <- fitFMR(sim$formula, sim$data, G_max = 3, common = "x2")
 fit_fixed
 #> fitFMR | family: gaussian | G: 2,3
 #>   Formula:       y ~ x1 + x2 + x3

@@ -7,8 +7,7 @@
 #'
 #' @param formula A formula object specifying the model.
 #' @param data A data.frame containing the variables in \code{formula}.
-#' @param G_values An integer vector of candidate numbers of mixture
-#'   components.
+#' @param G_values An integer vector of the order G.
 #' @param family A character string specifying the response distribution:
 #'   \code{"gaussian"}, \code{"poisson"}, \code{"binomial"}, or
 #'   \code{"zip"}.
@@ -42,8 +41,8 @@ FMRModel <- R6::R6Class(
         ),
         error = function(e) {
           stop(
-            "Error while creating data frame with given formula/data: ", 
-            e$message, 
+            "Error while creating data frame with given formula/data: ",
+            e$message,
             call. = FALSE
           )
         }

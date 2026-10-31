@@ -1,7 +1,7 @@
 #' Iteratively Reweighted Least Squares M-Step
 #'
 #' M-step for the Poisson and binomial families when the design has common
-#' predictors. Starting from the current coefficients (or, if none exist, a
+#' covariates. Starting from the current coefficients (or, if none exist, a
 #' weighted fit to a transformed response), repeatedly forms the working
 #' response and weights for the log/logit link, multiplies the weights by
 #' the responsibilities \code{tau}, and re-solves with \code{wls_sqr()}

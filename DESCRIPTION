@@ -8,11 +8,11 @@ Authors@R:
       person("Allan", "Willms", email = "awillms@uoguelph.ca", role = c("ctb", "ths", "cph")),
       person("Chong", "Gan", email = "", role = c()))
 Description: Implements finite mixture regression models for Gaussian, Poisson,
-    binomial, and (experimentally) zero-inflated Poisson responses, with procedures for selecting predictors and
+    binomial, and zero-inflated Poisson responses, with procedures for selecting covariates and
     determining whether covariate effects are heterogeneous or homogeneous across
     mixture components. Estimation is performed using EM algorithms,
-    with weighted least squares and structured QR decompositions used in the
-    M-step.
+    with weighted least squares and structured QR decompositions for efficient matrix inversions
+    in the M-step.
 URL: https://github.com/jacksonmitch/stepFMR
 BugReports: https://github.com/jacksonmitch/stepFMR/issues
 License: MIT + file LICENSE

@@ -9,12 +9,12 @@
 #' validated \code{FMRData} object.
 #'
 #' @param model A \code{FMRModel} object.
-#' @param included A character vector of predictor names to include in the
-#'   design. Defaults to all predictors in \code{model}.
-#' @param common A character vector of predictor names, a subset of
+#' @param included A character vector of covariate names to include in the
+#'   design. Defaults to all covariates in \code{model}.
+#' @param common A character vector of covariate names, a subset of
 #'   \code{included}, to treat as common/homogeneous (i.e. excluded from the
 #'   heterogeneous design matrix). Defaults to \code{NULL} (all included
-#'   predictors are heterogeneous).
+#'   covariates are heterogeneous).
 #'
 #' @return A \code{FMRData} object.
 #' @noRd
