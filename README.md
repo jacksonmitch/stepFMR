@@ -6,7 +6,7 @@
 [![R-CMD-check](https://github.com/jacksonmitch/stepFMR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jacksonmitch/stepFMR/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-Finite Mixture Regression models allows relationships between the
+Finite Mixture Regression models allow relationships between the
 response ($\mathbf{Y}$) and the covariates
 $(\mathbf{X}_1,\dots, \mathbf{X}_p)$ to differ between a finite number
 of subpopulations. The R package, stepFMR implements stepwise procedures
@@ -14,13 +14,13 @@ that select covariates having an effect on the response and determines
 whether each of the selected covariates has homogeneous or heterogeneous
 effects. The stepwise procedures are based on hypothesis testing where a
 weighted significance test (WEST) is used. In mixture regression, the
-unknown number of the subpopulations $G$ (referred as order of the
-mixture), poses challenges in testing the association between a
-covariate and the response. With WEST, the significance of a covariate’s
-effects on $y$ is the weighted sum of the significance level of all
-candidate $G$’s. The package supports the Gaussian, Poisson, and
-Binomial distribution families, and returns the effect types of each
-covariate, estimate of their effects, as well as the best-fitting $G$.
+unknown number of the subpopulations $G$ called the order of the
+mixture, poses challenges in testing the association between a covariate
+and the response. With WEST, the significance of a covariate’s effects
+on $Y$ is the weighted sum of the significance level of all candidate
+$G$’s. The package supports the Gaussian, Poisson, and Binomial
+distribution families, and returns the effect types of each covariate,
+estimate of their effects, as well as the best-fitting $G$.
 
 ## Installation
 
@@ -34,20 +34,24 @@ pak::pak("jacksonmitch/stepFMR")
 
 ## Example
 
-This example simulates data from a two-component mixture where the true
-answer is known, runs the stepwise WEST procedure, and then fits a model
-with a specified structure. The vignette (`vignette("stepFMR")`)
-explains each step in more detail.
+This example simulates data from a two-component mixture, and this known
+simulation model is referred to as the true model. The stepwise
+procedure is performed, and then a final model is fit with a specified
+structure. The vignette (`vignette("stepFMR")`) explains each step in
+more detail.
 
 ### 1. Data generation
 
-`simulate_fmr()` creates data from a mixture regression with
-coefficients that you choose, so the fitted results can be checked
-against the truth. Each row of `betas` holds the coefficients of one
-component, with columns for the intercept and each covariate. Here the
-first covariate, `x1`, is heterogeneous, `x2` is homogeneous, and `x3`
-has no effect. `pi` is the mixing proportions of each component and
-`sigma` is the group specific standard deviations.
+`simulate_fmr()` generates data from a user-specified mixture regression
+simulation model. This allows users to fit simulated data using the
+`stepFMR()` function, and compare the fitted results with the underlying
+true model. Each row of `betas` holds the regression coefficients of one
+component, with columns for the intercept and followed by the
+coefficients of the covariates. Suppose `x1` has heterogeneous effects,
+`x2` has homogeneous effects, and `x3` has no effect, with their
+coefficients specified in the `betas`. `pi` is the mixing proportions of
+each component and `sigma` is the group specific standard deviation
+(only required for Gaussian mixture regression).
 
 ``` r
 suppressPackageStartupMessages(library(stepFMR))
@@ -64,24 +68,27 @@ sim <- simulate_fmr(
 )
 ```
 
-The result is a list. `sim$data` is a data frame with the response `y`
-and the covariates `x1`, `x2` and `x3`. `sim$formula` is the model
-formula `y ~ x1 + x2 + x3`, which names the response on the left and the
-covariates on the right, just as in `lm()`. `sim$true_group` records
-which component each observation came from. With your own data, pass
-your own formula and data frame instead, for example
-`stepFMR(y ~ x1 + x2 + x3, data = my_data)`.
+The simulated data in the object `sim` is a list. `sim$data` is a data
+frame with the response `y` and the covariates `x1`, `x2` and `x3`.
+`sim$formula` is the model formula `y ~ x1 + x2 + x3`, which names the
+response on the left and the covariates on the right, just as in `lm()`
+or `glm()`. `sim$true_group` records which component each observation
+came from. With your own data, pass your own formula and data frame
+instead, for example `stepFMR(y ~ x1 + x2 + x3, data = my_data)`.
 
 ### 2. WEST procedure
 
-The number of components $G$ is unknown, and whether a covariate matters
-can depend on it. `stepFMR()` therefore tests each covariate under every
-number of components from 2 to `G_max` and combines the results into one
-weighted p-value (WEST). It runs in two stages. Variable selection
-decides which covariates have an effect. Effect determination then
-decides whether each selected covariate is heterogeneous or homogeneous.
-`G_max = 3` means that models with 2 and 3 components are compared, and
-the one with the lowest BIC is reported.
+Without specifying the order of the mixture regression model, the WEST
+procedure combines statistical evidence of the association between the
+response and a covariate from mixture regression models with orders
+ranging from 2 to `G_max`, where `G_max` can be specified by the user.
+The WEST is used in both variable selection and effect-type
+determination procedures. Unless otherwise specified, by default,
+`stepFMR()` first performs variable selection and then carries out the
+effect-type determination procedure. Upon completion of these
+procedures, the model order is selected from the range of 2 to `G_max`
+based on the lowest BIC value. In this example `G_max` = 3, therefore
+the model order is selected from orders 2 and 3.
 
 ``` r
 fit <- stepFMR(sim$formula, sim$data, G_max = 3)
@@ -120,11 +127,14 @@ print(fit)
 #> 0.9977
 ```
 
-The printed result lists the selected covariates, how each effect was
-classified, and the estimates at the best number of components. To see
-the WEST procedure, `print_steps()` shows the weighted p-value of every
-candidate at each step. A candidate is added when its p-value is below
-`alpha` (0.05 by default).
+The printed result in `fit` lists the selected covariates, the effect
+type of each selected covariate, and the selected order of the final
+model. `print_steps()` shows the weighted p-value of every candidate at
+each step. In each step of the forward variable selection procedure, a
+candidate variable is added when its p-value is the smallest and below
+`alpha` (0.05 by default). In the forward effect-type procedure, if a
+candidate variable has the smallest p-value and that p-value is below
+`alpha`, its effect-type is set to heterogeneous.
 
 ``` r
 print_steps(fit$variable_selection)
@@ -165,37 +175,41 @@ print_steps(fit$effect_determination)
 
 ### 3. Fitting
 
-If you already know which covariates have a common effect, `fitFMR()`
-fits that structure directly, without the stepwise search.
-`common = "x2"` makes `x2` homogeneous, and `G_max = 3` compares models
-with 2 and 3 components by BIC.
+If the effect types of all covariates in a given set of covariates are
+specified, `fitFMR()` fits the model without going through the stepwise
+procedures. Here the covariates are the ones selected above, `x1` and
+`x2`. `common = "x2"` sets the effect type of `x2` to homogeneous, and
+covariates not in `common` all have heterogeneous effects by default.
+`G_max` specifies the candidate orders from 2 to `G_max`. Here, the
+order is selected from 2 and 3 and the final model is the one with the
+lowest BIC.
 
 ``` r
-fit_fixed <- fitFMR(sim$formula, sim$data, G_max = 3, common = "x2")
+fit_fixed <- fitFMR(y ~ x1 + x2, sim$data, G_max = 3, common = "x2")
 fit_fixed
 #> fitFMR | family: gaussian | G: 2,3
-#>   Formula:       y ~ x1 + x2 + x3
-#>   Heterogeneous: x1, x3
+#>   Formula:       y ~ x1 + x2
+#>   Heterogeneous: x1
 #>   Homogeneous:   x2
 #> 
 #>  G  loglik num_parameters     bic  
-#>  2 -804.01             10 1677.10 *
-#>  3 -794.38             15 1692.38  
+#>  2 -806.08              8 1667.42 *
+#>  3 -799.64             12 1682.18  
 #> 
 #> Best fit (G: 2)
 #> 
 #> Mixing proportions:
 #>     g1     g2 
-#> 0.3049 0.6951 
+#> 0.3047 0.6953 
 #> 
 #> Component standard deviations:
 #>     g1     g2 
-#> 0.5134 0.2432 
+#> 0.5141 0.2440 
 #> 
 #> Heterogeneous coefficients:
-#>    (Intercept)      x1     x3
-#> g1     -2.0484 -2.9993 0.0235
-#> g2      1.9998  3.0158 0.0168
+#>    (Intercept)      x1
+#> g1     -2.0488 -2.9971
+#> g2      2.0010  3.0164
 #> 
 #> Homogeneous coefficients:
 #>     x2 
@@ -203,10 +217,11 @@ fit_fixed
 ```
 
 Mixture components have no natural order, so the fitted components can
-be numbered differently from the simulated ones. Because the true groups
-are known here, `match_groups()` relabels the fit to agree with them.
-The rows of the matrix below can then be compared directly with the rows
-of `betas`.
+be numbered differently from the simulated ones. In a simulation study,
+the true grouping information is known. `match_groups()` relabels the
+fitted groups that best align with the true underlying groups such that
+the regression parameters can be compared directly with the `betas`
+specified in the simulation model.
 
 ``` r
 aligned <- match_groups(fit, sim$true_group)
@@ -219,9 +234,8 @@ aligned$best_fit$parameter_values[["beta_g"]]
 ### Other families
 
 The package supports `family = "poisson"` and `family = "binomial"`. For
-binomial data the response is `cbind(successes, failures)`, which
-`simulate_fmr()` builds for you from the number of trials given by
-`size`.
+binomial data the response is `cbind(successes, failures)`, the number
+of trials for each observation is specified by `size`.
 
 ``` r
 sim_pois <- simulate_fmr(

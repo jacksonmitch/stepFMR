@@ -32,34 +32,68 @@ Gaussian, Poisson, and binomial responses are supported. Fitting uses an EM
 algorithm. The M-step solves weighted least squares with a structured QR
 decomposition (and IRWLS for non-Gaussian families).
 
-## A first fit
+## Simulating data with a known structure
 
-The package ships with simulated example data. For the Gaussian example `x1` is heterogeneous, `x2` is homogeneous, and `x3` has no effect.
+`simulate_fmr()` generates data from a mixture regression whose coefficients
+you specify, so the fitted results can be compared with the truth. Each row of
+`betas` holds the coefficients of one component, starting with the intercept.
+Here `x1` is heterogeneous (its coefficient differs between the components),
+`x2` is homogeneous (the same coefficient in both components), and `x3` has no
+effect. `pi` gives the mixing proportions and `sigma` the component standard
+deviations (Gaussian only).
 
-```{r fit}
+```{r simulate}
 library(stepFMR)
 
-sim <- fmr_gaussian_example
+betas <- rbind(
+  c(-2, -3, 1, 0),
+  c(2, 3, 1, 0)
+)
+colnames(betas) <- c("(Intercept)", "x1", "x2", "x3")
+
+sim <- simulate_fmr(
+  n = 1000, betas = betas, pi = c(0.3, 0.7), sigma = c(0.5, 0.25),
+  family = "gaussian", seed = 1
+)
+head(sim$data)
+sim$formula
+```
+
+`sim$data` holds the response `y` and the covariates, `sim$formula` is the
+model formula, and `sim$true_group` records the component each observation
+came from. With your own data, pass your own formula and data frame to
+`stepFMR()` in the same way.
+
+## The WEST procedure
+
+`stepFMR()` runs variable selection and then effect-type determination. The
+order of the mixture is chosen at the end from `2:G_max` by the lowest BIC.
+
+```{r fit}
 fit <- stepFMR(sim$formula, sim$data, G_max = 3)
 print(fit)
 ```
 
-The result reports the selected variables, which of them are heterogeneous
-or homogeneous, and the parameter estimates at the BIC-optimal number of
-components.
+The result reports the selected covariates, which of them are heterogeneous
+or homogeneous, and the parameter estimates at the BIC-optimal order. The
+selected covariates are `x1` and `x2`, with `x1` heterogeneous and `x2`
+homogeneous, which matches the simulation model.
 
-## Following the search
+### Following the search
 
-`summary()` adds the step-by-step tables. Each step lists every remaining
-candidate's weighted p-value, and marks the one chosen. You can also print a
-single log using the print steps function:
+`print_steps()` shows the step-by-step log. Each step lists the weighted
+p-value of every remaining candidate and marks the one chosen. In the forward
+direction a candidate is chosen when its p-value is the smallest and is below
+`alpha` (0.05 by default).
 
 ```{r steps}
 print_steps(fit$variable_selection)
 print_steps(fit$effect_determination)
 ```
 
-## Choosing which procedure to run
+`summary(fit)` includes the same tables.
+
+### Choosing which procedure to run
 
 The `procedure` argument controls the search:
 
@@ -72,9 +106,42 @@ The `procedure` argument controls the search:
 stepFMR(sim$formula, sim$data, G_max = 3, procedure = "variables")
 ```
 
+## Fitting a specified model
+
+When the structure is already known, `fitFMR()` fits it directly without any
+testing. Here the covariates are the ones selected above, `x1` and `x2`.
+Covariates named in `common` get a single coefficient shared by all
+components. All other covariates are heterogeneous. One model is fit for each
+order in `2:G_max`, and the order with the lowest BIC is reported.
+
+```{r fitfmr}
+fit_fixed <- fitFMR(y ~ x1 + x2, sim$data, G_max = 3, common = "x2")
+fit_fixed
+```
+
+`summary(fit_fixed)` adds the iteration counts and convergence status for
+each order.
+
+## Checking against the truth
+
+Mixture components have no natural order, so the fitted components can be
+numbered differently from the simulated ones. `match_groups()` relabels the
+fit to line up with the true groups, so the estimates can be compared directly
+with `betas`. The heterogeneous coefficients (and the intercepts) are in
+`beta_g`, and the homogeneous coefficients are in `beta`.
+
+```{r match}
+aligned <- match_groups(fit, sim$true_group)
+aligned$best_fit$parameter_values[["beta_g"]]
+aligned$best_fit$parameter_values[["beta"]]
+```
+
 ## Other families
 
-There are also examples for both poisson and binomial data that are generated via `simulate_fmr()`.
+Poisson and binomial data can be simulated and fit in the same way. For
+binomial data the response is `cbind(successes, failures)` and `size` sets the
+number of trials for each observation. These chunks are not run here to keep
+the vignette fast.
 
 ```{r families, eval = FALSE}
 # Poisson counts
@@ -95,8 +162,8 @@ stepFMR(sim_bin$formula, sim_bin$data, G_max = 3, family = "binomial")
 ```
 
 A 0/1 binomial response is accepted but triggers a warning, since binary
-responses carry little information about component membership, so grouped
-counts are preferred.
+responses carry little information about component membership. Grouped counts
+are preferred.
 
 ## Tuning
 
@@ -112,15 +179,6 @@ ctrl <- fmr_control(alpha = 0.01, direction = "backward")
 stepFMR(sim$formula, sim$data, G_max = 3, control = ctrl)
 ```
 
-The remaining arguments govern initialization and numerical safeguards.
-
-## Checking against known truth
-
-When data are simulated, `simulate_fmr()` returns the true component labels.
-Because mixture components have no natural order, `match_groups()` relabels
-the fit so its components line up with the truth:
-
-```{r match}
-aligned <- match_groups(fit, sim$true_group)
-aligned$best_fit$parameter_values[["beta_g"]]
-```
+The remaining arguments govern initialization and numerical safeguards. The
+same control object can be passed to `fitFMR()`, which uses the EM settings
+and ignores `alpha`, `direction`, `parallel`, and `verbose`.
