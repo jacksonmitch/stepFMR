@@ -1,5 +1,23 @@
-# Universal weighted least square structured QR decomposition function
-
+#' Weighted Least Squares via Structured QR
+#'
+#' Solves the stacked weighted least squares problem for a mixture
+#' regression with component-specific (\code{X_het}) and shared
+#' (\code{X_com}) coefficients without forming normal equations. Stage 1
+#' takes a QR decomposition of the weighted heterogeneous design within
+#' each component, which eliminates \code{beta_g} from the problem. Stage 2
+#' takes a QR decomposition of the stacked residualized common design to
+#' solve for the shared \code{beta}. The component coefficients are then
+#' recovered by back-substitution.
+#'
+#' @param dat A \code{FMRData} object.
+#' @param z A numeric vector (recycled across components, e.g. the Gaussian
+#'   response) or an n x G matrix of working responses.
+#' @param weights An n x G matrix of non-negative observation weights.
+#' @param control A \code{FMRControl} object.
+#'
+#' @return A list with \code{beta_g} (G x p_het matrix) and \code{beta}
+#'   (numeric vector of length p_com).
+#' @noRd
 wls_sqr <- function(dat, z, weights, control) {
   A <- dat$X_het
   B <- dat$X_com
@@ -72,10 +90,8 @@ wls_sqr <- function(dat, z, weights, control) {
 
   if (q > 0) {
     qrB <- qr(Bhat)
-    R2 <- qr.R(qrB)[seq_len(q), seq_len(q), drop = FALSE]
     beta <- as.numeric(qr.coef(qrB, zhat)[seq_len(q)])
   } else {
-    R2 <- matrix(numeric(0), nrow = 0, ncol = 0)
     beta <- numeric(0)
   }
 
@@ -91,17 +107,8 @@ wls_sqr <- function(dat, z, weights, control) {
     beta_g[g, ] <- backsolve(R1_list[[g]], rhs)
   }
 
-  out <- list(
+  list(
     beta_g = beta_g,
     beta = beta
   )
-
-
-  if (isTRUE(control$return_qr_parts)) {
-    out$R1_list <- R1_list
-    out$E_list <- E_list
-    out$R2 <- R2
-  }
-
-  out
 }

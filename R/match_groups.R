@@ -5,13 +5,16 @@
 #' component-indexed parts of the fit so that they line up with the
 #' true group ordering. 
 #'
-#' @param fit A `fit_fmr` object, or a top-level `stepFMR` result (in which
-#'   case `fit$best_fit` is relabeled).
+#' @param fit A `fit_fmr` object, or a top-level [stepFMR()] or [fitFMR()]
+#'   result (in which case `fit$best_fit` is relabeled and the other fits in a
+#'   [fitFMR()] result are left unchanged).
 #' @param true_group An integer vector of true group labels, between 1:G,
 #'  one entry per observation, as produced by `simulate_fmr()`.
 #'
 #' @return An object of the same class, with elements relabeled to true-group
-#'   order.
+#'   order. For a `fitFMR` result, only `best_fit` is relabeled. The entries
+#'   of `fits` keep their original labels, so `best_fit` no longer equals the
+#'   corresponding element of `fits`.
 #' @export
 match_groups <- function(fit, true_group) {
   UseMethod("match_groups")
@@ -65,6 +68,12 @@ match_groups.fit_fmr <- function(fit, true_group) {
 
 #' @export
 match_groups.stepFMR <- function(fit, true_group) {
+  fit$best_fit <- match_groups(fit$best_fit, true_group)
+  fit
+}
+
+#' @export
+match_groups.fitFMR <- function(fit, true_group) {
   fit$best_fit <- match_groups(fit$best_fit, true_group)
   fit
 }

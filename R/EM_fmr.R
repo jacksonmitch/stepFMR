@@ -11,8 +11,9 @@
 #' @param G An integer number of mixture components.
 #' @param em_state An \code{EmState} object holding the initial (and,
 #'   afterward, final) EM state.
-#' @param family A character string specifying the error distribution:
-#'   \code{"gaussian"}, \code{"poisson"}, or \code{"binomial"}.
+#' @param family A character string specifying the response distribution:
+#'   \code{"gaussian"}, \code{"poisson"}, \code{"binomial"}, or
+#'   \code{"zip"}.
 #' @param control A \code{FMRControl} object (from \code{fmr_control()}).
 #'
 #' @return A list with elements: \code{em_state} (the final, mutated
@@ -21,7 +22,7 @@
 #'   \code{iterations} (number of iterations run), \code{converged}
 #'   (whether the tolerance criterion was met), and
 #'   \code{irwls_iterations}/\code{irwls_converged} (per-iteration IRWLS
-#'   diagnostics; \code{NULL} for the Gaussian family).
+#'   diagnostics, \code{NULL} for the Gaussian family).
 #' @noRd
 em_fmr <- function(em_state, prepared_data, G, family, control) {
   stopifnot(inherits(em_state, "EmState"))

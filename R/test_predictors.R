@@ -2,29 +2,29 @@
 
 #' Shared Stepwise Search Driver
 #'
-#' Drives the greedy forward/backward stepwise search shared by
+#' Drives the forward/backward stepwise search shared by
 #' \code{select_variables()} and \code{determine_effects()}. At each step,
 #' it fits a baseline ("shared") model plus one candidate model per
-#' remaining predictor, compares each candidate to the shared fit via
+#' remaining covariate, compares each candidate to the shared fit via
 #' \code{west_procedure()}, and either adopts the most eligible candidate or
 #' stops.
 #'
 #' @param model A \code{FMRModel} object.
-#' @param predictors A character vector of all candidate predictor names
+#' @param predictors A character vector of all candidate covariate names
 #'   under consideration.
-#' @param included A character vector of predictor names currently included
+#' @param included A character vector of covariate names currently included
 #'   in the model.
-#' @param heterogeneous A character vector of predictor names currently
+#' @param heterogeneous A character vector of covariate names currently
 #'   treated as heterogeneous (component-specific).
 #' @param update_included A function of \code{(set, predictor)} used to
-#'   update the included-predictor set when a candidate is chosen (e.g.
+#'   update the included-covariate set when a candidate is chosen (e.g.
 #'   \code{union}/\code{setdiff} for variable selection, or a no-op for
 #'   effect-type determination, where the included set never changes).
 #' @param direction A character string, either \code{"forward"} or
 #'   \code{"backward"}, specifying the stepwise search direction.
 #'
-#' @return A list with elements: \code{included} (final included predictor
-#'   names), \code{heterogeneous} (final heterogeneous predictor names),
+#' @return A list with elements: \code{included} (final included covariate
+#'   names), \code{heterogeneous} (final heterogeneous covariate names),
 #'   \code{common} (\code{included} minus \code{heterogeneous}),
 #'   \code{steps} (the step-by-step search log), and \code{final_fits}
 #'   (fits across \code{G_values} for the final model).
@@ -46,7 +46,7 @@ test_predictors <- function(
 
   heterogeneous <- intersect(heterogeneous, included)
 
-  # These three always co-vary with direction — not task-specific
+  # These three always co-vary with direction, not task-specific
   if (direction == "forward") {
     is_eligible <- function(p) is.finite(p) & p < alpha
     find_best <- which.min

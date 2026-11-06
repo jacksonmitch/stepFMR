@@ -1,0 +1,184 @@
+---
+title: "Getting started with stepFMR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with stepFMR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+## What stepFMR does
+
+A finite mixture regression (FMR) lets the relationship between a response
+and its covariates differ across an unknown number $G$ of latent
+subpopulations. `stepFMR` answers two questions for such a model:
+
+1. **Variable selection.** Which covariates have any effect on the response?
+2. **Effect type.** Is each selected covariate's effect *heterogeneous*
+   (a different coefficient in every component) or *homogeneous* (one
+   coefficient shared by all components)?
+
+The difficulty is that a test of a covariate depends on $G$, which is
+unknown. The weighted significance test (WEST) computes a likelihood-ratio
+p-value at every candidate $G$ in `2:G_max` and combines them into one
+p-value, weighting each $G$ by $\exp(-\mathrm{BIC}_G/2)$. Covariates are then
+added (or removed) one at a time in a stepwise search.
+
+Gaussian, Poisson, and binomial responses are supported. Fitting uses an EM
+algorithm. The M-step solves weighted least squares with a structured QR
+decomposition (and IRWLS for non-Gaussian families).
+
+## Simulating data with a known structure
+
+`simulate_fmr()` generates data from a mixture regression whose coefficients
+you specify, so the fitted results can be compared with the truth. Each row of
+`betas` holds the coefficients of one component, starting with the intercept.
+Here `x1` is heterogeneous (its coefficient differs between the components),
+`x2` is homogeneous (the same coefficient in both components), and `x3` has no
+effect. `pi` gives the mixing proportions and `sigma` the component standard
+deviations (Gaussian only).
+
+```{r simulate}
+library(stepFMR)
+
+betas <- rbind(
+  c(-2, -3, 1, 0),
+  c(2, 3, 1, 0)
+)
+colnames(betas) <- c("(Intercept)", "x1", "x2", "x3")
+
+sim <- simulate_fmr(
+  n = 1000, betas = betas, pi = c(0.3, 0.7), sigma = c(0.5, 0.25),
+  family = "gaussian", seed = 1
+)
+head(sim$data)
+sim$formula
+```
+
+`sim$data` holds the response `y` and the covariates, `sim$formula` is the
+model formula, and `sim$true_group` records the component each observation
+came from. With your own data, pass your own formula and data frame to
+`stepFMR()` in the same way.
+
+## The WEST procedure
+
+`stepFMR()` runs variable selection and then effect-type determination. The
+order of the mixture is chosen at the end from `2:G_max` by the lowest BIC.
+
+```{r fit}
+fit <- stepFMR(sim$formula, sim$data, G_max = 3)
+print(fit)
+```
+
+The result reports the selected covariates, which of them are heterogeneous
+or homogeneous, and the parameter estimates at the BIC-optimal order. The
+selected covariates are `x1` and `x2`, with `x1` heterogeneous and `x2`
+homogeneous, which matches the simulation model.
+
+### Following the search
+
+`print_steps()` shows the step-by-step log. Each step lists the weighted
+p-value of every remaining candidate and marks the one chosen. In the forward
+direction a candidate is chosen when its p-value is the smallest and is below
+`alpha` (0.05 by default).
+
+```{r steps}
+print_steps(fit$variable_selection)
+print_steps(fit$effect_determination)
+```
+
+`summary(fit)` includes the same tables.
+
+### Choosing which procedure to run
+
+The `procedure` argument controls the search:
+
+* `"complete"` (default): variable selection, then effect determination on
+  the selected covariates.
+* `"variables"`: variable selection only.
+* `"effects"`: effect determination on all covariates in the formula.
+
+```{r procedure, eval = FALSE}
+stepFMR(sim$formula, sim$data, G_max = 3, procedure = "variables")
+```
+
+## Fitting a specified model
+
+When the structure is already known, `fitFMR()` fits it directly without any
+testing. Here the covariates are the ones selected above, `x1` and `x2`.
+Covariates named in `common` get a single coefficient shared by all
+components. All other covariates are heterogeneous. One model is fit for each
+order in `2:G_max`, and the order with the lowest BIC is reported.
+
+```{r fitfmr}
+fit_fixed <- fitFMR(y ~ x1 + x2, sim$data, G_max = 3, common = "x2")
+fit_fixed
+```
+
+`summary(fit_fixed)` adds the iteration counts and convergence status for
+each order.
+
+## Checking against the truth
+
+Mixture components have no natural order, so the fitted components can be
+numbered differently from the simulated ones. `match_groups()` relabels the
+fit to line up with the true groups, so the estimates can be compared directly
+with `betas`. The heterogeneous coefficients (and the intercepts) are in
+`beta_g`, and the homogeneous coefficients are in `beta`.
+
+```{r match}
+aligned <- match_groups(fit, sim$true_group)
+aligned$best_fit$parameter_values[["beta_g"]]
+aligned$best_fit$parameter_values[["beta"]]
+```
+
+## Other families
+
+Poisson and binomial data can be simulated and fit in the same way. For
+binomial data the response is `cbind(successes, failures)` and `size` sets the
+number of trials for each observation. These chunks are not run here to keep
+the vignette fast.
+
+```{r families, eval = FALSE}
+# Poisson counts
+sim_pois <- simulate_fmr(
+  n = 500,
+  betas = rbind(c(-0.5, -1, 0.3, 0), c(0.5, 1, 0.3, 0)),
+  pi = c(0.4, 0.6), family = "poisson", seed = 2
+)
+stepFMR(sim_pois$formula, sim_pois$data, G_max = 3, family = "poisson")
+
+# Binomial: cbind(successes, failures) ~ covariates, 25 trials each
+sim_bin <- simulate_fmr(
+  n = 500,
+  betas = rbind(c(-1, -3, 0.5, 0), c(1, 3, 0.5, 0)),
+  pi = c(0.4, 0.6), family = "binomial", size = 25, seed = 3
+)
+stepFMR(sim_bin$formula, sim_bin$data, G_max = 3, family = "binomial")
+```
+
+A 0/1 binomial response is accepted but triggers a warning, since binary
+responses carry little information about component membership. Grouped counts
+are preferred.
+
+## Tuning
+
+`fmr_control()` collects the tuning parameters. Most users only need:
+
+* `alpha`: the significance level (default 0.05),
+* `direction`: `"forward"` or `"backward"`,
+* `max_iter` and `tol`: EM convergence,
+* `parallel`: run candidate tests in parallel.
+
+```{r control, eval = FALSE}
+ctrl <- fmr_control(alpha = 0.01, direction = "backward")
+stepFMR(sim$formula, sim$data, G_max = 3, control = ctrl)
+```
+
+The remaining arguments govern initialization and numerical safeguards. The
+same control object can be passed to `fitFMR()`, which uses the EM settings
+and ignores `alpha`, `direction`, `parallel`, and `verbose`.

@@ -1,5 +1,17 @@
-# Model selection helper functions
-
+#' Number of Free Parameters
+#'
+#' Counts the free parameters of a fitted mixture regression: component
+#' coefficients, common coefficients, mixing proportions (\code{G - 1}),
+#' and, for Gaussian, component standard deviations. For \code{"zip"} only
+#' \code{G - 1} components carry coefficients.
+#'
+#' @param ncol_het,ncol_common Number of heterogeneous and common columns in
+#'   the design.
+#' @param G Number of mixture components.
+#' @param family Response family.
+#'
+#' @return An integer count.
+#' @noRd
 count_params_fmr <- function(ncol_het, ncol_common, G, family) {
 
   k <- if (family == "zip") {
@@ -13,10 +25,13 @@ count_params_fmr <- function(ncol_het, ncol_common, G, family) {
   k
 }
 
+# BIC = -2 * loglik + k * log(n). Smaller is better.
 compute_bic <- function(loglik, n, k) {
   -2 * loglik + k * log(n)
 }
 
+# Pick the fit with the best criterion value (lowest BIC, or highest
+# loglik) from a list of fit_fmr objects. Non-finite values are ignored.
 select_best_G <- function(fits, criterion = c("bic", "loglik")) {
   criterion <- match.arg(criterion)
 

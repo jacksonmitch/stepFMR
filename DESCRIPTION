@@ -1,19 +1,27 @@
 Package: stepFMR
 Title: Finite Mixture Regression with Variable and Effect-Type Selection
-Version: 0.1
+Version: 0.1.0
 Authors@R: 
-    c(person("Tulio", "Martins", email = "tbatista@uoguelph.ca", role = c("aut", "cre")),
-      person("Jackson", "Mitchell", email = "jmitch19@uoguelph.ca", role = c("aut")))
+    c(person("Tulio", "Martins", email = "tbatista@uoguelph.ca", role = c("aut", "cre", "cph")),
+      person("Jackson", "Mitchell", email = "jmitch19@uoguelph.ca", role = c("aut", "cph")),
+      person("Zeny", "Feng", email = "zfeng@uoguelph.ca", role = c("ctb", "ths", "cph")),
+      person("Allan", "Willms", email = "awillms@uoguelph.ca", role = c("ctb", "ths", "cph")),
+      person("Chong", "Gan", email = "gan.c@queensu.ca", role = c("ctb")))
 Description: Implements finite mixture regression models for Gaussian, Poisson,
-    and binomial responses, with procedures for selecting predictors and
+    binomial, with procedures for selecting covariates and
     determining whether covariate effects are heterogeneous or homogeneous across
     mixture components. Estimation is performed using EM algorithms,
-    with weighted least squares and structured QR decompositions used in the
-    M-step.
+    with weighted least squares and structured QR decompositions for efficient matrix inversions
+    in the M-step.
+URL: https://github.com/jacksonmitch/stepFMR
+BugReports: https://github.com/jacksonmitch/stepFMR/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
+VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
 Suggests: 
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/roxygen2/version: 8.1.0
 Config/testthat/edition: 3
@@ -25,5 +33,5 @@ Imports:
     clue,
     mclust
 Depends: 
-    R (>= 3.5)
+    R (>= 4.1)
 LazyData: true

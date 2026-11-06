@@ -1,15 +1,15 @@
 #' Simulate Data from a Finite Mixture Regression
 #'
 #' Simulates covariates, group membership, and a response from a specified
-#' finite mixture regression model. Column/row names on `betas` are
-#' optional. If omitted, columns become `"(Intercept)", "x1", "x2", ...`
-#' and rows become `"g1", "g2", ...`.
+#' finite mixture regression model. Column and row names on `betas` are
+#' optional. If omitted, the columns are named `"(Intercept)"`, `"x1"`,
+#' `"x2"`, and so on, and the rows `"g1"`, `"g2"`, and so on.
 #'
 #' @param n A positive integer, the number of observations to simulate.
 #' @param betas A numeric matrix of true coefficients, one row per mixture
 #'   component (or a list of numeric vectors, one per component, which
 #'   will be row-bound into a matrix). If column names are supplied, one
-#'   of them must be `"(Intercept)"`; if omitted, the first column is
+#'   of them must be `"(Intercept)"`. If omitted, the first column is
 #'   assumed to be the intercept and named accordingly.
 #' @param pi An optional numeric vector of mixing proportions, one per
 #'   component (normalized internally). Defaults to equal proportions.
@@ -24,8 +24,8 @@
 #'   simulation.
 #'
 #' @return A list with elements: `data` (a data.frame with the response
-#'   `y`, the covariates, and — for `family = "binomial"` — a `size` trial
-#'   count column), `formula` (ready to pass to `stepFMR()`; a
+#'   `y`, the covariates, and for `family = "binomial"` a `size` trial
+#'   count column), `formula` (ready to pass to [stepFMR()] or [fitFMR()], using a
 #'   `cbind(y, size - y) ~ .` form for binomial), and `true_group` (the
 #'   simulated integer group labels, for use with `match_groups()`).
 #' @export

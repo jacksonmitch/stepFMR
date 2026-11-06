@@ -7,15 +7,18 @@
 match_groups(fit, true_group)
 }
 \arguments{
-\item{fit}{A \code{fit_fmr} object, or a top-level \code{stepFMR} result (in which
-case \code{fit$best_fit} is relabeled).}
+\item{fit}{A \code{fit_fmr} object, or a top-level \code{\link[=stepFMR]{stepFMR()}} or \code{\link[=fitFMR]{fitFMR()}}
+result (in which case \code{fit$best_fit} is relabeled and the other fits in a
+\code{\link[=fitFMR]{fitFMR()}} result are left unchanged).}
 
 \item{true_group}{An integer vector of true group labels, between 1:G,
 one entry per observation, as produced by \code{simulate_fmr()}.}
 }
 \value{
 An object of the same class, with elements relabeled to true-group
-order.
+order. For a \code{fitFMR} result, only \code{best_fit} is relabeled. The entries
+of \code{fits} keep their original labels, so \code{best_fit} no longer equals the
+corresponding element of \code{fits}.
 }
 \description{
 Finds the best correspondence between a fitted model's mixture

@@ -5,7 +5,7 @@
 #'
 #' @format A list with elements:
 #' \describe{
-#'   \item{data}{A data.frame with response \code{y} and predictors
+#'   \item{data}{A data.frame with response \code{y} and covariates
 #'     \code{x1}, \code{x2}, \code{x3}. \code{x1}'s coefficient differs
 #'     across components (heterogeneous), \code{x2}'s coefficient is the
 #'     same across components (homogeneous), and \code{x3} has a true
@@ -15,6 +15,7 @@
 #'     membership of the response, for use with \code{match_groups()}.}
 #' }
 #' @seealso \code{\link{simulate_fmr}}, \code{\link{match_groups}}
+#' @keywords internal
 "fmr_gaussian_example"
 
 #' Example Poisson Mixture Regression Data
@@ -24,7 +25,7 @@
 #'
 #' @format A list with elements:
 #' \describe{
-#'   \item{data}{A data.frame with response \code{y} and predictors
+#'   \item{data}{A data.frame with response \code{y} and covariates
 #'     \code{x1}, \code{x2}, \code{x3}. \code{x1}'s coefficient differs
 #'     across components (heterogeneous), \code{x2}'s coefficient is the
 #'     same across components (homogeneous), and \code{x3} has a true
@@ -34,6 +35,7 @@
 #'     membership of the response, for use with \code{match_groups()}.}
 #' }
 #' @seealso \code{\link{simulate_fmr}}, \code{\link{match_groups}}
+#' @keywords internal
 "fmr_poisson_example"
 
 #' Example Binomial Mixture Regression Data
@@ -43,16 +45,17 @@
 #'
 #' @format A list with elements:
 #' \describe{
-#'   \item{data}{A data.frame with response \code{y}, predictors
+#'   \item{data}{A data.frame with response \code{y}, covariates
 #'     \code{x1}, \code{x2}, \code{x3}, and trial counts \code{size}.
 #'     \code{x1}'s coefficient differs across components (heterogeneous),
 #'     \code{x2}'s coefficient is the same across components (homogeneous),
 #'     and \code{x3} has a true coefficient of 0 in both components
 #'     (null).}
 #'   \item{formula}{The model formula,
-#'     \code{cbind(y, n_trials - y) ~ x1 + x2 + x3}.}
+#'     \code{cbind(y, size - y) ~ x1 + x2 + x3}.}
 #'   \item{true_group}{An integer vector of the simulated component
 #'     membership of the response, for use with \code{match_groups()}.}
 #' }
 #' @seealso \code{\link{simulate_fmr}}, \code{\link{match_groups}}
+#' @keywords internal
 "fmr_binomial_example"

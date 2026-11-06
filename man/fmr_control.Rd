@@ -2,7 +2,7 @@
 % Please edit documentation in R/fmr_control.R
 \name{fmr_control}
 \alias{fmr_control}
-\title{Create a Control Object for stepFMR Models}
+\title{Create a Control Object for stepFMR and fitFMR Models}
 \usage{
 fmr_control(
   alpha = 0.05,
@@ -20,7 +20,6 @@ fmr_control(
   weight_floor = 1e-10,
   init_burnin = 10,
   init_eps = 1e-06,
-  return_qr_parts = FALSE,
   parallel = FALSE
 )
 }
@@ -42,7 +41,7 @@ initializations to carry into full convergence. Default is 2.}
 \code{"forward"}.}
 
 \item{verbose}{A logical flag. If \code{TRUE}, detailed execution logs are
-printed to the console during execution Default is \code{FALSE}.}
+printed to the console during execution. Default is \code{FALSE}.}
 
 \item{tol}{A non-negative numeric value specifying the iteration
 tolerance threshold. Default is 1e-6.}
@@ -64,7 +63,7 @@ families. Default is 50.}
 
 \item{irwls_tol}{A non-negative numeric value specifying the convergence
 tolerance for the IRWLS iterations used for the Poisson and binomial
-distribution families; iteration stops when the largest absolute
+distribution families. Iteration stops when the largest absolute
 change in coefficients falls below this value. Default is 1e-8.}
 
 \item{weight_floor}{A non-negative numeric value establishing a lower
@@ -81,15 +80,11 @@ quantile partition is to a hard assignment: the assigned component gets
 probability \code{1 - init_eps} and the rest share \code{init_eps}.
 Default is 1e-6.}
 
-\item{return_qr_parts}{A logical flag. If \code{TRUE}, the structured-QR
-M-step retains its intermediate QR decomposition components in its
-output instead of discarding them. Default is \code{FALSE}.}
-
 \item{parallel}{A logical flag for enabling user-friendly parallel
 computation. If \code{TRUE}, a general \code{future::multisession} plan overrides
 the current one, which is restored on exit. A \code{future} can be
 specified manually while setting this flag as \code{FALSE} for
-hardware-specific customization. Default is \code{FALSE}}
+hardware-specific customization. Default is \code{FALSE}.}
 }
 \value{
 A structured list of class \code{"FMRControl"} containing all
@@ -97,10 +92,13 @@ validated control arguments.
 }
 \description{
 Creates and validates a control object of tuning parameters for
-\code{stepFMR()}. Most users only need \code{alpha}, \code{direction}, and
-\code{max_iter}/\code{tol} (EM convergence). The remaining parameters govern
-initialization strategies, IRWLS loops, and numerical safeguards. They
-are available for tuning but the defaults are reasonable for most fits.
+\code{\link{stepFMR}} and \code{\link{fitFMR}}. Most users only need
+\code{alpha}, \code{direction}, and \code{max_iter}/\code{tol} (EM
+convergence). The remaining parameters govern initialization strategies,
+IRWLS loops, and numerical safeguards. They are available for tuning but
+the defaults are reasonable for most fits. \code{fitFMR()} ignores
+\code{alpha}, \code{direction}, \code{parallel}, and \code{verbose},
+which only apply to the stepwise search in \code{stepFMR()}.
 }
 \examples{
 # Generate default control options
