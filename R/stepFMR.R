@@ -164,6 +164,12 @@ stepFMR <- function(
     coerced <- coerce_binomial_formula(formula, data)
     formula <- coerced$formula
     data <- coerced$data
+  } else {
+    response <- formula[[2]]
+    if (is.call(response) && identical(response[[1]], as.name("cbind"))){
+      stop("Given formula constains a cbind response, which is", 
+           "only supported for the binomial family", call. = FALSE)
+    }
   }
 
   G_values <- seq(2, G_max)
@@ -181,11 +187,15 @@ stepFMR <- function(
   best_fit <- NULL
 
   if (procedure %in% c("complete", "variables")) {
-    variable_selection <- select_variables(
+    variable_selection <- quiet_interrupt({select_variables(
       model = model,
       direction = control$direction
-    )
-    if (control$verbose) print(variable_selection)
+    )})
+    if (control$verbose) {
+      cli::cli_alert_success(
+        "Variables selected: {format_none(variable_selection$selected)}"
+      )
+    }
 
     final_fits <- variable_selection$final_fits
   }
@@ -196,19 +206,23 @@ stepFMR <- function(
       model$predictors
     }
     if (length(effect_predictors) > 0L) {
-      effect_determination <- determine_effects(
+      effect_determination <- quiet_interrupt({determine_effects(
         model = model,
         direction = control$direction,
         predictors = effect_predictors
-      )
-      if (control$verbose) print(effect_determination)
+      )})
+      if (control$verbose) {
+        cli::cli_alert_success(paste0(
+          "Heterogeneous: {format_none(effect_determination$heterogeneous)}",
+          " | Homogeneous: {format_none(effect_determination$homogeneous)}"
+        ))
+      }
 
       final_fits <- effect_determination$final_fits
     }
   }
 
   best_fit <- select_best_G(final_fits, criterion = "bic")
-  if (control$verbose) print(best_fit)
 
   out <- list(
     call = match.call(),

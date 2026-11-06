@@ -8,7 +8,7 @@ test_that("coerce_binomial_formula handles cbind(success, failure) formulas", {
 
 test_that("coerce_binomial_formula handles plain 0/1 responses", {
   dat <- data.frame(y = c(0, 1, 1, 0), x = c(1, 2, 3, 4))
-  out <- coerce_binomial_formula(y ~ x, dat)
+  out <- expect_warning(coerce_binomial_formula(y ~ x, dat))
 
   expect_equal(out$data$.binom_size, rep(1, 4))
 })

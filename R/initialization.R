@@ -149,6 +149,7 @@ make_state_list <- function(prepared_data,
                             family,
                             features = NULL) {
   n <- prepared_data$n
+  normalized_data <- prepared_data$normalized_data
 
   if (G == 1L) {
     tau <- matrix(1, nrow = n, ncol = 1L)
@@ -199,7 +200,7 @@ make_state_list <- function(prepared_data,
         iter.max = 20,
         nstart = control$kmeans_starts
       ),
-      silent = TRUE
+      silent = FALSE
     )
     if (!inherits(km, "try-error") &&
       length(unique(km$cluster)) == G &&
@@ -211,27 +212,21 @@ make_state_list <- function(prepared_data,
       )
     }
 
-    X_raw <- cbind(prepared_data$X_het, prepared_data$X_com)
-    X_raw <- X_raw[, apply(X_raw, 2, stats::sd) > 0, drop = FALSE] # drops X_0
-
-    if (ncol(X_raw) > 0L && nrow(unique(X_raw)) >= G) {
-      km_raw <- try(
-        stats::kmeans(
-          x = as.matrix(prepared_data$X_het),
-          centers = G,
-          iter.max = 20, 
-          nstart = control$kmeans_starts
-        ),
-        silent = TRUE
-      )
-
-      if (!inherits(km_raw, "try-error") &&
-          length(unique(km_raw$cluster)) == G &&
-          min(table(km_raw$cluster)) >= min_size) {
-          tau_list[[paste0("kmeans_raw_", s)]] <- make_tau_from_partition(
-            partition = km_raw$cluster, G = G, eps = control$init_eps
-          )
-      }
+    km_raw <- try(
+      stats::kmeans(
+        x = normalized_data,
+        centers = G,
+        iter.max = 20, 
+        nstart = control$kmeans_starts
+      ),
+      silent = FALSE
+    )
+    if (!inherits(km_raw, "try-error") &&
+        length(unique(km_raw$cluster)) == G &&
+        min(table(km_raw$cluster)) >= min_size) {
+        tau_list[[paste0("kmeans_raw_", s)]] <- make_tau_from_partition(
+          partition = km_raw$cluster, G = G, eps = control$init_eps
+        )
     }
   }
 
@@ -246,11 +241,10 @@ make_state_list <- function(prepared_data,
       eps = control$init_eps
     )
   }
-  if (family == "binomial" && prepared_data$p_het > 0L) {
-    A <- as.matrix(prepared_data$X_het)
-
-    for (j in seq_len(ncol(A))) {
-      part_x <- rank_partition(A[, j], G)
+  covariates <- normalized_data[, -1, drop = FALSE] # drops y
+  if (family == "binomial" && ncol(covariates) > 0L) {
+    for (j in seq_len(ncol(covariates))) {
+      part_x <- rank_partition(covariates[, j], G)
 
       if (min(table(part_x)) >= min_size) {
         tau_list[[paste0("quantile_A", j)]] <- make_tau_from_partition(
@@ -260,7 +254,7 @@ make_state_list <- function(prepared_data,
         )
       }
 
-      part_neg_x <- rank_partition(-A[, j], G)
+      part_neg_x <- rank_partition(-covariates[, j], G)
 
       if (min(table(part_neg_x)) >= min_size) {
         tau_list[[paste0("quantile_neg_A", j)]] <- make_tau_from_partition(
@@ -272,26 +266,35 @@ make_state_list <- function(prepared_data,
     }
   }
 
-  mc <- 
-    try(
+  mc <- try(
+    suppressWarnings(
       mclust::Mclust(
-        data = make_mclust_features(prepared_data, family),
+        data = normalized_data,
         G = G,
-        modelName = "VVV"
+        modelNames = if (ncol(normalized_data) == 1L) c("V", "E") else c("VVV", "EEE"),
+        prior = mclust::priorControl(),
+        verbose = FALSE
       )
-    ,
-      silent = TRUE
-    )
-
+    ),
+    silent = TRUE
+  )
   if (!inherits(mc, "try-error") && !is.null(mc) &&
       ncol(mc$z) == G && min(tabulate(mc$classification, nbins = G)) >= min_size
   ) {
-    tau <- mc$z
-    tau <- pmax(tau, control$init_eps / (G - 1))
+    tau <- pmax(mc$z, control$init_eps / (G - 1L))
     tau <- tau / rowSums(tau)
     colnames(tau) <- paste0("g", seq_len(G))
-    tau_list[[paste0("mclust_", s)]] <- tau
+    tau_list[["mclust"]] <- tau
   }
+  # else if (inherits(mc, "try-error")) {
+  #   message("mclust error (G=", G, ", p=", ncol(normalized_data), "): ", as.character(mc))
+  # } else if (is.null(mc)) {
+  #   message("mclust NULL (G=", G, ", p=", ncol(normalized_data), ")")
+  # } else {
+  #   message("mclust rejected: classes=", length(unique(mc$classification)),
+  #           ", min size=", min(tabulate(mc$classification, nbins = G)),
+  #           ", need ", min_size)
+  # }
 
   if (length(tau_list) == 0L) {
     stop("No valid initialization starts were created.")
@@ -347,7 +350,7 @@ select_best_initialization <- function(em_state_list,
   valid <- is.finite(logliks)
   if (!any(valid)) {
     failure_details <- paste0("  - ", names(failures), ": ", unlist(failures), collapse = "\n")
-    stop("All initialization attempts failed.\n\nCaptured Errors:\n", failure_details)
+    message("All initialization attempts failed.\n\nCaptured Errors:\n", failure_details)
   }
 
   n_keep <- min(control$n_best_init, sum(valid))
@@ -384,6 +387,9 @@ make_warm_init_lists <- function(previous_fits, name, model, prepared_data) {
       family = family,
       features = features
     )
+    if (is.null(prev_fit[["parameter_values"]])) {
+      return(cold_list)
+    }
     prev_tau <- as.matrix(prev_fit$parameter_values[["tau"]])
     warm_list <- stats::setNames(list(EmState$new(tau = prev_tau)), name)
     c(cold_list, warm_list)
@@ -398,13 +404,15 @@ make_init_lists <- function(prepared_data, G_values, control, family) {
   )
 
   lapply(G_values, function(G) {
-    make_state_list(
+    state_list <- make_state_list(
       prepared_data = prepared_data,
       G = G,
       control = control,
       family = family,
       features = features
     )
+    # Remove inits not good for baseline fits
+    state_list[names(state_list) != "quantile_response"]
   })
 }
 
@@ -418,8 +426,8 @@ make_mclust_features <- function(prepared_data, family) {
     binomial = stats::qlogis(pmin(pmax((y + 0.5) / (prepared_data$binomial_size + 1), 1e-8), 1 - 1e-8))
   )
 
-  joint <- cbind(y = y_transformed, X)
-  scaled <- scale(joint)
+  normalized_data <- cbind(y = y_transformed, X)
+  scaled <- scale(normalized_data)
   scaled[!is.finite(scaled)] <- 0
   scaled
 }

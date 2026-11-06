@@ -22,7 +22,6 @@ irwls_fmr <- function(dat, em_state, control,
   family <- match.arg(family)
   A <- dat$X_het
   B <- dat$X_com
-  # stopifnot(!is.null(dat$B))
   y <- dat$y
 
   tau <- em_state$tau

@@ -24,11 +24,16 @@ fit_across_G <- function(model, prepared_data, init_lists = NULL) {
   }
 
   Map(function(G, init_list) {
-    fit_fmr(
-      model = model,
-      G = G,
-      init_em_state_list = init_list,
-      prepared_data = prepared_data
+    tryCatch(
+      fit_fmr(
+        model = model,
+        G = G,
+        init_em_state_list = init_list,
+        prepared_data = prepared_data
+      ),
+      error = function(e) {
+        failed_fit(G, prepared_data, model$family, conditionMessage(e))
+      }
     )
   }, G_values, init_lists)
 }
@@ -135,6 +140,22 @@ fit_fmr <- function(model,
     control = control
   ))
 
+  class(out) <- "fit_fmr"
+  out
+}
+
+failed_fit <- function(G, prepared_data, family, message) {
+  out <- list(
+    loglik = NA_real_,
+    bic = NA_real_,
+    num_parameters = count_params_fmr(
+      prepared_data$p_het, prepared_data$p_com, G, family
+    ),
+    converged = FALSE,
+    family = family,
+    G = G,
+    error = message
+  )
   class(out) <- "fit_fmr"
   out
 }

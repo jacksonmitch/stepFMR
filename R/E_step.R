@@ -79,6 +79,7 @@ e_step <- function(dat, em_state, family) {
   stopifnot(all(weights >= 0))
 
   sum_weights <- rowSums(weights)
+  if (any(sum_weights == 0)) message("E-step underflow rows: ", sum(sum_weights == 0))
   loglik <- sum(log(sum_weights))
   tau <- weights / sum_weights
 

@@ -5,7 +5,7 @@
 devtools::load_all()
 
 fmr_gaussian_example <- simulate_fmr(
-  n = 500,
+  n = 300,
   betas = rbind(
     c(-2, -3, 1, 0),
     c(2, 3, 1, 0)
@@ -17,7 +17,7 @@ fmr_gaussian_example <- simulate_fmr(
 )
 
 fmr_poisson_example <- simulate_fmr(
-  n = 500,
+  n = 300,
   betas = rbind(
     c(-0.5, -1.0, 0.3, 0),
     c(0.5, 1.0, 0.3, 0)
@@ -28,7 +28,7 @@ fmr_poisson_example <- simulate_fmr(
 )
 
 fmr_binomial_example <- simulate_fmr(
-  n = 500,
+  n = 300,
   betas = rbind(
     c(-1.0, -1.5, 0.5, 0),
     c(1.0, 1.5, 0.5, 0)
