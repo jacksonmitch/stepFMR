@@ -20,7 +20,16 @@ devtools::load_all()
 
 # ---- helpers ----------------------------------------------------------------
 
-init_type <- function(name) sub("_?[0-9]+$", "", name)
+init_type <- function(name) {
+  known <- c(
+    "kmeans_raw", "kmeans", "mclust", "random", "previous_fit",
+    "quantile_residual", "quantile_response", "quantile_neg_A", "quantile_A"
+  )
+  vapply(name, function(nm) {
+    hit <- known[startsWith(nm, known)]
+    if (length(hit) == 0L) sub("_*[0-9]+$", "", nm) else hit[1]
+  }, character(1), USE.NAMES = FALSE)
+}
 
 finite_sorted <- function(ll) sort(ll[is.finite(ll)], decreasing = TRUE)
 
@@ -259,23 +268,209 @@ print.init_diagnostics <- function(x, ...) {
   invisible(x)
 }
 
+# ---- multi-seed study -------------------------------------------------------
+
+# Aggregate a named list of init_diagnostics() results (one per seed)
+aggregate_init_study <- function(studies, tie_tol = 0.01) {
+  seeds <- names(studies)
+
+  types <- do.call(rbind, lapply(seeds, function(s) {
+    cbind(seed = s, studies[[s]][["types"]])
+  }))
+  fits <- do.call(rbind, lapply(seeds, function(s) {
+    cbind(seed = s, studies[[s]][["fits"]])
+  }))
+
+  types[["needed"]] <- !is.na(types[["margin"]]) & types[["margin"]] > tie_tol
+
+  # Per seed, then pooled across seeds
+  per_seed <- do.call(rbind, lapply(
+    split(types, types[c("seed", "stage", "context", "basis", "type")], drop = TRUE),
+    function(d) {
+      data.frame(
+        seed = d[["seed"]][1],
+        stage = d[["stage"]][1],
+        context = d[["context"]][1],
+        basis = d[["basis"]][1],
+        type = d[["type"]][1],
+        fits = nrow(d),
+        needed = sum(d[["needed"]]),
+        loss_sum = sum(d[["margin"]][d[["needed"]]]),
+        loss_max = or_na(d[["margin"]], max),
+        stringsAsFactors = FALSE
+      )
+    }
+  ))
+
+  marginal <- do.call(rbind, lapply(
+    split(per_seed, per_seed[c("stage", "context", "basis", "type")], drop = TRUE),
+    function(d) {
+      pct_by_seed <- 100 * d[["needed"]] / d[["fits"]]
+      data.frame(
+        stage = d[["stage"]][1],
+        context = d[["context"]][1],
+        basis = d[["basis"]][1],
+        type = d[["type"]][1],
+        fits = sum(d[["fits"]]),
+        of = sum(fits[["stage"]] == d[["stage"]][1] &
+          fits[["context"]] == d[["context"]][1]),
+        needed = sum(d[["needed"]]),
+        pct_needed = 100 * sum(d[["needed"]]) / sum(d[["fits"]]),
+        pct_seed_min = min(pct_by_seed),
+        pct_seed_max = max(pct_by_seed),
+        seeds_needed = sum(d[["needed"]] > 0),
+        mean_loss_when_needed = if (sum(d[["needed"]]) > 0) {
+          sum(d[["loss_sum"]]) / sum(d[["needed"]])
+        } else {
+          NA_real_
+        },
+        max_loss = or_na(d[["loss_max"]], max),
+        stringsAsFactors = FALSE
+      )
+    }
+  ))
+  marginal <- marginal[
+    order(
+      marginal[["stage"]], marginal[["context"]],
+      marginal[["basis"]], -marginal[["needed"]]
+    ),
+  ]
+  rownames(marginal) <- NULL
+
+  out <- list(
+    seeds = seeds,
+    tie_tol = tie_tol,
+    fits = fits,
+    types = types,
+    wins_by_step = win_table(fits, c("stage", "step"), tie_tol),
+    wins_overall = win_table(fits, "context", tie_tol),
+    marginal = marginal
+  )
+  class(out) <- "init_study"
+  out
+}
+
+print.init_study <- function(x, ...) {
+  cat(sprintf(
+    "Seeds: %d  |  fits: %d  |  tie tolerance: %g  |  burn-in leader == final winner: %.1f%%\n",
+    length(x[["seeds"]]), nrow(x[["fits"]]), x[["tie_tol"]],
+    100 * mean(x[["fits"]][["burnin_agrees"]])
+  ))
+
+  cat("\n== Loss in best loglik if a strategy were dropped ==\n")
+  cat("fits: fits where the strategy ran (finite), of: all fits in the context\n")
+  cat("pct_needed: needed / fits; pct_seed_min/max: range across seeds\n")
+  cat("seeds_needed: seeds where it was needed at least once\n")
+  print(x[["marginal"]], row.names = FALSE, digits = 3)
+
+  cat("\n== Winners overall ==\n")
+  print(x[["wins_overall"]], row.names = FALSE, digits = 3)
+
+  cat("\n(per-step winners: $wins_by_step; per-fit detail: $fits, $types)\n")
+  invisible(x)
+}
+
+run_init_study <- function(seeds,
+                           params,
+                           n = 500,
+                           G_max = 4,
+                           control = fmr_control(parallel = TRUE),
+                           tie_tol = 0.1) {
+  # Note: binomial with size > 1 needs a cbind(success, failure) response,
+  # which simulate_fmr() does not produce
+  family <- if (is.null(params[["family"]])) "gaussian" else params[["family"]]
+
+  studies <- list()
+  errors <- list()
+
+  for (seed in seeds) {
+    cat(sprintf("Seed %d (%d of %d)\n", seed, match(seed, seeds), length(seeds)))
+
+    one <- tryCatch(
+      {
+        sim <- do.call(simulate_fmr, c(params, list(n = n, seed = seed)))
+        result <- stepFMR(
+          sim$formula, sim$data,
+          G_max = G_max,
+          family = family,
+          control = control
+        )
+        init_diagnostics(result, tie_tol = tie_tol)
+      },
+      error = function(e) e
+    )
+
+    if (inherits(one, "error")) {
+      errors[[as.character(seed)]] <- conditionMessage(one)
+    } else {
+      studies[[as.character(seed)]] <- one
+    }
+  }
+
+  if (length(studies) == 0L) {
+    stop("Every seed failed. First error: ", errors[[1]])
+  }
+  if (length(errors) > 0L) {
+    warning(sprintf("%d of %d seeds failed; see $errors", length(errors), length(seeds)))
+  }
+
+  out <- aggregate_init_study(studies, tie_tol)
+  out[["errors"]] <- errors
+  out
+}
 # ---- run --------------------------------------------------------------------
 
 # Swap in any dataset/formula here (binomial data needs a .binom_size column)
+
 sim <- do.call(
   simulate_fmr,
-  c(scenarios$four_group_twelve_variables_doubled, list(n = 500, seed = 123))
+  c(scenarios$two_group_effects_poisson, list(n = 300, seed = 2))
 )
 
 # Remember to devtools::install() so parallel workers see current code
 result <- stepFMR(
   sim$formula, sim$data,
-  G_max = 4,
-  control = fmr_control(parallel = TRUE, n_best_init = 10)
+  G_max = 5,
+  family = "poisson",
+  control = fmr_control(parallel = FALSE, n_best_init = 10, init_burnin = 30, verbose = FALSE)
 )
 
-init_diag <- init_diagnostics(result, tie_tol = 0.01)
-print(init_diag)
+init_diag_poisson_3 <- init_diagnostics(result, tie_tol = 1)
+print(init_diag_poisson_3)
 
-# Per-fit detail for digging in:
-# View(init_diag$fits)
+# Multi-seed usage
+NoSleepR::with_nosleep({
+  study <- run_init_study(1:100, 
+    scenarios$two_group_effects_binomial,
+    n = 300,
+    G_max = 5,
+    control = fmr_control(n_best_init = 10, init_burnin = 30, verbose = FALSE),
+    tie_tol = 1
+  )
+})
+print(study)
+saveRDS(study, "init_study_binomial_30burnin.rds")
+
+NoSleepR::with_nosleep({
+  study <- run_init_study(1:100, 
+    scenarios$two_group_effects_poisson,
+    n = 300,
+    G_max = 5,
+    control = fmr_control(n_best_init = 10, init_burnin = 30, verbose = FALSE),
+    tie_tol = 1
+  )
+})
+print(study)
+saveRDS(study, "init_study_poisson_30burnin.rds")
+
+NoSleepR::with_nosleep({
+  study <- run_init_study(1:100, 
+    scenarios$four_group_twelve_variables,
+    n = 500,
+    G_max = 5,
+    control = fmr_control(n_best_init = 10, init_burnin = 30, verbose = FALSE),
+    tie_tol = 1
+  )
+})
+print(study)
+saveRDS(study, "init_study_gaussian_30burnin.rds")

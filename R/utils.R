@@ -76,7 +76,7 @@ coerce_binomial_formula <- function(formula, data) {
     }
 
     data$.binom_size <- successes + failures
-    formula[[2]] <- success_expr # response becomes the success count only instead of am ugly cbind
+    formula[[2]] <- success_expr # response becomes the success count only instead of an ugly cbind
 
     return(list(formula = formula, data = data))
   }
@@ -102,3 +102,20 @@ coerce_binomial_formula <- function(formula, data) {
 
 # Drop NULL elements from a list.
 compact <- function(x) Filter(Negate(is.null), x)
+
+quiet_interrupt <- function(expr) {
+  withCallingHandlers(
+    tryCatch(
+      expr,
+      FutureInterruptError = function(e) {
+        message("stepFMR interrupted.")
+        invokeRestart("abort")
+      }
+    ),
+    warning = function(w) {
+      if (grepl("FutureInterruptError", conditionMessage(w), fixed = TRUE)) {
+        invokeRestart("muffleWarning")
+      }
+    }
+  )
+}

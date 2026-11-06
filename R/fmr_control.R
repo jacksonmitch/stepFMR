@@ -20,8 +20,9 @@
 #' @param direction A character string, one of \code{"forward"} or
 #'  \code{"backward"}, specifying the testing direction. Default is
 #'  \code{"forward"}.
-#' @param verbose A logical flag. If \code{TRUE}, detailed execution logs are
-#'  printed to the console during execution. Default is \code{FALSE}.
+#' @param verbose A logical controlling if a text progress bar is displayed
+#'  during the procedure. By default is TRUE if the session is 
+#'  interactive, and FALSE otherwise.
 #' @param tol A non-negative numeric value specifying the iteration
 #'  tolerance threshold. Default is 1e-6.
 #' @param n_kmeans_init A non-negative integer, no larger than
@@ -73,13 +74,13 @@ fmr_control <- function(
   n_init = 10,
   n_best_init = 2,
   direction = "forward",
-  verbose = FALSE,
+  verbose = interactive(),
   tol = 1e-6,
-  n_kmeans_init = 3,
+  n_kmeans_init = 1,
   kmeans_starts = 20,
   sigma_floor = NULL,
   irwls_max_iter = 50,
-  irwls_tol = 1e-8,
+  irwls_tol = 1e-6,
   weight_floor = 1e-10,
   init_burnin = 10,
   init_eps = 1e-6,

@@ -35,7 +35,8 @@ test_predictors <- function(
   included,
   heterogeneous,
   update_included,
-  direction = c("forward", "backward")
+  direction = c("forward", "backward"),
+  label = "Testing predictors"
 ) {
   direction <- match.arg(direction)
   alpha <- model$control$alpha
@@ -65,9 +66,38 @@ test_predictors <- function(
   common <- setdiff(included, heterogeneous)
   shared_data <- prepare_data(model, included = included, common = common)
 
-  shared_fits <- fit_across_G(model, shared_data)
+  progress <- isTRUE(model$control$verbose)
+  if (progress) {
+    # if (is.null(getOption("cli.progress_show_after"))) {
+    #   old_opts <- options(cli.progress_show_after = 0.1)
+    #   on.exit(options(old_opts), add = TRUE)
+    # }
+    pb <- cli::cli_progress_bar(
+      name = label,
+      total = length(remaining_predictors),
+      format = paste(
+        "{cli::pb_spin} {cli::pb_name} {cli::pb_bar}",
+        "{cli::pb_current}/{cli::pb_total}",
+        "{cli::pb_status}"
+      ),
+      status = "fitting baseline model"
+    )
+    # cli::cli_progress_update(id = pb, )
+  }
 
+
+  shared_fits <- fit_across_G(model, shared_data)
   while (length(remaining_predictors) > 0) {
+    # if (progress) {
+    #   cli::cli_progress_update(
+    #     id = pb,
+    #     status = sprintf(
+    #       "step %d: testing %s",
+    #       step_id, strtrim(paste(remaining_predictors, collapse = ", "), 40)
+    #     ),
+    #     force = TRUE
+    #   )
+    # }
     tests <- future.apply::future_lapply(remaining_predictors,
       function(predictor) {
         cand_included <- update_included(included, predictor)
@@ -109,6 +139,12 @@ test_predictors <- function(
     included <- update_included(included, chosen)
     heterogeneous <- update_heterogeneous(heterogeneous, chosen)
     remaining_predictors <- setdiff(remaining_predictors, chosen)
+    if (progress) {
+      cli::cli_progress_update(id = pb, set = step_id,
+         status = strtrim(paste(included, collapse = ", "), 30)
+          # sprintf("%s ✔", chosen))
+      )
+    }
     step_id <- step_id + 1L
   }
 
