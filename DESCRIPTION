@@ -33,5 +33,5 @@ Imports:
     clue,
     mclust
 Depends: 
-    R (>= 4.1)
+    R (>= 3.6)
 LazyData: true
