@@ -167,7 +167,7 @@ stepFMR <- function(
   } else {
     response <- formula[[2]]
     if (is.call(response) && identical(response[[1]], as.name("cbind"))){
-      stop("Given formula constains a cbind response, which is", 
+      stop("Given formula contains a cbind response, which is", 
            "only supported for the binomial family", call. = FALSE)
     }
   }
