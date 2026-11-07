@@ -5,7 +5,8 @@
 .httr-oauth
 .DS_Store
 .quarto
+*.rds
 docs
 Thesis/
 CLAUDE.md
-
+dev/*
