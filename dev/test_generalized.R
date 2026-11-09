@@ -20,7 +20,6 @@ dat_gauss <- data.frame(y = y, x1 = x1, x2 = x2)
 
 control_gauss <- fmr_control(
   n_init = 5,
-  n_kmeans_init = 2,
   max_iter = 150,
   verbose = FALSE
 )
@@ -84,11 +83,9 @@ dat_pois <- data.frame(y = y, x1 = x1, x2 = x2)
 
 control_pois <- fmr_control(
   n_init = 10,
-  n_kmeans_init = 3,
   max_iter = 150,
   irwls_max_iter = 50,
   irwls_tol = 1e-8,
-  weight_floor = 1e-10,
   verbose = FALSE
 )
 
@@ -172,11 +169,9 @@ dat_bin_grouped <- data.frame(
 
 control_bin <- fmr_control(
   n_init = 20,
-  n_kmeans_init = 5,
   max_iter = 200,
   irwls_max_iter = 100,
   irwls_tol = 1e-8,
-  weight_floor = 1e-10,
   verbose = FALSE
 )
 

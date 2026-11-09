@@ -95,6 +95,69 @@ scenarios <- list(
     pi = c(0.2, 0.3, 0.25, 0.25),
     sigma = c(0.6, 0.5, 0.4, 0.6)
   ),
+  four_group_twelve_variables_poisson = list(
+    betas = rbind(
+      g1 = c(
+        "(Intercept)" = -2, het1 = 0.4, het2 = 0.2,
+        het3 = -0.5, het4 = -1.1, het5 = 1.0,
+        hom1 = 0.6, hom2 = -0.3, hom3 = 0.2,
+        null1 = 0, null2 = 0, null3 = 0, null4 = 0
+      ),
+      g2 = c(
+        "(Intercept)" = 0, het1 = 0.8, het2 = 0.5, 
+        het3 = 0, het4 = -0.5, het5 = 1.4,
+        hom1 = 0.6, hom2 = -0.3, hom3 = 0.2,
+        null1 = 0, null2 = 0, null3 = 0, null4 = 0
+      ),
+      g3 = c(
+        "(Intercept)" = 2, het1 = 1.1, het2 = 0.6, 
+        het3 = 0.4, het4 = 0.1, het5 = 1.8,
+        hom1 = 0.6, hom2 = -0.3, hom3 = 0.2,
+        null1 = 0, null2 = 0, null3 = 0, null4 = 0
+      ),
+      g4 = c(
+        "(Intercept)" = 1, het1 = 0.9, het2 = 0.3, 
+        het3 = 0.7, het4 = -0.3, het5 = -1.6,
+        hom1 = 0.6, hom2 = -0.3, hom3 = 0.2,
+        null1 = 0, null2 = 0, null3 = 0, null4 = 0
+      )
+    ),
+    pi = c(0.2, 0.3, 0.25, 0.25),
+    sigma = c(0.6, 0.5, 0.4, 0.6),
+    family = "poisson"
+  ),
+  four_group_twelve_variables_binomial = list(
+    betas = rbind(
+      g1 = c(
+        "(Intercept)" = -2, het1 = 0.4, het2 = 0.2,
+        het3 = -0.5, het4 = -1.1, het5 = 1.0,
+        hom1 = 0.6, hom2 = -0.3, hom3 = 0.2,
+        null1 = 0, null2 = 0, null3 = 0, null4 = 0
+      ),
+      g2 = c(
+        "(Intercept)" = 0, het1 = 0.8, het2 = 0.5, 
+        het3 = 0, het4 = -0.5, het5 = 1.4,
+        hom1 = 0.6, hom2 = -0.3, hom3 = 0.2,
+        null1 = 0, null2 = 0, null3 = 0, null4 = 0
+      ),
+      g3 = c(
+        "(Intercept)" = 2, het1 = 1.1, het2 = 0.6, 
+        het3 = 0.4, het4 = 0.1, het5 = 1.8,
+        hom1 = 0.6, hom2 = -0.3, hom3 = 0.2,
+        null1 = 0, null2 = 0, null3 = 0, null4 = 0
+      ),
+      g4 = c(
+        "(Intercept)" = 1, het1 = 0.9, het2 = 0.3, 
+        het3 = 0.7, het4 = -0.3, het5 = -1.6,
+        hom1 = 0.6, hom2 = -0.3, hom3 = 0.2,
+        null1 = 0, null2 = 0, null3 = 0, null4 = 0
+      )
+    ),
+    pi = c(0.2, 0.3, 0.25, 0.25),
+    sigma = c(0.6, 0.5, 0.4, 0.6),
+    family = "binomial",
+    size = 25
+  ),
   four_group_twelve_variables_doubled = list(
     betas = rbind(
       g1 = c(

@@ -10,6 +10,9 @@ test_that("stepFMR validates inputs", {
   expect_error(stepFMR(y ~ x1, data = dat, control = list()))
   expect_error(stepFMR("not a formula", data = dat))
   expect_error(stepFMR(y ~ x1, data = as.matrix(dat)))
+  expect_error(stepFMR(y ~ x, data, direction = "sideways"))
+  expect_error(stepFMR(y ~ x, data,
+                       direction = c("forward", "backward", "forward")))
 })
 
 test_that("stepFMR runs end-to-end for each family", {
@@ -26,7 +29,7 @@ test_that("stepFMR runs end-to-end for each family", {
     c(scenarios$two_group_effects_binomial, list(n = 300, seed = 3))
   )
 
-  ctrl <- fmr_control(n_init = 5, n_kmeans_init = 2)
+  ctrl <- fmr_control(n_init = 5, verbose = FALSE)
 
   fit_gauss <- stepFMR(gauss$formula, data = gauss$data, G_max = 3,
     family = "gaussian", control = ctrl)
@@ -55,7 +58,7 @@ test_that("stepFMR accepts cbind() binomial formulas as well as 0/1 responses", 
 
   expect_no_error(
     stepFMR(cbind(y, trials - y) ~ x1 + x2 + x3, data = dat_grouped,
-      family = "binomial", G_max = 3, control = fmr_control())
+      family = "binomial", G_max = 3, control = fmr_control(verbose = FALSE))
   )
 
   dat_bernoulli <- dat_grouped
@@ -64,7 +67,7 @@ test_that("stepFMR accepts cbind() binomial formulas as well as 0/1 responses", 
   expect_no_error(
     expect_warning(
       stepFMR(y ~ x1 + x2 + x3, data = dat_bernoulli,
-        family = "binomial", G_max = 3, control = fmr_control())
+        family = "binomial", G_max = 3, control = fmr_control(verbose = FALSE))
     )
   )
 })
@@ -76,12 +79,12 @@ test_that("stepFMR procedure argument controls which sub-results are populated",
   )
 
   fit_vars_only <- stepFMR(sim$formula, data = sim$data, G_max = 3,
-    procedure = "variables")
+    procedure = "variables", control = fmr_control(verbose = FALSE))
   expect_s3_class(fit_vars_only$variable_selection, "select_variables")
   expect_null(fit_vars_only$effect_determination)
 
   fit_effects_only <- stepFMR(sim$formula, data = sim$data, G_max = 3,
-    procedure = "effects")
+    procedure = "effects", control = fmr_control(verbose = FALSE))
   expect_null(fit_effects_only$variable_selection)
   expect_s3_class(fit_effects_only$effect_determination, "determine_effects")
 })
@@ -94,7 +97,7 @@ test_that("stepFMR skips effect determination when no predictors are selected", 
 
   # alpha = 0 makes every forward-selection candidate ineligible
   fit <- stepFMR(sim$formula, data = sim$data, G_max = 3,
-    control = fmr_control(alpha = 0))
+    control = fmr_control(alpha = 0, verbose = FALSE))
 
   expect_length(fit$variable_selection$selected, 0)
   expect_null(fit$effect_determination)

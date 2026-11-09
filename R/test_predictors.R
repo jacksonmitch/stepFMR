@@ -35,7 +35,8 @@ test_predictors <- function(
   included,
   heterogeneous,
   update_included,
-  direction = c("forward", "backward")
+  direction = c("forward", "backward"),
+  label = "Testing predictors"
 ) {
   direction <- match.arg(direction)
   alpha <- model$control$alpha
@@ -65,8 +66,27 @@ test_predictors <- function(
   common <- setdiff(included, heterogeneous)
   shared_data <- prepare_data(model, included = included, common = common)
 
-  shared_fits <- fit_across_G(model, shared_data)
+  progress <- isTRUE(model$control$verbose) && length(remaining_predictors) > 0L
+  if (progress) {
+    pb <- cli::cli_progress_bar(
+      name = label,
+      total = length(remaining_predictors),
+      current = FALSE,
+      auto_terminate = FALSE,
+      .auto_close = FALSE,
+      format = paste("{trimws(cli::pb_name)}",
+                     "{cli::pb_current}/{cli::pb_total} {cli::pb_status}"),
+      status = "Fitting initial model"
+    )
+    on.exit(cli::cli_progress_done(id = pb, result = "auto"), add = TRUE)
+    cli::cli_progress_update(id = pb, set = 0, force = TRUE)
+  }
 
+  n_best_init <- model$control$n_best_init
+  # Always run baseline fit with all inits
+  model$control$n_best_init <- model$control$n_init
+  shared_fits <- fit_across_G(model, shared_data)
+  model$control$n_best_init <- n_best_init
   while (length(remaining_predictors) > 0) {
     tests <- future.apply::future_lapply(remaining_predictors,
       function(predictor) {
@@ -102,6 +122,10 @@ test_predictors <- function(
       chosen <- names(eligible_p)[find_best(eligible_p)]
       steps[[step_id]]$chosen <- chosen
     } else {
+      if (progress) {
+        cli::cli_progress_update(id = pb, set = step_id,
+                                status = "no eligible predictor")
+      }
       break
     }
 
@@ -109,6 +133,25 @@ test_predictors <- function(
     included <- update_included(included, chosen)
     heterogeneous <- update_heterogeneous(heterogeneous, chosen)
     remaining_predictors <- setdiff(remaining_predictors, chosen)
+    if (progress) {
+      cli::cli_progress_update(id = pb, set = step_id,
+        status = if (label == "Determining effects:") {
+          sprintf("Heterogeneous: %s | Homogeneous: %s",
+            cli::ansi_strtrim(format_none(heterogeneous), 30, ellipsis = "..."),
+            cli::ansi_strtrim(format_none(setdiff(included, heterogeneous)),
+                              30, ellipsis = "...")
+          )
+        } else if (direction == "backward") {
+          sprintf("Excluded: %s", cli::ansi_strtrim(
+            format_none(setdiff(predictors, included)), 30, ellipsis = "..."
+          ))
+        } else {
+          sprintf("Included: %s", cli::ansi_strtrim(
+            format_none(included), 30, ellipsis = "..."
+          ))
+        }
+      )
+    }
     step_id <- step_id + 1L
   }
 

@@ -43,7 +43,16 @@ prepare_data <- function(model, included = model$predictors, common = NULL) {
     X_com <- matrix(numeric(0), nrow = length(y), ncol = 0)
   }
 
-  FMRData$new(y = y, X_het = X_het, X_com = X_com, binomial_size = binomial_size_vec)
+  normalized_y <- switch(model$family,
+    gaussian = y,
+    poisson  = log(y + 0.5),
+    binomial = stats::qlogis((y + 0.5) / (binomial_size_vec + 1))
+  )
+  # stats::qlogis(pmin(pmax((y + 0.5) / (prepared_data$binomial_size + 1), 1e-8), 1 - 1e-8))
+
+  FMRData$new(y = y, X_het = X_het, X_com = X_com,
+    normalized_y = normalized_y, binomial_size = binomial_size_vec
+  )
 }
 
 #' Validated Design-Matrix Container
@@ -69,7 +78,8 @@ FMRData <- R6::R6Class(
     .y = NULL,
     .X_het = NULL,
     .X_com = NULL,
-    .binomial_size = NULL
+    .binomial_size = NULL,
+    .normalized_data = NULL
   ),
   active = list(
     y = function(v) {
@@ -81,6 +91,9 @@ FMRData <- R6::R6Class(
     X_com = function(v) {
       if (missing(v)) private$.X_com else stop("X_com is read-only")
     },
+    normalized_data = function(v) {
+      if (missing(v)) private$.normalized_data else stop("normalized_data is read-only")
+    },
     binomial_size = function(v) {
       if (missing(v)) private$.binomial_size else stop("binomial_size is read-only")
     },
@@ -89,7 +102,7 @@ FMRData <- R6::R6Class(
     p_com = function() ncol(private$.X_com)
   ),
   public = list(
-    initialize = function(y, X_het, X_com, binomial_size = NULL) {
+    initialize = function(y, X_het, X_com, normalized_y, binomial_size = NULL) {
       if (!is.numeric(y)) stop("y must be a numeric vector.")
       if (!is.matrix(X_het)) stop("X_het must be a matrix.")
       if (!is.matrix(X_com)) stop("X_com must be a matrix.")
@@ -125,6 +138,9 @@ FMRData <- R6::R6Class(
       private$.X_het <- X_het
       private$.X_com <- X_com
       private$.binomial_size <- binomial_size
+      private$.normalized_data <- cbind(y = normalized_y,
+        X_het[, colnames(X_het) != "(Intercept)", drop = FALSE],
+        X_com)
     },
     print = function(...) {
       cat(

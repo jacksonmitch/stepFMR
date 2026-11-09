@@ -149,11 +149,12 @@ make_state_list <- function(prepared_data,
                             family,
                             features = NULL) {
   n <- prepared_data$n
+  normalized_data <- prepared_data$normalized_data
 
   if (G == 1L) {
     tau <- matrix(1, nrow = n, ncol = 1L)
     colnames(tau) <- "g1"
-    return(list(single = tau))
+    return(list(single = EmState$new(tau = tau)))
   }
 
   if (is.null(features)) {
@@ -191,51 +192,61 @@ make_state_list <- function(prepared_data,
     )
   }
 
-  for (s in seq_len(control$n_kmeans_init)) {
-    km <- try(
-      stats::kmeans(
-        x = features_scaled,
-        centers = G,
-        iter.max = 20,
-        nstart = control$kmeans_starts
-      ),
-      silent = TRUE
+  km <- try(
+    stats::kmeans(
+      x = features_scaled,
+      centers = G,
+      iter.max = 20,
+      nstart = control$kmeans_starts
+    ),
+    silent = TRUE
+  )
+  if (!inherits(km, "try-error") &&
+    length(unique(km$cluster)) == G &&
+    min(table(km$cluster)) >= min_size) {
+    tau_list[["kmeans"]] <- make_tau_from_partition(
+      partition = km$cluster, G = G, eps = control$init_eps
     )
-    if (!inherits(km, "try-error") &&
-      length(unique(km$cluster)) == G &&
-      min(table(km$cluster)) >= min_size) {
-      tau_list[[paste0("kmeans_", s)]] <- make_tau_from_partition(
-        partition = km$cluster,
-        G = G,
-        eps = control$init_eps
-      )
-    }
-
-    X_raw <- cbind(prepared_data$X_het, prepared_data$X_com)
-    X_raw <- X_raw[, apply(X_raw, 2, stats::sd) > 0, drop = FALSE] # drops X_0
-
-    if (ncol(X_raw) > 0L && nrow(unique(X_raw)) >= G) {
-      km_raw <- try(
-        stats::kmeans(
-          x = as.matrix(prepared_data$X_het),
-          centers = G,
-          iter.max = 20, 
-          nstart = control$kmeans_starts
-        ),
-        silent = TRUE
-      )
-
-      if (!inherits(km_raw, "try-error") &&
-          length(unique(km_raw$cluster)) == G &&
-          min(table(km_raw$cluster)) >= min_size) {
-          tau_list[[paste0("kmeans_raw_", s)]] <- make_tau_from_partition(
-            partition = km_raw$cluster, G = G, eps = control$init_eps
-          )
-      }
-    }
   }
 
-  n_random <- max(0L, control$n_init - control$n_kmeans_init)
+  km_raw <- try(
+    stats::kmeans(
+      x = normalized_data,
+      centers = G,
+      iter.max = 20, 
+      nstart = control$kmeans_starts
+    ),
+    silent = TRUE
+  )
+  if (!inherits(km_raw, "try-error") &&
+    length(unique(km_raw$cluster)) == G &&
+    min(table(km_raw$cluster)) >= min_size) {
+    tau_list[["kmeans_raw"]] <- make_tau_from_partition(
+      partition = km_raw$cluster, G = G, eps = control$init_eps
+    )
+  }
+
+  mc <- try(
+    suppressWarnings(
+      mclust::Mclust(
+        data = normalized_data,
+        G = G,
+        modelNames = if (ncol(normalized_data) == 1L) c("V", "E") else c("VVV", "EEE"),
+        prior = mclust::priorControl(),
+        verbose = FALSE
+      )
+    ),
+    silent = TRUE
+  )
+  if (!inherits(mc, "try-error") && !is.null(mc) &&
+      ncol(mc$z) == G && min(tabulate(mc$classification, nbins = G)) >= min_size
+  ) {
+    tau <- pmax(mc$z, control$init_eps / (G - 1L))
+    tau <- tau / rowSums(tau)
+    colnames(tau) <- paste0("g", seq_len(G))
+    tau_list[["mclust"]] <- tau
+  }
+  n_random <- max(0L, control$n_init - length(tau_list))
 
   for (s in seq_len(n_random)) {
     part_random <- random_partition_balanced(n, G)
@@ -245,52 +256,6 @@ make_state_list <- function(prepared_data,
       G = G,
       eps = control$init_eps
     )
-  }
-  if (family == "binomial" && prepared_data$p_het > 0L) {
-    A <- as.matrix(prepared_data$X_het)
-
-    for (j in seq_len(ncol(A))) {
-      part_x <- rank_partition(A[, j], G)
-
-      if (min(table(part_x)) >= min_size) {
-        tau_list[[paste0("quantile_A", j)]] <- make_tau_from_partition(
-          partition = part_x,
-          G = G,
-          eps = control$init_eps
-        )
-      }
-
-      part_neg_x <- rank_partition(-A[, j], G)
-
-      if (min(table(part_neg_x)) >= min_size) {
-        tau_list[[paste0("quantile_neg_A", j)]] <- make_tau_from_partition(
-          partition = part_neg_x,
-          G = G,
-          eps = control$init_eps
-        )
-      }
-    }
-  }
-
-  mc <- 
-    try(
-      mclust::Mclust(
-        data = make_mclust_features(prepared_data, family),
-        G = G,
-        modelName = "VVV"
-      )
-    ,
-      silent = TRUE
-    )
-
-  if (!inherits(mc, "try-error") && !is.null(mc) &&
-      ncol(mc$z) == G && min(tabulate(mc$classification, nbins = G)) >= min_size
-  ) {
-    tau <- mc$z
-    tau <- pmax(tau, control$init_eps / (G - 1))
-    tau <- tau / rowSums(tau)
-    colnames(tau) <- paste0("g", seq_len(G))
-    tau_list[[paste0("mclust_", s)]] <- tau
   }
 
   if (length(tau_list) == 0L) {
@@ -369,7 +334,7 @@ make_warm_init_lists <- function(previous_fits, name, model, prepared_data) {
   G_values <- model$G_values
   family <- model$family
   control <- model$control
-  control$n_init <- control$n_kmeans_init
+  # control$n_init <- control$n_kmeans_init
 
   features <- make_initialization_features(
     prepared_data = prepared_data,
@@ -384,6 +349,9 @@ make_warm_init_lists <- function(previous_fits, name, model, prepared_data) {
       family = family,
       features = features
     )
+    if (is.null(prev_fit[["parameter_values"]])) {
+      return(cold_list)
+    }
     prev_tau <- as.matrix(prev_fit$parameter_values[["tau"]])
     warm_list <- stats::setNames(list(EmState$new(tau = prev_tau)), name)
     c(cold_list, warm_list)
@@ -398,28 +366,16 @@ make_init_lists <- function(prepared_data, G_values, control, family) {
   )
 
   lapply(G_values, function(G) {
-    make_state_list(
+    state_list <- make_state_list(
       prepared_data = prepared_data,
       G = G,
       control = control,
       family = family,
       features = features
     )
+    # These strategies added no material benefit in the cold-baseline study.
+    drop <- "quantile_response"
+    if (family == "poisson") drop <- c(drop, "quantile_residual")
+    state_list[!names(state_list) %in% drop]
   })
-}
-
-make_mclust_features <- function(prepared_data, family) {
-  y <- prepared_data$y
-  X <- as.matrix(prepared_data$X_het)
-
-  y_transformed <- switch(family,
-    gaussian = y,
-    poisson  = log(pmax(y, 0) + 0.5),
-    binomial = stats::qlogis(pmin(pmax((y + 0.5) / (prepared_data$binomial_size + 1), 1e-8), 1 - 1e-8))
-  )
-
-  joint <- cbind(y = y_transformed, X)
-  scaled <- scale(joint)
-  scaled[!is.finite(scaled)] <- 0
-  scaled
 }

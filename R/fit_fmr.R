@@ -24,11 +24,16 @@ fit_across_G <- function(model, prepared_data, init_lists = NULL) {
   }
 
   Map(function(G, init_list) {
-    fit_fmr(
-      model = model,
-      G = G,
-      init_em_state_list = init_list,
-      prepared_data = prepared_data
+    tryCatch(
+      fit_fmr(
+        model = model,
+        G = G,
+        init_em_state_list = init_list,
+        prepared_data = prepared_data
+      ),
+      error = function(e) {
+        failed_fit(G, prepared_data, model$family, conditionMessage(e))
+      }
     )
   }, G_values, init_lists)
 }
@@ -98,6 +103,13 @@ fit_fmr <- function(model,
   best_fit <- converged_fits[[winner_name]]
   em_state <- best_fit$em_state
 
+  if (family != "gaussian" && !isTRUE(em_state$irwls_converged)) {
+    warning(sprintf(
+      "Final M-step did not converge for G = %d. Consider increasing `irwls_max_iter` in fmr_control().",
+      G
+    ), call. = FALSE)
+  }
+
   k <- count_params_fmr(
     ncol_het = prepared_data$p_het,
     ncol_common = prepared_data$p_com,
@@ -135,6 +147,22 @@ fit_fmr <- function(model,
     control = control
   ))
 
+  class(out) <- "fit_fmr"
+  out
+}
+
+failed_fit <- function(G, prepared_data, family, message) {
+  out <- list(
+    loglik = NA_real_,
+    bic = NA_real_,
+    num_parameters = count_params_fmr(
+      prepared_data$p_het, prepared_data$p_com, G, family
+    ),
+    converged = FALSE,
+    family = family,
+    G = G,
+    error = message
+  )
   class(out) <- "fit_fmr"
   out
 }

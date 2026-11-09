@@ -33,12 +33,13 @@ determine_effects <- function(
   }
 
   result <- test_predictors(
-    model           = model,
-    predictors      = predictors,
-    included        = predictors, # effects: included is always fixed
-    heterogeneous   = heterogeneous,
+    model = model,
+    predictors = predictors,
+    included = predictors, # effects: included is always fixed
+    heterogeneous = heterogeneous,
     update_included = function(s, x) s, # effects: included never changes
-    direction       = direction
+    direction = direction,
+    label = "Determining effects:"
   )
 
   heterogeneous <- result$heterogeneous
