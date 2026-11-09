@@ -38,6 +38,6 @@ print_steps(fit$variable_selection)
 }
 \seealso{
 \code{\link{stepFMR}}, whose \strong{Value} section documents
-where \code{variable_selection} and \code{effect_determination} come
-from.
+the \code{variable_selection} and \code{effect_determination}
+components.
 }

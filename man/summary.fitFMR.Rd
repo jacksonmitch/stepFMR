@@ -20,7 +20,7 @@ selected fit, and its initialization diagnostics.
 }
 \description{
 Collects the call, formula, family, effect types, the table of fits for
-each number of components, the selected fit, and its initialization
+each candidate order, the selected fit, and its initialization
 diagnostics into a \code{summary.fitFMR} object for printing.
 }
 \examples{

@@ -1,9 +1,10 @@
 #' Relabel a Fit's Mixture Components to Match Known True Groups
 #'
 #' Finds the best correspondence between a fitted model's mixture
-#' components and a vector of known true group labels, then permutes the 
+#' components and a vector of known true group labels, then permutes the
 #' component-indexed parts of the fit so that they line up with the
-#' true group ordering. 
+#' true group ordering. This function is mainly used in simulation studies
+#' or resampling analyses (e.g., bootstrap).
 #'
 #' @param fit A `fit_fmr` object, or a top-level [stepFMR()] or [fitFMR()]
 #'   result (in which case `fit$best_fit` is relabeled and the other fits in a
@@ -16,6 +17,18 @@
 #'   of `fits` keep their original labels, so `best_fit` no longer equals the
 #'   corresponding element of `fits`.
 #' @export
+#'
+#' @examples
+#' betas <- rbind(
+#'   c(-2, -3, 1),
+#'   c(2, 3, 1)
+#' )
+#' sim <- simulate_fmr(n = 300, betas = betas, seed = 1)
+#' fit <- fitFMR(sim$formula, sim$data, G = 2, common = "x2")
+#'
+#' # Fitted components may be numbered differently from the simulated ones
+#' aligned <- match_groups(fit, sim$true_group)
+#' aligned$best_fit$parameter_values[["beta_g"]]
 match_groups <- function(fit, true_group) {
   UseMethod("match_groups")
 }

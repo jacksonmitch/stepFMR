@@ -10,3 +10,5 @@ docs
 Thesis/
 CLAUDE.md
 dev/*
+
+vignettes/*.html

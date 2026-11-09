@@ -105,13 +105,12 @@ If the effect types of all covariates in a given set of covariates are specified
 `fitFMR()` fits the model without going through the stepwise procedures. Here the
 covariates are the ones selected above, `x1` and `x2`. `common = "x2"`
 sets the effect type of `x2` to homogeneous, and covariates not in `common` all have
-heterogeneous effects by default. `G_max` specifies the candidate orders from 2 to `G_max`.
-Here, the order is selected from 2 and 3 and the final model is the one with the
-lowest BIC.
+heterogeneous effects by default. `G` specifies the candidate orders to fit, here 2 and 3,
+and the final model is the one with the lowest BIC.
 
 
 ```{r fit}
-fit_fixed <- fitFMR(y ~ x1 + x2, sim$data, G_max = 3, common = "x2")
+fit_fixed <- fitFMR(y ~ x1 + x2, sim$data, G = 2:3, common = "x2")
 fit_fixed
 ```
 

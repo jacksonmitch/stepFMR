@@ -19,10 +19,10 @@ the variable-selection and effect-determination results (if run), and
 their step-by-step tables.
 }
 \description{
-Collects the call, formula, family, procedure, candidate \code{G} values, best
-fit, and (if run) the variable-selection and effect-determination results
-and their step-by-step tables into a single \code{summary.stepFMR} object
-for printing.
+Collects the call, formula, family, procedure, candidate \code{G} values,
+best fit, and (if run) the variable-selection and effect-determination
+results with their step-by-step tables into a single summary object for
+printing.
 }
 \examples{
 pi <- c(0.2, 0.3, 0.5)
@@ -34,5 +34,5 @@ betas <- rbind(
 )
 sim <- simulate_fmr(n = 300, betas = betas, pi = pi, sigma = sigma, seed = 1)
 fit <- stepFMR(sim$formula, sim$data, G_max = 3)
-summary <- summary(fit)
+summary(fit)
 }

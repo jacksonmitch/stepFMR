@@ -19,7 +19,7 @@ fitFMR(
 \item{data}{A data.frame containing the variables in the formula.}
 
 \item{G}{A positive integer or vector of positive integers specifying
-the numbers of components to fit. The default is 3.}
+the orders fit. The default is 3.}
 
 \item{family}{A character string, one of \code{"gaussian"},
 \code{"poisson"}, or \code{"binomial"}. Default is \code{"gaussian"}.}
@@ -39,28 +39,31 @@ A list of class \code{fitFMR} containing:
 is reduced to the success count (the trial counts are carried
 internally).}
 \item{family}{The response family used.}
-\item{G_values}{The numbers of components fit, sorted from smallest to
+\item{G_values}{The orders fit, sorted from smallest to
 largest}
 \item{homogeneous}{Covariates with a shared (homogeneous) coefficient,
 across all components. These are the covariates named in
 \code{common}.}
-\item{heterogeneous}{Covariates with component-specific coefficients
-(the intercept is always component-specific and not listed).}
-\item{fits}{A named list (\code{"G2"}, \code{"G3"}, ...) of
-\code{fit_fmr} objects, one per value of \code{G}.}
-\item{table}{A data frame with one row per order: \code{G},
-\code{loglik}, \code{num_parameters}, \code{bic}, \code{iterations},
-and \code{converged}.}
+\item{heterogeneous}{Covariates whose coefficients differ across
+components. The intercept is also component-specific but is not
+listed.}
+\item{fits}{A named list with one \code{fit_fmr} object for each value
+of \code{G}, named \code{"G2"}, \code{"G3"}, and so on.}
+\item{table}{A data frame with one row per order. The columns
+\code{G}, \code{loglik}, and \code{bic} give the order, log-likelihood,
+and BIC. The column \code{num_parameters} is the number of estimated
+parameters, and \code{iterations} and \code{converged} describe the EM
+run.}
 \item{selected_G}{The order with the lowest BIC.}
 \item{best_fit}{The \code{fit_fmr} object at \code{selected_G}.}
 \item{control}{The \code{FMRControl} object used.}
 \item{call}{The matched call.}
 }
 \description{
-Fits finite mixture regression models with a user-specified structure:
-you choose which covariates have a common (homogeneous) effect and which
-numbers of components to fit. No variable selection or effect testing is
-done. Use \code{\link{stepFMR}} for that.
+Fits finite mixture regression models where the user specifies which
+covariates have a common (homogeneous) effect and the
+order to fit. No variable selection or hypothesis testing is
+performed. Use \code{\link{stepFMR}} for that.
 }
 \details{
 Every covariate in \code{formula} is included. By default each covariate

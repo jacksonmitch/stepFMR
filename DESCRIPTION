@@ -2,13 +2,17 @@ Package: stepFMR
 Title: Finite Mixture Regression with Variable and Effect-Type Selection
 Version: 0.1.0
 Authors@R: 
-    c(person("Tulio", "Martins", email = "tbatista@uoguelph.ca", role = c("aut", "cre", "cph")),
-      person("Jackson", "Mitchell", email = "jmitch19@uoguelph.ca", role = c("aut", "cph")),
-      person("Zeny", "Feng", email = "zfeng@uoguelph.ca", role = c("ctb", "ths", "cph")),
-      person("Allan", "Willms", email = "awillms@uoguelph.ca", role = c("ctb", "ths", "cph")),
+    c(person("Tulio", "Martins", email = "tbatista@uoguelph.ca", role = c("aut", "cre", "cph"),
+              comment = c(ORCID = "0009-0005-9728-2044")),
+      person("Jackson", "Mitchell", email = "jmitch19@uoguelph.ca", role = c("aut", "cph"),
+              comment = c(ORCID = "0009-0008-9832-7939")),
+      person("Zeny", "Feng", email = "zfeng@uoguelph.ca", role = c("ctb", "ths", "cph"),
+              comment = c(ORCID = "0000-0003-1845-4097")),
+      person("Allan", "Willms", email = "awillms@uoguelph.ca", role = c("ctb", "ths", "cph"),
+              comment = c(ORCID = "0000-0003-3502-5163")),
       person("Chong", "Gan", email = "gan.c@queensu.ca", role = c("ctb")))
-Description: Implements finite mixture regression models for Gaussian, Poisson,
-    binomial, with procedures for selecting covariates and
+Description: Implements finite mixture regression models for Gaussian, Poisson, and
+    binomial responses, with procedures for selecting covariates and
     determining whether covariate effects are heterogeneous or homogeneous across
     mixture components. Estimation is performed using EM algorithms,
     with weighted least squares and structured QR decompositions for efficient matrix inversions

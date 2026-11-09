@@ -10,7 +10,7 @@
 #' which only apply to the stepwise search in \code{stepFMR()}.
 #'
 #' @param alpha A numeric value between 0 and 1 specifying the significance
-#'  level. Default is 0.05.
+#'  level of the hypothesis test. Default is 0.05.
 #' @param verbose A logical controlling if a text progress bar is displayed
 #'  during the procedure. By default is TRUE if the session is
 #'  interactive, and FALSE otherwise.
@@ -30,12 +30,15 @@
 #' @param kmeans_starts A positive integer specifying the number of random
 #'  starts to use within the K-means algorithm itself. Default is 20.
 #' @param sigma_floor An optional non-negative numeric value establishing a
-#'  lower bound for variance estimates to prevent numerical instabilities.
-#'  If \code{NULL}, defaults to a percentage of the response's variance.
+#'  lower bound for the estimated component standard deviations in the
+#'  Gaussian family, to prevent a component from collapsing onto a single
+#'  point. If \code{NULL} (the default), it is set to 5% of the standard
+#'  deviation of the response. Ignored for the Poisson and binomial families.
 #' @param max_iter A positive integer specifying the maximum number of
 #'  iterations allowed for the algorithm. Default is 300.
-#' @param tol A non-negative numeric value specifying the iteration
-#'  tolerance threshold. Default is 1e-6.
+#' @param tol A positive numeric value (at least 1e-10) specifying the
+#'  relative change in log-likelihood below which the EM algorithm is
+#'  considered converged. Default is 1e-6.
 #' @param irwls_max_iter A positive integer specifying the maximum number of
 #'  IRWLS iterations used for the Poisson and binomial distribution
 #'  families. Default is 50.

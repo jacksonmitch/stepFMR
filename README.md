@@ -142,8 +142,8 @@ print_steps(fit$variable_selection)
 #>   Candidate             Weighted p-value
 #>   ---------             -------     
 #>   x1                    0.00e+00   *
-#>   x2                    2.34e-18    
-#>   x3                    5.41e-01    
+#>   x2                    3.04e-18    
+#>   x3                    8.17e-01    
 #>   Chosen: x1
 #> 
 #> Step 2  (included: x1  |  excluded: x2, x3)
@@ -169,7 +169,7 @@ print_steps(fit$effect_determination)
 #> Step 2  (heterogeneous: x1  |  homogeneous: x2)
 #>   Candidate             Weighted p-value
 #>   ---------             -------     
-#>   x2                    7.67e-02    
+#>   x2                    7.66e-02    
 #>   No eligible candidate -- stopping.
 ```
 
@@ -180,12 +180,11 @@ specified, `fitFMR()` fits the model without going through the stepwise
 procedures. Here the covariates are the ones selected above, `x1` and
 `x2`. `common = "x2"` sets the effect type of `x2` to homogeneous, and
 covariates not in `common` all have heterogeneous effects by default.
-`G_max` specifies the candidate orders from 2 to `G_max`. Here, the
-order is selected from 2 and 3 and the final model is the one with the
-lowest BIC.
+`G` specifies the candidate orders to fit, here 2 and 3, and the final
+model is the one with the lowest BIC.
 
 ``` r
-fit_fixed <- fitFMR(y ~ x1 + x2, sim$data, G_max = 3, common = "x2")
+fit_fixed <- fitFMR(y ~ x1 + x2, sim$data, G = 2:3, common = "x2")
 fit_fixed
 #> fitFMR | family: gaussian | G: 2,3
 #>   Formula:       y ~ x1 + x2
@@ -194,7 +193,7 @@ fit_fixed
 #> 
 #>  G  loglik num_parameters     bic  
 #>  2 -806.08              8 1667.42 *
-#>  3 -799.64             12 1682.18  
+#>  3 -803.71             12 1690.32  
 #> 
 #> Best fit (G: 2)
 #> 
@@ -263,16 +262,16 @@ print(fit_pois)
 #> 
 #> Mixing proportions:
 #>     g1     g2 
-#> 0.3814 0.6186 
+#> 0.6187 0.3813 
 #> 
 #> Heterogeneous coefficients:
 #>    (Intercept)      x1
-#> g1     -0.3451 -0.9554
-#> g2      0.4997  0.9490
+#> g1      0.4997  0.9489
+#> g2     -0.3457 -0.9557
 #> 
 #> Homogeneous coefficients:
 #>     x2 
-#> 0.3647
+#> 0.3648
 ```
 
 ``` r
@@ -301,12 +300,12 @@ print(fit_bin)
 #> 
 #> Mixing proportions:
 #>     g1     g2 
-#> 0.5896 0.4104 
+#> 0.4104 0.5896 
 #> 
 #> Heterogeneous coefficients:
 #>    (Intercept)      x1
-#> g1      1.0062  3.0487
-#> g2     -1.0151 -3.0145
+#> g1     -1.0151 -3.0145
+#> g2      1.0062  3.0487
 #> 
 #> Homogeneous coefficients:
 #>     x2 

@@ -111,11 +111,12 @@ stepFMR(sim$formula, sim$data, G_max = 3, procedure = "variables")
 When the structure is already known, `fitFMR()` fits it directly without any
 testing. Here the covariates are the ones selected above, `x1` and `x2`.
 Covariates named in `common` get a single coefficient shared by all
-components. All other covariates are heterogeneous. One model is fit for each
-order in `2:G_max`, and the order with the lowest BIC is reported.
+components. All other covariates are heterogeneous. `G` gives the orders to
+fit, here 2 and 3. One model is fit for each, and the order with the lowest
+BIC is reported.
 
 ```{r fitfmr}
-fit_fixed <- fitFMR(y ~ x1 + x2, sim$data, G_max = 3, common = "x2")
+fit_fixed <- fitFMR(y ~ x1 + x2, sim$data, G = 2:3, common = "x2")
 fit_fixed
 ```
 
@@ -167,18 +168,26 @@ are preferred.
 
 ## Tuning
 
-`fmr_control()` collects the tuning parameters. Most users only need:
+The search direction is set with the `direction` argument of `stepFMR()`,
+either `"forward"` (the default) or `"backward"`. A single value applies to
+both procedures. To use different directions, give two values, the first for
+variable selection and the second for effect determination.
+
+`fmr_control()` collects the remaining tuning parameters. Most users only
+need:
 
 * `alpha`: the significance level (default 0.05),
-* `direction`: `"forward"` or `"backward"`,
 * `max_iter` and `tol`: EM convergence,
 * `parallel`: run candidate tests in parallel.
 
 ```{r control, eval = FALSE}
-ctrl <- fmr_control(alpha = 0.01, direction = "backward")
-stepFMR(sim$formula, sim$data, G_max = 3, control = ctrl)
+ctrl <- fmr_control(alpha = 0.01)
+stepFMR(
+  sim$formula, sim$data, G_max = 3,
+  direction = c("forward", "backward"), control = ctrl
+)
 ```
 
-The remaining arguments govern initialization and numerical safeguards. The
-same control object can be passed to `fitFMR()`, which uses the EM settings
-and ignores `alpha`, `direction`, `parallel`, and `verbose`.
+The other arguments govern initialization and numerical safeguards. The same
+control object can be passed to `fitFMR()`, which uses the EM settings and
+ignores `alpha`, `parallel`, and `verbose`.

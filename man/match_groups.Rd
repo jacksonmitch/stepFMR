@@ -24,5 +24,18 @@ corresponding element of \code{fits}.
 Finds the best correspondence between a fitted model's mixture
 components and a vector of known true group labels, then permutes the
 component-indexed parts of the fit so that they line up with the
-true group ordering.
+true group ordering. This function is mainly used in simulation studies
+or resampling analyses (e.g., bootstrap).
+}
+\examples{
+betas <- rbind(
+  c(-2, -3, 1),
+  c(2, 3, 1)
+)
+sim <- simulate_fmr(n = 300, betas = betas, seed = 1)
+fit <- fitFMR(sim$formula, sim$data, G = 2, common = "x2")
+
+# Fitted components may be numbered differently from the simulated ones
+aligned <- match_groups(fit, sim$true_group)
+aligned$best_fit$parameter_values[["beta_g"]]
 }

@@ -106,8 +106,8 @@ print.determine_effects <- function(x, ...) {
 #'
 #' @return \code{x}, invisibly.
 #' @seealso \code{\link{stepFMR}}, whose \strong{Value} section documents
-#'   where \code{variable_selection} and \code{effect_determination} come
-#'   from.
+#'   the \code{variable_selection} and \code{effect_determination}
+#'   components.
 #' @export
 #'
 #' @examples
@@ -371,10 +371,10 @@ print.stepFMR <- function(x, ...) {
 
 #' Summarize a stepFMR Result
 #'
-#' Collects the call, formula, family, procedure, candidate \code{G} values, best
-#' fit, and (if run) the variable-selection and effect-determination results
-#' and their step-by-step tables into a single \code{summary.stepFMR} object
-#' for printing.
+#' Collects the call, formula, family, procedure, candidate \code{G} values,
+#' best fit, and (if run) the variable-selection and effect-determination
+#' results with their step-by-step tables into a single summary object for
+#' printing.
 #'
 #' @param object An object of class \code{stepFMR}, as returned by
 #'   \code{\link{stepFMR}}.
@@ -396,7 +396,7 @@ print.stepFMR <- function(x, ...) {
 #' )
 #' sim <- simulate_fmr(n = 300, betas = betas, pi = pi, sigma = sigma, seed = 1)
 #' fit <- stepFMR(sim$formula, sim$data, G_max = 3)
-#' summary <- summary(fit)
+#' summary(fit)
 summary.stepFMR <- function(object, ...) {
   out <- list(
     call = object$call,
@@ -518,7 +518,7 @@ print.fitFMR <- function(x, ...) {
 #' Summarize a fitFMR Result
 #'
 #' Collects the call, formula, family, effect types, the table of fits for
-#' each number of components, the selected fit, and its initialization
+#' each candidate order, the selected fit, and its initialization
 #' diagnostics into a \code{summary.fitFMR} object for printing.
 #'
 #' @param object An object of class \code{fitFMR}, as returned by
@@ -557,8 +557,7 @@ summary.fitFMR <- function(object, ...) {
 #'
 #' Prints the summary produced by \code{\link{summary.fitFMR}}: the model
 #' structure, the full table of fits (including iterations and convergence),
-#' a one-line initialization summary for the selected fit, and the selected
-#' fit's estimates.
+#' and the selected fit's estimates.
 #'
 #' @param x An object of class \code{summary.fitFMR}, as returned by
 #'   \code{\link{summary.fitFMR}}.

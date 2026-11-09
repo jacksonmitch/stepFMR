@@ -1,23 +1,27 @@
 #' Fit a Finite Mixture Regression via the Stepwise WEST Procedure
 #'
 #' Fits a finite mixture regression model to \code{data} using the WEST
-#' procedure to decide which covariates in \code{formula} belong in the
-#' model, and whether each included covariate's effect is homogeneous or
-#' heterogeneous. Supports Gaussian, Poisson, binomial, and (experimental)
-#' zero-inflated Poisson responses. Estimation is performed via an EM
-#' algorithm, with weighted least squares (or IRWLS for non-Gaussian
-#' families) in the M-step.
+#' procedure to decide which covariates are relevant, and whether each relevant
+#' covariate's effect is homogeneous or
+#' heterogeneous. Supports Gaussian, Poisson, and binomial responses.
+#' Estimation is performed via an EM algorithm, with weighted least squares
+#' (or IRWLS for non-Gaussian families) in the M-step.
 #'
 #' @details
-#' Because the number of mixture components \eqn{G} is unknown, the
+#' Because the mixture order \eqn{G} is unknown, the
 #' significance of a covariate is assessed at every candidate \eqn{G}
 #' in \code{2:G_max} and the per-\eqn{G} likelihood-ratio p-values are
-#' combined into a single weighted p-value, with weights proportional to
+#' combined into a single weighted sum \eqn{p_0}-value, with weights proportional to
 #' \eqn{\exp(-\mathrm{BIC}_G / 2)}. This is the weighted significance test
-#' (WEST). At each step the covariate with the most eligible weighted p-value is
-#' added (forward) or removed (backward), and the search stops when no
-#' candidate is eligible. The significance level is set through
-#' \code{\link{fmr_control}}; search directions are set with the
+#' (WEST). In the forward direction, the covariate with the smallest weighted
+#' \eqn{p_0}-value is added at each step if that \eqn{p_0}-value is below \code{alpha}. In the
+#' backward direction, the covariate with the largest weighted \eqn{p_0}-value is
+#' removed at each step if that \eqn{p_0}-value is at least \code{alpha}. The search
+#' stops when no candidate covariates are eligible. In effect determination, the forward
+#' direction starts with every covariate homogeneous and makes covariates
+#' heterogeneous, and the backward direction starts with every covariate
+#' heterogeneous and makes covariates homogeneous. The significance level is set through
+#' \code{\link{fmr_control}}, and search directions are set with the
 #' \code{direction} argument.
 #'
 #' Two searches can be run, in this order:
@@ -28,36 +32,31 @@
 #'   whether the effect is heterogeneous (a separate coefficient in every
 #'   component) or homogeneous (one coefficient shared by all components).
 #' }
-#' The final model is reported at the number of components with the lowest
-#' BIC.
+#' Upon the completion of the procedure, the mixture order is selected by the model
+#' with the lowest BIC.
 #'
 #' For \code{family = "binomial"}, the response may be
 #' \code{cbind(successes, failures)} or a 0/1 vector. A 0/1 response issues
 #' a warning because binary responses carry little information about
 #' component membership. The column name \code{.binom_size} is reserved.
 #'
-#' For \code{family = "zip"} the last component is a point mass at zero and
-#' the remaining components are Poisson regressions. This family is under
-#' development and is not yet covered by the test suite.
-#'
-#' @param formula A formula object (e.g., y ~ x) specifying the model.
+#' @param formula A formula object (e.g., y ~ x1 + x2) specifying the model.
 #' @param data A data.frame containing the variables in the formula.
-#' @param G_max An integer (>= 2) specifying the maximum number of
-#'  groups/components. Models with \code{2:G_max} components are fit.
+#' @param G_max An integer (>= 2) specifying the maximum order. Models with \code{2:G_max} components are fit.
 #'  Default is 4.
 #' @param family A character string, one of \code{"gaussian"},
-#'  \code{"poisson"}, \code{"binomial"}, or \code{"zip"} (zero-inflated
-#'  Poisson, experimental), specifying the response distribution. Default is
-#'  \code{"gaussian"}.
+#'  \code{"poisson"}, or \code{"binomial"}, specifying the response
+#'  distribution. Default is \code{"gaussian"}.
 #' @param procedure A character string specifying which procedure(s) to run:
 #'  \code{"variables"} (variable selection only), \code{"effects"}
 #'  (effect determination only, on all covariates in \code{formula}), or
 #'  \code{"complete"} (variable selection followed by effect determination
 #'  on the selected covariates). Default is \code{"complete"}.
-#' @param direction A character vector of length one or two containing only
-#'  \code{"forward"} and \code{"backward"}. A single value is used for
-#'  both procedures. With two values, the first sets variable selection and
-#'  the second sets effect determination. Default is \code{"forward"}.
+#' @param direction A character vector of length one or two, where each
+#'  element is either \code{"forward"} or \code{"backward"}. A single value
+#'  is used for both procedures. With two values, the first sets variable
+#'  selection and the second sets effect determination. Default is
+#'  \code{"forward"}.
 #' @param control A control object of class "FMRControl" generated by
 #'  \code{\link{fmr_control}}. Default is \code{fmr_control()}.
 #'
@@ -67,8 +66,7 @@
 #'  is reduced to the success count (the trial counts are carried
 #'  internally).}
 #'  \item{family}{The response family used, one of
-#'  \code{"gaussian"}, \code{"poisson"}, \code{"binomial"}, or
-#'  \code{"zip"}.}
+#'  \code{"gaussian"}, \code{"poisson"}, or \code{"binomial"}.}
 #'  \item{procedure}{Which procedure(s) were run: \code{"variables"},
 #'  \code{"effects"}, or \code{"complete"}.}
 #'  \item{G_values}{The candidate numbers of mixture components
@@ -76,10 +74,9 @@
 #'  \item{best_fit}{The fit (an object of class \code{fit_fmr})
 #'  at the BIC-optimal number of components for the final model.}
 #'  \item{variable_selection}{An object of class
-#'  \code{select_variables} recording which covariates were included,
-#'  or \code{NULL} if \code{procedure} did not include \code{"variables"}.
-#'  Pass this to \code{\link{print_steps}} to see
-#'  the step-by-step search log.}
+#'  \code{select_variables} recording the selected covariates, or
+#'  \code{NULL} if \code{procedure} did not include \code{"variables"}.
+#'  Use \code{\link{print_steps}} to see the step-by-step search log.}
 #'  \item{effect_determination}{An object of class
 #'  \code{determine_effects} recording which covariates were
 #'  heterogeneous vs. homogeneous, or \code{NULL} if \code{procedure} did
@@ -88,10 +85,10 @@
 #'  step-by-step search log.}
 #'
 #' @seealso \code{\link{fmr_control}} for tuning parameters,
-#'  \code{\link{fitFMR}} to fit a specified model without selection,
-#'  \code{\link{simulate_fmr}} and \code{\link{match_groups}} for
-#'  simulation and label matching, and \code{\link{print_steps}} for the
-#'  search logs.
+#'  \code{\link{fitFMR}} to fit a model without selection,
+#'  \code{\link{simulate_fmr}} for simulation,
+#'  \code{\link{match_groups}} for label matching, and
+#'  \code{\link{print_steps}} for the search logs.
 #'
 #' @export
 #'
@@ -177,7 +174,7 @@ stepFMR <- function(
   } else {
     response <- formula[[2]]
     if (is.call(response) && identical(response[[1]], as.name("cbind"))){
-      stop("Given formula contains a cbind response, which is", 
+      stop("Given formula contains a cbind response, which is",
            "only supported for the binomial family", call. = FALSE)
     }
   }
