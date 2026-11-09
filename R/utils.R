@@ -103,19 +103,50 @@ coerce_binomial_formula <- function(formula, data) {
 # Drop NULL elements from a list.
 compact <- function(x) Filter(Negate(is.null), x)
 
+# Keep console interrupts concise without jumping past callers' handlers.
 quiet_interrupt <- function(expr) {
-  withCallingHandlers(
-    tryCatch(
+  # future.apply has emitted this notice as both a warning and a message.
+  # Match the whole notice so unrelated diagnostics remain visible.
+  muffle_cancellation <- function(cond) {
+    if (grepl(
+      "^Caught Future(Interrupt|Canceled)Error\\. Canceling all iterations \\.\\.\\.[[:space:]]*$",
+      conditionMessage(cond)
+    )) {
+      restart <- if (inherits(cond, "warning")) "muffleWarning" else "muffleMessage"
+      tryInvokeRestart(restart)
+    }
+  }
+
+  interrupted <- function(cond) {
+    message("stepFMR interrupted.")
+    # A fresh interrupt has neither future's verbose diagnostic nor an error
+    # superclass. Give outer handlers a chance to catch it before falling
+    # back to the normal top-level abort. stop() would print an empty error
+    # for an unhandled synthetic interrupt.
+    signalCondition(structure(
+      list(message = "", call = NULL),
+      class = c("interrupt", "condition")
+    ))
+    invokeRestart("abort")
+  }
+
+  tryCatch(
+    withCallingHandlers(
       expr,
-      FutureInterruptError = function(e) {
-        message("stepFMR interrupted.")
-        invokeRestart("abort")
-      }
+      warning = muffle_cancellation,
+      message = muffle_cancellation
     ),
-    warning = function(w) {
-      if (grepl("FutureInterruptError", conditionMessage(w), fixed = TRUE)) {
-        invokeRestart("muffleWarning")
+    interrupt = interrupted,
+    FutureInterruptError = function(cond) {
+      # This error class also covers crashed workers. Only translate known
+      # interrupt/cancellation diagnostics; preserve unknown failures as errors.
+      if (!inherits(cond, "FutureCanceledError") && !grepl(
+        "^future_[[:alnum:]_]+\\(\\) interrupted at |^A future .* was interrupted at ",
+        conditionMessage(cond)
+      )) {
+        stop(cond)
       }
+      interrupted(cond)
     }
   )
 }

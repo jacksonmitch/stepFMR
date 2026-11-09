@@ -10,6 +10,9 @@ test_that("stepFMR validates inputs", {
   expect_error(stepFMR(y ~ x1, data = dat, control = list()))
   expect_error(stepFMR("not a formula", data = dat))
   expect_error(stepFMR(y ~ x1, data = as.matrix(dat)))
+  expect_error(stepFMR(y ~ x, data, direction = "sideways"))
+  expect_error(stepFMR(y ~ x, data,
+                       direction = c("forward", "backward", "forward")))
 })
 
 test_that("stepFMR runs end-to-end for each family", {
@@ -26,7 +29,7 @@ test_that("stepFMR runs end-to-end for each family", {
     c(scenarios$two_group_effects_binomial, list(n = 300, seed = 3))
   )
 
-  ctrl <- fmr_control(n_init = 5, n_kmeans_init = 2, verbose = FALSE)
+  ctrl <- fmr_control(n_init = 5, verbose = FALSE)
 
   fit_gauss <- stepFMR(gauss$formula, data = gauss$data, G_max = 3,
     family = "gaussian", control = ctrl)

@@ -17,12 +17,13 @@ simulation_study_data_1k <- do.call(simulate_fmr,
 
 test_data <- simulation_study_data_500
 result_500 <- stepFMR(test_data$formula, test_data$data, G_max = 4,
-    control = fmr_control(parallel = FALSE, direction = "backward"))
+    direction = "backward", control = fmr_control(parallel = FALSE))
 
 result_g3 <- stepFMR(four_vars_data$formula, four_vars_data$data, G_max = 4,
-    control = fmr_control(parallel = TRUE, direction = "forward", verbose = TRUE))
+    direction = "forward",
+    control = fmr_control(parallel = TRUE, verbose = TRUE))
 result_g2 <- stepFMR(two_g_3_vars_data$formula, two_g_3_vars_data$data, G_max = 4,
-    control = fmr_control(parallel = TRUE, direction = "forward"))
+    direction = "forward", control = fmr_control(parallel = TRUE))
 
 bench <- microbenchmark::microbenchmark(
   # sequential = stepFMR(test_data$formula, test_data$data,

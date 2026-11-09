@@ -493,7 +493,7 @@ print.summary.stepFMR <- function(x, ...) {
 #'
 #' @examples
 #' sim <- fmr_gaussian_example
-#' fit <- fitFMR(sim$formula, sim$data, G_max = 3, common = "x2")
+#' fit <- fitFMR(sim$formula, sim$data, G = 2:3, common = "x2")
 #' print(fit)
 print.fitFMR <- function(x, ...) {
   cat("fitFMR | family: ", x$family,
@@ -534,7 +534,7 @@ print.fitFMR <- function(x, ...) {
 #'
 #' @examples
 #' sim <- fmr_gaussian_example
-#' fit <- fitFMR(sim$formula, sim$data, G_max = 3, common = "x2")
+#' fit <- fitFMR(sim$formula, sim$data, G = 2:3, common = "x2")
 #' summary(fit)
 summary.fitFMR <- function(object, ...) {
   out <- list(
@@ -571,7 +571,7 @@ summary.fitFMR <- function(object, ...) {
 #'
 #' @examples
 #' sim <- fmr_gaussian_example
-#' fit <- fitFMR(sim$formula, sim$data, G_max = 3, common = "x2")
+#' fit <- fitFMR(sim$formula, sim$data, G = 2:3, common = "x2")
 #' print(summary(fit))
 print.summary.fitFMR <- function(x, ...) {
   cat("fitFMR summary | family: ", x$family,

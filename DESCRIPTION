@@ -23,10 +23,11 @@ Suggests:
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)
-Config/roxygen2/version: 8.1.0
+Config/roxygen2/version: 8.1.1
 Config/testthat/edition: 3
 Imports: 
     checkmate,
+    cli,
     future,
     future.apply,
     R6,

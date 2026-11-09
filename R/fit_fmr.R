@@ -103,6 +103,13 @@ fit_fmr <- function(model,
   best_fit <- converged_fits[[winner_name]]
   em_state <- best_fit$em_state
 
+  if (family != "gaussian" && !isTRUE(em_state$irwls_converged)) {
+    warning(sprintf(
+      "Final M-step did not converge for G = %d. Consider increasing `irwls_max_iter` in fmr_control().",
+      G
+    ), call. = FALSE)
+  }
+
   k <- count_params_fmr(
     ncol_het = prepared_data$p_het,
     ncol_common = prepared_data$p_com,

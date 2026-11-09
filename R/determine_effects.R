@@ -39,7 +39,7 @@ determine_effects <- function(
     heterogeneous = heterogeneous,
     update_included = function(s, x) s, # effects: included never changes
     direction = direction,
-    label = "Determining effects"
+    label = "Determining effects:"
   )
 
   heterogeneous <- result$heterogeneous

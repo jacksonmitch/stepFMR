@@ -2,6 +2,7 @@ test_that("fmr_control returns valid defaults", {
   ctrl <- fmr_control()
   expect_s3_class(ctrl, "FMRControl")
   expect_identical(ctrl$alpha, 0.05)
+  expect_false("direction" %in% names(ctrl))
 })
 
 test_that("fmr_control rejects invalid alpha", {
@@ -11,14 +12,6 @@ test_that("fmr_control rejects invalid alpha", {
 
 test_that("fmr_control rejects n_best_init > n_init", {
   expect_error(fmr_control(n_init = 2, n_best_init = 5))
-})
-
-test_that("fmr_control rejects n_kmeans_init > n_init", {
-  expect_error(fmr_control(n_init = 2, n_kmeans_init = 5))
-})
-
-test_that("fmr_control rejects invalid direction", {
-  expect_error(fmr_control(direction = "sideways"))
 })
 
 test_that("fmr_control rejects negative sigma_floor", {

@@ -42,7 +42,7 @@ select_variables <- function(
     heterogeneous = included, # selection: het always mirrors included
     update_included = update_included,
     direction = direction,
-    label = "Selecting variables"
+    label = "Selecting variables:"
   )
 
   out <- list(

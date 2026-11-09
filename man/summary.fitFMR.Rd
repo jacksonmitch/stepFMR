@@ -25,7 +25,7 @@ diagnostics into a \code{summary.fitFMR} object for printing.
 }
 \examples{
 sim <- fmr_gaussian_example
-fit <- fitFMR(sim$formula, sim$data, G_max = 3, common = "x2")
+fit <- fitFMR(sim$formula, sim$data, G = 2:3, common = "x2")
 summary(fit)
 }
 \seealso{

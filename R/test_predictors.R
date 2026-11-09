@@ -66,38 +66,28 @@ test_predictors <- function(
   common <- setdiff(included, heterogeneous)
   shared_data <- prepare_data(model, included = included, common = common)
 
-  progress <- isTRUE(model$control$verbose)
+  progress <- isTRUE(model$control$verbose) && length(remaining_predictors) > 0L
   if (progress) {
-    # if (is.null(getOption("cli.progress_show_after"))) {
-    #   old_opts <- options(cli.progress_show_after = 0.1)
-    #   on.exit(options(old_opts), add = TRUE)
-    # }
     pb <- cli::cli_progress_bar(
       name = label,
       total = length(remaining_predictors),
-      format = paste(
-        "{cli::pb_spin} {cli::pb_name} {cli::pb_bar}",
-        "{cli::pb_current}/{cli::pb_total}",
-        "{cli::pb_status}"
-      ),
-      status = "fitting baseline model"
+      current = FALSE,
+      auto_terminate = FALSE,
+      .auto_close = FALSE,
+      format = paste("{trimws(cli::pb_name)}",
+                     "{cli::pb_current}/{cli::pb_total} {cli::pb_status}"),
+      status = "Fitting initial model"
     )
-    # cli::cli_progress_update(id = pb, )
+    on.exit(cli::cli_progress_done(id = pb, result = "auto"), add = TRUE)
+    cli::cli_progress_update(id = pb, set = 0, force = TRUE)
   }
 
-
+  n_best_init <- model$control$n_best_init
+  # Always run baseline fit with all inits
+  model$control$n_best_init <- model$control$n_init
   shared_fits <- fit_across_G(model, shared_data)
+  model$control$n_best_init <- n_best_init
   while (length(remaining_predictors) > 0) {
-    # if (progress) {
-    #   cli::cli_progress_update(
-    #     id = pb,
-    #     status = sprintf(
-    #       "step %d: testing %s",
-    #       step_id, strtrim(paste(remaining_predictors, collapse = ", "), 40)
-    #     ),
-    #     force = TRUE
-    #   )
-    # }
     tests <- future.apply::future_lapply(remaining_predictors,
       function(predictor) {
         cand_included <- update_included(included, predictor)
@@ -132,6 +122,10 @@ test_predictors <- function(
       chosen <- names(eligible_p)[find_best(eligible_p)]
       steps[[step_id]]$chosen <- chosen
     } else {
+      if (progress) {
+        cli::cli_progress_update(id = pb, set = step_id,
+                                status = "no eligible predictor")
+      }
       break
     }
 
@@ -141,8 +135,21 @@ test_predictors <- function(
     remaining_predictors <- setdiff(remaining_predictors, chosen)
     if (progress) {
       cli::cli_progress_update(id = pb, set = step_id,
-         status = strtrim(paste(included, collapse = ", "), 30)
-          # sprintf("%s ✔", chosen))
+        status = if (label == "Determining effects:") {
+          sprintf("Heterogeneous: %s | Homogeneous: %s",
+            cli::ansi_strtrim(format_none(heterogeneous), 30, ellipsis = "..."),
+            cli::ansi_strtrim(format_none(setdiff(included, heterogeneous)),
+                              30, ellipsis = "...")
+          )
+        } else if (direction == "backward") {
+          sprintf("Excluded: %s", cli::ansi_strtrim(
+            format_none(setdiff(predictors, included)), 30, ellipsis = "..."
+          ))
+        } else {
+          sprintf("Included: %s", cli::ansi_strtrim(
+            format_none(included), 30, ellipsis = "..."
+          ))
+        }
       )
     }
     step_id <- step_id + 1L

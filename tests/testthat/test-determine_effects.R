@@ -28,7 +28,7 @@ test_that("determine_effects correctly classifies effects (gaussian)", {
   model <- FMRModel$new(
     formula = sim$formula, data = sim$data,
     G_values = 2, family = "gaussian",
-    control = fmr_control(n_init = 5, n_kmeans_init = 2, verbose = FALSE)
+    control = fmr_control(n_init = 5, verbose = FALSE)
   )
 
   fwd <- determine_effects(model = model, direction = "forward")
@@ -50,7 +50,7 @@ test_that("determine_effects classifies effects correctly for poisson", {
   model <- FMRModel$new(
     formula = sim$formula, data = sim$data,
     G_values = 2, family = "poisson",
-    control = fmr_control(n_init = 5, n_kmeans_init = 2, verbose = FALSE)
+    control = fmr_control(n_init = 5, verbose = FALSE)
   )
 
   fwd <- determine_effects(model = model, direction = "forward")
@@ -68,7 +68,7 @@ test_that("determine_effects classifies effects correctly for binomial", {
   model <- FMRModel$new(
     formula = binom$formula, data = binom$data,
     G_values = 2, family = "binomial",
-    control = fmr_control(n_init = 5, n_kmeans_init = 2, verbose = FALSE)
+    control = fmr_control(n_init = 5, verbose = FALSE)
   )
 
   fwd <- determine_effects(model = model, direction = "forward")

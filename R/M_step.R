@@ -99,6 +99,8 @@ m_step_poisson <- function(dat, em_state, control) {
   p <- dat$p_het
 
   beta_g <- matrix(NA_real_, nrow = G, ncol = p)
+  irwls_iterations <- 0L
+  irwls_converged <- TRUE
 
   for (g in seq_len(G)) {
     wg <- pmax(tau[, g], control$weight_floor)
@@ -119,12 +121,8 @@ m_step_poisson <- function(dat, em_state, control) {
             call. = FALSE)
       }
     )
-    if (!isTRUE(fit_g$converged)){
-      warning(
-        "A M-step Iteration could not converge during fitting.",
-        call. = FALSE
-      )
-    }
+    irwls_iterations <- max(irwls_iterations, fit_g$iter)
+    irwls_converged <- irwls_converged && isTRUE(fit_g$converged)
 
     coef_g <- fit_g$coefficients
     coef_g[is.na(coef_g)] <- 0
@@ -141,6 +139,8 @@ m_step_poisson <- function(dat, em_state, control) {
 
   em_state$beta_g <- beta_g
   em_state$eta <- eta
+  em_state$irwls_iterations <- irwls_iterations
+  em_state$irwls_converged <- irwls_converged
 }
 
 # Binomial M-step, no common predictors: one weighted glm.fit per component
@@ -162,6 +162,8 @@ m_step_binomial <- function(dat, em_state, control) {
   y_bin <- cbind(y, binomial_size - y)
 
   beta_g <- matrix(NA_real_, nrow = G, ncol = p)
+  irwls_iterations <- 0L
+  irwls_converged <- TRUE
 
   for (g in seq_len(G)) {
     wg <- pmax(tau[, g], control$weight_floor)
@@ -174,17 +176,8 @@ m_step_binomial <- function(dat, em_state, control) {
       control = list(epsilon = control$irwls_tol,
                      maxit = control$irwls_max_iter)
     ))
-    # This will fire multiple times with a 0/1 response. 
-    # A possibility is to control how many with rlang::warn 
-    if (!isTRUE(fit_g$converged)){
-      warning(
-        "A M-Step Iteration could not converge during fitting.",
-        call. = FALSE
-      )
-    }
-
-    em_state$irwls_iterations <- fit_g$iter
-    em_state$irwls_converged <- isTRUE(fit_g$converged)
+    irwls_iterations <- max(irwls_iterations, fit_g$iter)
+    irwls_converged <- irwls_converged && isTRUE(fit_g$converged)
 
     coef_g <- fit_g$coefficients
     coef_g[is.na(coef_g)] <- 0
@@ -201,6 +194,8 @@ m_step_binomial <- function(dat, em_state, control) {
 
   em_state$beta_g <- beta_g
   em_state$eta <- eta
+  em_state$irwls_iterations <- irwls_iterations
+  em_state$irwls_converged <- irwls_converged
 }
 
 # Gaussian M-step using structured QR

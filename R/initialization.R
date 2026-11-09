@@ -154,7 +154,7 @@ make_state_list <- function(prepared_data,
   if (G == 1L) {
     tau <- matrix(1, nrow = n, ncol = 1L)
     colnames(tau) <- "g1"
-    return(list(single = tau))
+    return(list(single = EmState$new(tau = tau)))
   }
 
   if (is.null(features)) {
@@ -192,78 +192,38 @@ make_state_list <- function(prepared_data,
     )
   }
 
-  for (s in seq_len(control$n_kmeans_init)) {
-    km <- try(
-      stats::kmeans(
-        x = features_scaled,
-        centers = G,
-        iter.max = 20,
-        nstart = control$kmeans_starts
-      ),
-      silent = FALSE
-    )
-    if (!inherits(km, "try-error") &&
-      length(unique(km$cluster)) == G &&
-      min(table(km$cluster)) >= min_size) {
-      tau_list[[paste0("kmeans_", s)]] <- make_tau_from_partition(
-        partition = km$cluster,
-        G = G,
-        eps = control$init_eps
-      )
-    }
-
-    km_raw <- try(
-      stats::kmeans(
-        x = normalized_data,
-        centers = G,
-        iter.max = 20, 
-        nstart = control$kmeans_starts
-      ),
-      silent = FALSE
-    )
-    if (!inherits(km_raw, "try-error") &&
-        length(unique(km_raw$cluster)) == G &&
-        min(table(km_raw$cluster)) >= min_size) {
-        tau_list[[paste0("kmeans_raw_", s)]] <- make_tau_from_partition(
-          partition = km_raw$cluster, G = G, eps = control$init_eps
-        )
-    }
-  }
-
-  n_random <- max(0L, control$n_init - control$n_kmeans_init)
-
-  for (s in seq_len(n_random)) {
-    part_random <- random_partition_balanced(n, G)
-
-    tau_list[[paste0("random_", s)]] <- make_tau_from_partition(
-      partition = part_random,
-      G = G,
-      eps = control$init_eps
+  km <- try(
+    stats::kmeans(
+      x = features_scaled,
+      centers = G,
+      iter.max = 20,
+      nstart = control$kmeans_starts
+    ),
+    silent = TRUE
+  )
+  if (!inherits(km, "try-error") &&
+    length(unique(km$cluster)) == G &&
+    min(table(km$cluster)) >= min_size) {
+    tau_list[["kmeans"]] <- make_tau_from_partition(
+      partition = km$cluster, G = G, eps = control$init_eps
     )
   }
-  covariates <- normalized_data[, -1, drop = FALSE] # drops y
-  if (family == "binomial" && ncol(covariates) > 0L) {
-    for (j in seq_len(ncol(covariates))) {
-      part_x <- rank_partition(covariates[, j], G)
 
-      if (min(table(part_x)) >= min_size) {
-        tau_list[[paste0("quantile_A", j)]] <- make_tau_from_partition(
-          partition = part_x,
-          G = G,
-          eps = control$init_eps
-        )
-      }
-
-      part_neg_x <- rank_partition(-covariates[, j], G)
-
-      if (min(table(part_neg_x)) >= min_size) {
-        tau_list[[paste0("quantile_neg_A", j)]] <- make_tau_from_partition(
-          partition = part_neg_x,
-          G = G,
-          eps = control$init_eps
-        )
-      }
-    }
+  km_raw <- try(
+    stats::kmeans(
+      x = normalized_data,
+      centers = G,
+      iter.max = 20, 
+      nstart = control$kmeans_starts
+    ),
+    silent = TRUE
+  )
+  if (!inherits(km_raw, "try-error") &&
+    length(unique(km_raw$cluster)) == G &&
+    min(table(km_raw$cluster)) >= min_size) {
+    tau_list[["kmeans_raw"]] <- make_tau_from_partition(
+      partition = km_raw$cluster, G = G, eps = control$init_eps
+    )
   }
 
   mc <- try(
@@ -286,15 +246,17 @@ make_state_list <- function(prepared_data,
     colnames(tau) <- paste0("g", seq_len(G))
     tau_list[["mclust"]] <- tau
   }
-  # else if (inherits(mc, "try-error")) {
-  #   message("mclust error (G=", G, ", p=", ncol(normalized_data), "): ", as.character(mc))
-  # } else if (is.null(mc)) {
-  #   message("mclust NULL (G=", G, ", p=", ncol(normalized_data), ")")
-  # } else {
-  #   message("mclust rejected: classes=", length(unique(mc$classification)),
-  #           ", min size=", min(tabulate(mc$classification, nbins = G)),
-  #           ", need ", min_size)
-  # }
+  n_random <- max(0L, control$n_init - length(tau_list))
+
+  for (s in seq_len(n_random)) {
+    part_random <- random_partition_balanced(n, G)
+
+    tau_list[[paste0("random_", s)]] <- make_tau_from_partition(
+      partition = part_random,
+      G = G,
+      eps = control$init_eps
+    )
+  }
 
   if (length(tau_list) == 0L) {
     stop("No valid initialization starts were created.")
@@ -350,7 +312,7 @@ select_best_initialization <- function(em_state_list,
   valid <- is.finite(logliks)
   if (!any(valid)) {
     failure_details <- paste0("  - ", names(failures), ": ", unlist(failures), collapse = "\n")
-    message("All initialization attempts failed.\n\nCaptured Errors:\n", failure_details)
+    stop("All initialization attempts failed.\n\nCaptured Errors:\n", failure_details)
   }
 
   n_keep <- min(control$n_best_init, sum(valid))
@@ -372,7 +334,7 @@ make_warm_init_lists <- function(previous_fits, name, model, prepared_data) {
   G_values <- model$G_values
   family <- model$family
   control <- model$control
-  control$n_init <- control$n_kmeans_init
+  # control$n_init <- control$n_kmeans_init
 
   features <- make_initialization_features(
     prepared_data = prepared_data,
@@ -411,23 +373,9 @@ make_init_lists <- function(prepared_data, G_values, control, family) {
       family = family,
       features = features
     )
-    # Remove inits not good for baseline fits
-    state_list[names(state_list) != "quantile_response"]
+    # These strategies added no material benefit in the cold-baseline study.
+    drop <- "quantile_response"
+    if (family == "poisson") drop <- c(drop, "quantile_residual")
+    state_list[!names(state_list) %in% drop]
   })
-}
-
-make_mclust_features <- function(prepared_data, family) {
-  y <- prepared_data$y
-  X <- as.matrix(prepared_data$X_het)
-
-  y_transformed <- switch(family,
-    gaussian = y,
-    poisson  = log(pmax(y, 0) + 0.5),
-    binomial = stats::qlogis(pmin(pmax((y + 0.5) / (prepared_data$binomial_size + 1), 1e-8), 1 - 1e-8))
-  )
-
-  normalized_data <- cbind(y = y_transformed, X)
-  scaled <- scale(normalized_data)
-  scaled[!is.finite(scaled)] <- 0
-  scaled
 }
