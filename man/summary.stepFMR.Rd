@@ -14,7 +14,8 @@
 }
 \value{
 An object of class \code{summary.stepFMR}: a list containing the
-call, formula, family, procedure, candidate \code{G} values, the best fit,
+call, formula, family, procedure, candidate \code{G} values, the best fitted
+model and its BIC value,
 the variable-selection and effect-determination results (if run), and
 their step-by-step tables.
 }

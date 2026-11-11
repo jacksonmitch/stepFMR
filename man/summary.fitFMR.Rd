@@ -16,7 +16,7 @@
 An object of class \code{summary.fitFMR}: a list containing the
 call, formula, family, candidate \code{G} values, homogeneous and
 heterogeneous covariates, the table of fits, the selected \code{G}, the
-selected fit, and its initialization diagnostics.
+selected model and its BIC value, and its initialization diagnostics.
 }
 \description{
 Collects the call, formula, family, effect types, the table of fits for

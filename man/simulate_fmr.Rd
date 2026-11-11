@@ -26,7 +26,7 @@ assumed to be the intercept and named accordingly.}
 \item{pi}{An optional numeric vector of mixing proportions, one per
 component (normalized internally). Defaults to equal proportions.}
 
-\item{sigma}{A numeric vector of per-component residual standard
+\item{sigma}{A numeric vector of per-component error standard
 deviations (Gaussian family only). Recycled to the number of
 components if length 1. Default is 1.}
 

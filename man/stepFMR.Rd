@@ -34,7 +34,7 @@ on the selected covariates). Default is \code{"complete"}.}
 
 \item{direction}{A character vector of length one or two, where each
 element is either \code{"forward"} or \code{"backward"}. A single value
-is used for both procedures. With two values, the first sets variable
+is used for both procedures. With two elements, the first sets variable
 selection and the second sets effect determination. Default is
 \code{"forward"}.}
 
@@ -67,8 +67,8 @@ not include \code{"effects"}. Pass this to
 step-by-step search log.}
 }
 \description{
-Fits a finite mixture regression model to \code{data} using the WEST
-procedure to decide which covariates are relevant, and whether each relevant
+Fits a finite mixture regression model to \code{data} using the stepwise
+procedure to select which covariates are relevant, and whether each relevant
 covariate's effect is homogeneous or
 heterogeneous. Supports Gaussian, Poisson, and binomial responses.
 Estimation is performed via an EM algorithm, with weighted least squares
@@ -80,15 +80,17 @@ significance of a covariate is assessed at every candidate \eqn{G}
 in \code{2:G_max} and the per-\eqn{G} likelihood-ratio p-values are
 combined into a single weighted sum \eqn{p_0}-value, with weights proportional to
 \eqn{\exp(-\mathrm{BIC}_G / 2)}. This is the weighted significance test
-(WEST). In the forward direction, the covariate with the smallest weighted
+(WEST), which will be used in every step and applied to every candidate covariate.
+In the forward direction, the candidate covariate with the smallest weighted
 \eqn{p_0}-value is added at each step if that \eqn{p_0}-value is below \code{alpha}. In the
-backward direction, the covariate with the largest weighted \eqn{p_0}-value is
-removed at each step if that \eqn{p_0}-value is at least \code{alpha}. The search
-stops when no candidate covariates are eligible. In effect determination, the forward
-direction starts with every covariate homogeneous and makes covariates
-heterogeneous, and the backward direction starts with every covariate
-heterogeneous and makes covariates homogeneous. The significance level is set through
-\code{\link{fmr_control}}, and search directions are set with the
+backward direction, the candidate covariate with the largest weighted \eqn{p_0}-value is
+removed at each step if that \eqn{p_0}-value is greater than \code{alpha}. The search
+stops when no candidate covariates are eligible to be added or removed. In effect
+determination, the forward direction starts with every covariate homogeneous and each
+covariate is tested against the alternative that it is heterogeneous, and the
+backward direction starts with every covariate heterogeneous and covariate is
+tested against the alternative that it is homogeneous The significance level
+is set through \code{\link{fmr_control}}, and search directions are set with the
 \code{direction} argument.
 
 Two searches can be run, in this order:
@@ -137,6 +139,11 @@ dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3, x4 = x4)
 # Perform sequential stepwise procedure
 stepFMR(formula = y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3)
 
+}
+\references{
+Gan, C., Chen, J. and Feng, Z. (2024). Tests of covariate effects
+under finite Gaussian mixture regression models. \emph{Journal of Applied
+Statistics}, 52(8), 1571-1593. \doi{10.1080/02664763.2024.2433567}
 }
 \seealso{
 \code{\link{fmr_control}} for tuning parameters,

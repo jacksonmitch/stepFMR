@@ -13,7 +13,7 @@
 #'   assumed to be the intercept and named accordingly.
 #' @param pi An optional numeric vector of mixing proportions, one per
 #'   component (normalized internally). Defaults to equal proportions.
-#' @param sigma A numeric vector of per-component residual standard
+#' @param sigma A numeric vector of per-component error standard
 #'   deviations (Gaussian family only). Recycled to the number of
 #'   components if length 1. Default is 1.
 #' @param family A character string, one of `"gaussian"`, `"poisson"`, or
