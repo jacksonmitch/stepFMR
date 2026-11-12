@@ -1,6 +1,6 @@
 Package: stepFMR
 Title: Finite Mixture Regression with Variable and Effect-Type Selection
-Version: 0.1.0
+Version: 1.0.0
 Authors@R: 
     c(person("Tulio", "Martins", email = "tbatista@uoguelph.ca", role = c("aut", "cre", "cph"),
               comment = c(ORCID = "0009-0005-9728-2044")),
