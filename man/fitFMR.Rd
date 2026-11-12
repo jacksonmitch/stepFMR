@@ -14,8 +14,7 @@ fitFMR(
 )
 }
 \arguments{
-\item{formula}{A formula object (e.g., y ~ x1 + x2) specifying the model.
-An intercept is required; offsets are not supported.}
+\item{formula}{A formula object (e.g., y ~ x1 + x2) specifying the model.}
 
 \item{data}{A data.frame containing the variables in the formula.}
 

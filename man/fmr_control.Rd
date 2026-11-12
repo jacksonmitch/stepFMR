@@ -34,8 +34,8 @@ specified manually while setting this flag as \code{FALSE} for
 hardware-specific customization. Default is \code{FALSE}.}
 
 \item{n_init}{A positive integer specifying the target number of
-initializations. Default is 10. A fixed set of initializations is used,
-with random starts added when \code{n_init} exceeds its size.}
+initializations. A fixed set of initializations is used, with random starts
+added when \code{n_init} exceeds its size. Default is 10.}
 
 \item{n_best_init}{A positive integer specifying the total number of
 initializations to carry into full convergence in \code{stepFMR()}.
