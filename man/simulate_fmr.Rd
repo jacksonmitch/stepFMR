@@ -21,7 +21,8 @@ simulate_fmr(
 component (or a list of numeric vectors, one per component, which
 will be row-bound into a matrix). If column names are supplied, one
 of them must be \code{"(Intercept)"}. If omitted, the first column is
-assumed to be the intercept and named accordingly.}
+assumed to be the intercept and named accordingly.
+At least one predictor in addition to the intercept is required.}
 
 \item{pi}{An optional numeric vector of mixing proportions, one per
 component (normalized internally). Defaults to equal proportions.}

@@ -35,10 +35,7 @@ irwls_fmr <- function(dat, em_state, control,
   tol <- control$irwls_tol
   weight_floor <- control$weight_floor
 
-  # I think trials should be saved somewhere but don't know where
   binomial_size <- dat$binomial_size
-  # this will keep it being generated until we decide where it goes, but
-  # calculations stay safe
   if (is.null(binomial_size)) {
     binomial_size <- rep(1, n)
   }
@@ -123,7 +120,7 @@ irwls_fmr <- function(dat, em_state, control,
 
   em_state$beta_g <- beta_g
   em_state$beta <- beta
-  em_state$eta <- eta
+  em_state$eta <- linear_predictor_matrix(A, B, beta_g, beta)
   em_state$irwls_iterations <- r
   em_state$irwls_converged <- converged
   em_state

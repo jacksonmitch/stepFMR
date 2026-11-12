@@ -41,6 +41,7 @@
 #' component membership. The column name \code{.binom_size} is reserved.
 #'
 #' @param formula A formula object (e.g., y ~ x1 + x2) specifying the model.
+#'  An intercept is required; offsets are not supported.
 #' @param data A data.frame containing the variables in the formula.
 #' @param G_max An integer (>= 2) specifying the maximum order. Models with \code{2:G_max} components are fit.
 #'  Default is 4.
@@ -166,6 +167,8 @@ stepFMR <- function(
   }
 
   formula <- stats::formula(stats::terms(formula, data = data))
+  if (procedure == "effects" && length(get_predictors(formula)) == 0L)
+    stop("Effect determination requires at least one predictor.", call. = FALSE)
 
   if (family == "binomial") {
     coerced <- coerce_binomial_formula(formula, data)

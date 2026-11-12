@@ -11,6 +11,7 @@
 #'   will be row-bound into a matrix). If column names are supplied, one
 #'   of them must be `"(Intercept)"`. If omitted, the first column is
 #'   assumed to be the intercept and named accordingly.
+#'   At least one predictor in addition to the intercept is required.
 #' @param pi An optional numeric vector of mixing proportions, one per
 #'   component (normalized internally). Defaults to equal proportions.
 #' @param sigma A numeric vector of per-component residual standard
@@ -53,6 +54,8 @@ simulate_fmr <- function(n,
     betas <- do.call(rbind, betas)
   }
   checkmate::assert_matrix(betas, mode = "numeric")
+  if (ncol(betas) < 2L)
+    stop("betas must include at least one predictor in addition to the intercept.", call. = FALSE)
 
   if (is.null(colnames(betas))) {
     colnames(betas) <- c("(Intercept)", paste0("x", seq_len(ncol(betas) - 1)))

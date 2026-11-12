@@ -30,6 +30,11 @@ FMRModel <- R6::R6Class(
                           G_values,
                           family,
                           control) {
+      formula_terms <- stats::terms(formula, data = data)
+      if (length(attr(formula_terms, "offset")) > 0L)
+        stop("Offsets are not supported in mixture regression formulas.", call. = FALSE)
+      if (attr(formula_terms, "intercept") == 0L) # y ~ 0
+        stop("Mixture regression formulas must include an intercept.", call. = FALSE)
       self$formula <- formula # goes through active binding
       self$data <- data
       self$G_values <- G_values

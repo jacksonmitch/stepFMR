@@ -65,7 +65,6 @@ m_step_gaussian <- function(dat, em_state, control) {
     beta_g[g, ] <- coef_g
   }
 
-  # TODO: look at this line and think of alternatives
   mu <- linear_predictor_matrix(
     A = dat$X_het,
     B = dat$X_com,
@@ -73,9 +72,6 @@ m_step_gaussian <- function(dat, em_state, control) {
     beta = NULL
   )
   res2 <- (dat$y - mu)^2
-
-  # Would it be faster to do these with matrix form instead of col sums?
-  # TODO: test with scripts (maybe do this when in C++ land I imagine)
 
   den <- pmax(colSums(tau), 1e-8)
   sigma_g <- sqrt(colSums(tau * res2) / den)
@@ -228,7 +224,6 @@ m_step_sqr_gaussian <- function(dat, em_state, control) {
   beta <- out$beta
   beta_g <- out$beta_g
 
-  # TODO: look at this line and think of alternatives
   mu <- linear_predictor_matrix(
     A = dat$X_het,
     B = dat$X_com,
@@ -237,9 +232,6 @@ m_step_sqr_gaussian <- function(dat, em_state, control) {
   )
 
   res2 <- (dat$y - mu)^2
-  # Would it be faster to do these with matrix form instead of col sums?
-  # TODO: test with scripts (maybe do this when in C++ land I imagine)
-
   den <- pmax(colSums(tau), 1e-8)
   sigma_g <- sqrt(colSums(tau * res2) / den)
 

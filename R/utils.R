@@ -76,6 +76,8 @@ coerce_binomial_formula <- function(formula, data) {
     }
 
     data$.binom_size <- successes + failures
+    if (any(data$.binom_size == 0))
+      stop("Binomial trial counts must be positive; remove zero-trial observations.", call. = FALSE)
     formula[[2]] <- success_expr # response becomes the success count only instead of an ugly cbind
 
     return(list(formula = formula, data = data))

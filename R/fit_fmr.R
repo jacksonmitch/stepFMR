@@ -158,6 +158,7 @@ failed_fit <- function(G, prepared_data, family, message) {
     num_parameters = count_params_fmr(
       prepared_data$p_het, prepared_data$p_com, G, family
     ),
+    iterations = NA_integer_,
     converged = FALSE,
     family = family,
     G = G,

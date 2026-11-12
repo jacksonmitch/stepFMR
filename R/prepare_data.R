@@ -48,7 +48,6 @@ prepare_data <- function(model, included = model$predictors, common = NULL) {
     poisson  = log(y + 0.5),
     binomial = stats::qlogis((y + 0.5) / (binomial_size_vec + 1))
   )
-  # stats::qlogis(pmin(pmax((y + 0.5) / (prepared_data$binomial_size + 1), 1e-8), 1 - 1e-8))
 
   FMRData$new(y = y, X_het = X_het, X_com = X_com,
     normalized_y = normalized_y, binomial_size = binomial_size_vec
