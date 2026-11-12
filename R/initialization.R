@@ -138,8 +138,8 @@ make_initialization_features <- function(prepared_data, family) {
 # Cold starts for one G: quantile partitions of the response and residuals,
 # `control$n_kmeans_init` k-means partitions on the scaled features (plus
 # k-means on the raw design), random balanced partitions up to
-# `control$n_init`, (binomial only) quantile partitions on each
-# heterogeneous predictor, and a model-based start from mclust. Partitions
+# `control$n_init`, (binomial only) quantile partitions on each included
+# predictor design column, and a model-based start from mclust. Partitions
 # with a group smaller than min_size are skipped. Returns a named list of
 # EmState objects.
 #' @import mclust
@@ -246,6 +246,18 @@ make_state_list <- function(prepared_data,
     colnames(tau) <- paste0("g", seq_len(G))
     tau_list[["mclust"]] <- tau
   }
+
+  if (family == "binomial") {
+    predictors <- normalized_data[, -1, drop = FALSE]
+    for (j in seq_len(ncol(predictors))) {
+      part <- rank_partition(predictors[, j], G)
+      if (min(table(part)) >= min_size) {
+        tau_list[[paste0("quantile_predictor_", colnames(predictors)[j])]] <-
+          make_tau_from_partition(partition = part, G = G, eps = control$init_eps)
+      }
+    }
+  }
+
   n_random <- max(0L, control$n_init - length(tau_list))
 
   for (s in seq_len(n_random)) {
@@ -375,7 +387,14 @@ make_init_lists <- function(prepared_data, G_values, control, family) {
     )
     # These strategies added no material benefit in the cold-baseline study.
     drop <- "quantile_response"
-    if (family == "poisson") drop <- c(drop, "quantile_residual")
+    if (family %in% c("poisson", "binomial")) {
+      drop <- c(drop, "quantile_residual")
+    }
+    # Count-family variable-selection baselines are intercept-only.
+    if (family %in% c("poisson", "binomial") && prepared_data$p_het == 1L &&
+        prepared_data$p_com == 0L) {
+      drop <- c(drop, "mclust")
+    }
     state_list[!names(state_list) %in% drop]
   })
 }

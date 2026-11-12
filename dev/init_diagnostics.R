@@ -8,7 +8,8 @@
 #            fit loses if the winner's strategy is removed from the pool.
 #
 # Starts are grouped into strategies by dropping the numeric suffix:
-#   "kmeans_2" -> "kmeans", "random_4" -> "random", "quantile_A3" -> "quantile_A"
+#   "kmeans_2" -> "kmeans", "random_4" -> "random"
+#   "quantile_predictor_x1" -> "quantile_predictor"
 #   "previous_fit" (warm start) and "quantile_response" are unchanged.
 #
 # Only the n_best_init starts that survive burn-in are run to convergence, so
@@ -26,7 +27,8 @@ devtools::load_all()
 init_type <- function(name) {
   known <- c(
     "kmeans_raw", "kmeans", "mclust", "random", "previous_fit",
-    "quantile_residual", "quantile_response", "quantile_neg_A", "quantile_A"
+    "quantile_residual", "quantile_response", "quantile_predictor",
+    "quantile_neg_A", "quantile_A"
   )
   vapply(name, function(nm) {
     hit <- known[startsWith(nm, known)]
@@ -574,27 +576,27 @@ print(init_diag_poisson_3)
 #   subset(study$fits, competitive_burnin_rank > 2) # material top-2 misses
 NoSleepR::with_nosleep({
   study <- run_init_study(1:100, 
-    scenarios$two_group_effects_binomial,
-    n = 300,
+    scenarios$four_group_twelve_variables_binomial,
+    n = 500,
     G_max = 5,
-    control = fmr_control(n_best_init = 10, init_burnin = 30, verbose = FALSE),
+    control = fmr_control(n_best_init = 10, init_burnin = 50, verbose = FALSE),
     tie_tol = 1
   )
 })
 print(study)
-saveRDS(study, "init_study_binomial_30burnin_allstarts.rds")
+saveRDS(study, "init_study_binomial_50burnin_allstarts.rds")
 
 NoSleepR::with_nosleep({
   study <- run_init_study(1:100, 
-    scenarios$two_group_effects_poisson,
-    n = 300,
+    scenarios$four_group_twelve_variables_poisson,
+    n = 500,
     G_max = 5,
-    control = fmr_control(n_best_init = 10, init_burnin = 30, verbose = FALSE),
+    control = fmr_control(n_best_init = 10, init_burnin = 50, verbose = FALSE),
     tie_tol = 1
   )
 })
 print(study)
-saveRDS(study, "init_study_poisson_30burnin_allstarts.rds")
+saveRDS(study, "init_study_poisson_50burnin_allstarts.rds")
 
 NoSleepR::with_nosleep({
   study <- run_init_study(1:100, 
