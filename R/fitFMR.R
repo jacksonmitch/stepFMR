@@ -2,8 +2,8 @@
 #'
 #' Fits finite mixture regression models where the user specifies which
 #' covariates have a common (homogeneous) effect and the
-#' order to fit. No variable selection or hypothesis testing is
-#' performed. Use \code{\link{stepFMR}} for that.
+#' order to fit. Variable selection or effect-type determination is not
+#' performed, use \code{\link{stepFMR}} for that.
 #'
 #' @details
 #' Every covariate in \code{formula} is included. By default each covariate

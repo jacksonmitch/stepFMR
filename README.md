@@ -311,3 +311,10 @@ print(fit_bin)
 #>     x2 
 #> 0.5557
 ```
+
+## Reference
+
+Gan, C., Chen, J. and Feng, Z. (2024). Tests of covariate effects under
+finite Gaussian mixture regression models. *Journal of Applied
+Statistics*, 52(8), 1571-1593.
+<https://doi.org/10.1080/02664763.2024.2433567>

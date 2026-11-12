@@ -10,13 +10,16 @@ Authors@R:
               comment = c(ORCID = "0000-0003-1845-4097")),
       person("Allan", "Willms", email = "awillms@uoguelph.ca", role = c("ctb", "ths", "cph"),
               comment = c(ORCID = "0000-0003-3502-5163")),
-      person("Chong", "Gan", email = "gan.c@queensu.ca", role = c("ctb")))
+      person("Chong", "Gan", email = "gan.c@queensu.ca", role = c("ctb"),
+              comment = c(ORCID = "0009-0006-9098-2934")))
 Description: Implements finite mixture regression models for Gaussian, Poisson, and
     binomial responses, with procedures for selecting covariates and
     determining whether covariate effects are heterogeneous or homogeneous across
     mixture components. Estimation is performed using EM algorithms,
     with weighted least squares and structured QR decompositions for efficient matrix inversions
-    in the M-step.
+    in the M-step. The weighted significance test (WEST) used for the stepwise
+    procedures is described in Gan, Chen and Feng (2024)
+    <doi:10.1080/02664763.2024.2433567>.
 URL: https://github.com/jacksonmitch/stepFMR
 BugReports: https://github.com/jacksonmitch/stepFMR/issues
 License: MIT + file LICENSE

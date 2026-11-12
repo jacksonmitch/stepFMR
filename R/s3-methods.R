@@ -381,7 +381,8 @@ print.stepFMR <- function(x, ...) {
 #' @param ... Currently unused.
 #'
 #' @return An object of class \code{summary.stepFMR}: a list containing the
-#'   call, formula, family, procedure, candidate \code{G} values, the best fit,
+#'   call, formula, family, procedure, candidate \code{G} values, the best fitted
+#'   model and its BIC value,
 #'   the variable-selection and effect-determination results (if run), and
 #'   their step-by-step tables.
 #' @export
@@ -528,7 +529,7 @@ print.fitFMR <- function(x, ...) {
 #' @return An object of class \code{summary.fitFMR}: a list containing the
 #'   call, formula, family, candidate \code{G} values, homogeneous and
 #'   heterogeneous covariates, the table of fits, the selected \code{G}, the
-#'   selected fit, and its initialization diagnostics.
+#'   selected model and its BIC value, and its initialization diagnostics.
 #' @seealso \code{\link{fitFMR}}
 #' @export
 #'
