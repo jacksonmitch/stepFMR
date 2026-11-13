@@ -136,11 +136,11 @@ make_initialization_features <- function(prepared_data, family) {
 }
 
 # Cold starts for one G: quantile partitions of the response and residuals,
-# `control$n_kmeans_init` k-means partitions on the scaled features (plus
-# k-means on the raw design), random balanced partitions up to
-# `control$n_init`, (binomial only) quantile partitions on each included
-# predictor design column, and a model-based start from mclust. Partitions
-# with a group smaller than min_size are skipped. Returns a named list of
+# k-means partitions on the scaled features and raw design, (binomial only)
+# quantile partitions on each included predictor design column, and a
+# model-based start from mclust. Random balanced partitions fill any shortfall
+# below `control$n_init`; valid non-random starts are never removed to meet it.
+# Partitions with a group smaller than min_size are skipped. Returns a named list of
 # EmState objects.
 #' @import mclust
 make_state_list <- function(prepared_data,
@@ -339,14 +339,13 @@ select_best_initialization <- function(em_state_list,
   )
 }
 
-# Starts for a candidate model: a few cold k-means starts plus one start
+# Starts for a candidate model: the cold-start pool plus one start
 # taken from the shared model's fitted `tau` at the same G (named `name`).
 # Returns one list per value in model$G_values.
 make_warm_init_lists <- function(previous_fits, name, model, prepared_data) {
   G_values <- model$G_values
   family <- model$family
   control <- model$control
-  # control$n_init <- control$n_kmeans_init
 
   features <- make_initialization_features(
     prepared_data = prepared_data,
@@ -393,7 +392,7 @@ make_init_lists <- function(prepared_data, G_values, control, family) {
     # Count-family variable-selection baselines are intercept-only.
     if (family %in% c("poisson", "binomial") && prepared_data$p_het == 1L &&
         prepared_data$p_com == 0L) {
-      drop <- c(drop, "mclust")
+      drop <- c(drop, "mclust", "kmeans_raw")
     }
     state_list[!names(state_list) %in% drop]
   })
