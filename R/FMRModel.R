@@ -87,17 +87,17 @@ FMRModel <- R6::R6Class(
     },
     predictors = function(value) {
       if (!missing(value)) stop("predictors is derived from formula;
-                                set formula instead.")
+                                set formula instead.", call. = FALSE)
       private$predictors_
     },
     response = function(value) {
       if (!missing(value)) stop("response is derived from formula;
-                                set formula instead.")
+                                set formula instead.", call. = FALSE)
       private$response_
     },
     mf = function(value) {
       if (!missing(value)) stop("mf is derived from formula/data;
-                                set formula/data instead.")
+                                set formula/data instead.", call. = FALSE)
       private$mf_
     }
   )

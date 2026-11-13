@@ -113,7 +113,7 @@ component membership. The column name \code{.binom_size} is reserved.
 set.seed(1)
 
 # Simulate data
-n <- 300
+n <- 200
 pi <- c(0.2, 0.3, 0.5)
 z <- sample(1:3, n, replace = TRUE, prob = pi)
 x1 <- rnorm(n)
@@ -136,14 +136,15 @@ eta <- beta[z, "intercept"] + beta[z, "x1"] * x1 + beta[z, "x2"] * x2 +
 y <- rnorm(n, mean = eta, sd = sigma[z])
 dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3, x4 = x4)
 
-# Perform sequential stepwise procedure
-stepFMR(formula = y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3)
+# Perform the stepwise procedure in parallel
+stepFMR(formula = y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3,
+        control = fmr_control(parallel = TRUE))
 
 }
 \references{
 Gan, C., Chen, J. and Feng, Z. (2024). Tests of covariate effects
 under finite Gaussian mixture regression models. \emph{Journal of Applied
-Statistics}, 52(8), 1571-1593. \doi{10.1080/02664763.2024.2433567}
+Statistics}, 52(8), 1571-1593. \doi{10.48550/arXiv.2611.15978}
 }
 \seealso{
 \code{\link{fmr_control}} for tuning parameters,

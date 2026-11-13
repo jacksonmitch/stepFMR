@@ -25,7 +25,7 @@ m_step <- function(dat, em_state, family, control) {
       poisson  = m_step_sqr_poisson(dat, em_state, control),
       zip      = m_step_sqr_poisson(dat, em_state, control),
       binomial = m_step_sqr_binomial(dat, em_state, control),
-      stop(sprintf("No sQR M-step for family '%s'", family))
+      stop(sprintf("No sQR M-step for family '%s'", family), call. = FALSE)
     )
   } else {
     em_state <- switch(family,
@@ -33,7 +33,7 @@ m_step <- function(dat, em_state, family, control) {
       poisson  = m_step_poisson(dat, em_state, control),
       zip      = m_step_poisson(dat, em_state, control),
       binomial = m_step_binomial(dat, em_state, control),
-      stop(sprintf("No M-step for family '%s'", family))
+      stop(sprintf("No M-step for family '%s'", family), call. = FALSE)
     )
   }
 }
@@ -100,6 +100,8 @@ m_step_poisson <- function(dat, em_state, control) {
 
   for (g in seq_len(G)) {
     wg <- pmax(tau[, g], control$weight_floor)
+    start <- if (is.null(em_state$beta_g)) NULL else em_state$beta_g[g, ]
+    if (!is.null(start) && !all(is.finite(start))) start <- NULL
 
     fit_g <- tryCatch(
       suppressWarnings(
@@ -107,6 +109,7 @@ m_step_poisson <- function(dat, em_state, control) {
           x = X, 
           y = y, 
           weights = wg, 
+          start = start,
           family = stats::poisson(),
           control = list(epsilon = control$irwls_tol,
                          maxit = control$irwls_max_iter)

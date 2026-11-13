@@ -50,7 +50,7 @@ EmState <- R6::R6Class("EmState",
       if (missing(value)) {
         return(ncol(private$.tau))
       }
-      stop("G is read-only; it is derived from tau.")
+      stop("G is read-only; it is derived from tau.", call. = FALSE)
     },
     pi_g = function(value) {
       if (missing(value)) {

@@ -98,14 +98,6 @@ west_procedure <- function(
     model_bic <- tab$bic_alt
   }
   valid <- is.finite(model_bic) & is.finite(tab$p_value)
-  unconverged <- valid & (!tab$null_converged | !tab$alt_converged)
-  if (any(unconverged)) {
-    warning(sprintf(
-      "WEST is using EM fits that did not converge for G = %s. Consider increasing `max_iter` in fmr_control().",
-      paste(tab$G[unconverged], collapse = ", ")
-    ), call. = FALSE)
-  }
-
   if (!any(valid)) {
     p0 <- NA_real_
     weights <- rep(NA_real_, nrow(tab))

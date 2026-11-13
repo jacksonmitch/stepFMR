@@ -13,7 +13,7 @@ make_tau_from_partition <- function(partition, G, eps = 1e-6) {
   }
 
   if (length(unique(partition)) != G) {
-    stop("partition must contain exactly G groups.")
+    stop("partition must contain exactly G groups.", call. = FALSE)
   }
 
   partition <- match(partition, sort(unique(partition)))
@@ -132,7 +132,7 @@ make_initialization_features <- function(prepared_data, family) {
       residual = resid0
     ))
   }
-  else stop("family not found when making initialization features")
+  else stop("family not found when making initialization features", call. = FALSE)
 }
 
 # Cold starts for one G: quantile partitions of the response and residuals,
@@ -271,7 +271,7 @@ make_state_list <- function(prepared_data,
   }
 
   if (length(tau_list) == 0L) {
-    stop("No valid initialization starts were created.")
+    stop("No valid initialization starts were created.", call. = FALSE)
   }
 
   tau_list <- lapply(tau_list, function(tau) {
@@ -324,7 +324,7 @@ select_best_initialization <- function(em_state_list,
   valid <- is.finite(logliks)
   if (!any(valid)) {
     failure_details <- paste0("  - ", names(failures), ": ", unlist(failures), collapse = "\n")
-    stop("All initialization attempts failed.\n\nCaptured Errors:\n", failure_details)
+    stop("All initialization attempts failed.\n\nCaptured Errors:\n", failure_details, call. = FALSE)
   }
 
   n_keep <- min(control$n_best_init, sum(valid))

@@ -58,7 +58,7 @@ betas <- rbind(
   c(-2, -3, 1),
   c(2, 3, 1)
 )
-sim <- simulate_fmr(n = 300, betas = betas, seed = 1)
-fit <- stepFMR(sim$formula, sim$data, G_max = 3)
+sim <- simulate_fmr(n = 200, betas = betas, seed = 1)
+fit <- fitFMR(sim$formula, sim$data, G = 2, common = "x2")
 fit_aligned <- match_groups(fit, sim$true_group)
 }

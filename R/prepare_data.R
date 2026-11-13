@@ -82,19 +82,19 @@ FMRData <- R6::R6Class(
   ),
   active = list(
     y = function(v) {
-      if (missing(v)) private$.y else stop("y is read-only")
+      if (missing(v)) private$.y else stop("y is read-only", call. = FALSE)
     },
     X_het = function(v) {
-      if (missing(v)) private$.X_het else stop("X_het is read-only")
+      if (missing(v)) private$.X_het else stop("X_het is read-only", call. = FALSE)
     },
     X_com = function(v) {
-      if (missing(v)) private$.X_com else stop("X_com is read-only")
+      if (missing(v)) private$.X_com else stop("X_com is read-only", call. = FALSE)
     },
     normalized_data = function(v) {
-      if (missing(v)) private$.normalized_data else stop("normalized_data is read-only")
+      if (missing(v)) private$.normalized_data else stop("normalized_data is read-only", call. = FALSE)
     },
     binomial_size = function(v) {
-      if (missing(v)) private$.binomial_size else stop("binomial_size is read-only")
+      if (missing(v)) private$.binomial_size else stop("binomial_size is read-only", call. = FALSE)
     },
     n = function() nrow(private$.X_het),
     p_het = function() ncol(private$.X_het),
@@ -102,9 +102,9 @@ FMRData <- R6::R6Class(
   ),
   public = list(
     initialize = function(y, X_het, X_com, normalized_y, binomial_size = NULL) {
-      if (!is.numeric(y)) stop("y must be a numeric vector.")
-      if (!is.matrix(X_het)) stop("X_het must be a matrix.")
-      if (!is.matrix(X_com)) stop("X_com must be a matrix.")
+      if (!is.numeric(y)) stop("y must be a numeric vector.", call. = FALSE)
+      if (!is.matrix(X_het)) stop("X_het must be a matrix.", call. = FALSE)
+      if (!is.matrix(X_com)) stop("X_com must be a matrix.", call. = FALSE)
 
       n <- length(y)
 
@@ -112,13 +112,13 @@ FMRData <- R6::R6Class(
         stop(sprintf(
           "nrow(X_het) (%d) must equal length(y) (%d).",
           nrow(X_het), n
-        ))
+        ), call. = FALSE)
       }
       if (nrow(X_com) != n) {
         stop(sprintf(
           "nrow(X_com) (%d) must equal length(y) (%d).",
           nrow(X_com), n
-        ))
+        ), call. = FALSE)
       }
 
       if (n <= ncol(X_het)) {
@@ -126,12 +126,12 @@ FMRData <- R6::R6Class(
           "Need n > ncol(X_het) for the weighted QR M-step.
           Got n = %d, ncol(X_het) = %d.",
           n, ncol(X_het)
-        ))
+        ), call. = FALSE)
       }
 
       # na.fail in model.frame covers y and X_het, while X_com is built separately
       if (anyNA(X_com)) {
-        stop("X_com contains missing values.")
+        stop("X_com contains missing values.", call. = FALSE)
       }
       private$.y <- y
       private$.X_het <- X_het

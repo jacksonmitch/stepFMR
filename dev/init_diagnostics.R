@@ -551,16 +551,15 @@ run_init_study <- function(seeds,
 
 sim <- do.call(
   simulate_fmr,
-  c(scenarios$four_group_twelve_variables_poisson, list(n = 300, seed = 2))
+  c(scenarios$four_group_twelve_variables_poisson, list(n = 300, seed = 1))
 )
 
 # Remember to devtools::install() so parallel workers see current code
 result <- stepFMR(
   sim$formula, sim$data,
-  G_max = 3,
+  G_max = 5,
   family = "poisson",
-  direction = "backward",
-  control = fmr_control(parallel = FALSE, n_best_init = 2, init_burnin = 30, irwls_max_iter = 2 )
+  control = fmr_control(parallel = TRUE, n_best_init = 2, init_burnin = 30)
 )
 
 init_diag_poisson_3 <- init_diagnostics(result, tie_tol = 1)

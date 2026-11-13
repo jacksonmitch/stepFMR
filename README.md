@@ -92,6 +92,9 @@ the model order is selected from orders 2 and 3.
 
 ``` r
 fit <- stepFMR(sim$formula, sim$data, G_max = 3)
+#> Warning: EM did not converge in 2/22 fits (G = 3). Selected final model (G =
+#> 2): converged. Inspect convergence flags in the stored fits; consider
+#> increasing `max_iter` in fmr_control().
 print(fit)
 #> stepFMR | family: gaussian | G: 2,3 | procedure: complete
 #> 
@@ -143,7 +146,7 @@ print_steps(fit$variable_selection)
 #>   ---------             -------     
 #>   x1                    0.00e+00   *
 #>   x2                    3.04e-18    
-#>   x3                    8.17e-01    
+#>   x3                    8.15e-01    
 #>   Chosen: x1
 #> 
 #> Step 2  (included: x1  |  excluded: x2, x3)
@@ -317,4 +320,4 @@ print(fit_bin)
 Gan, C., Chen, J. and Feng, Z. (2024). Tests of covariate effects under
 finite Gaussian mixture regression models. *Journal of Applied
 Statistics*, 52(8), 1571-1593.
-<https://doi.org/10.1080/02664763.2024.2433567>
+<https://doi.org/10.48550/arXiv.2611.15978>

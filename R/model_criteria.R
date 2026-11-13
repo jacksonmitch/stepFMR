@@ -49,7 +49,7 @@ select_best_G <- function(fits, criterion = c("bic", "loglik")) {
 
   if (!any(valid)) {
     stop("All fits failed for every G; try a smaller G_max or check the data.",
-        call. = TRUE)
+        call. = FALSE)
   }
   
   if (criterion == "bic") {
