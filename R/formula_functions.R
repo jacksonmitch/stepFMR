@@ -27,7 +27,7 @@ format_formula <- function(x) {
     return("NULL")
   }
 
-  paste(deparse(x), collapse = " ")
+  paste(trimws(deparse(x)), collapse = " ")
 }
 
 make_effects_formula <- function(heterogeneous, homogeneous, response = NULL) {

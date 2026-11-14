@@ -14,3 +14,5 @@
 ^data-raw$
 ^Thesis$
 ^AGENTS\.md$
+^cran-comments\.md$
+^CRAN-SUBMISSION$

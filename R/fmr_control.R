@@ -19,8 +19,9 @@
 #'  overrides the current one, which is restored on exit. A \code{future} can be
 #'  specified manually while setting this flag as \code{FALSE} for
 #'  hardware-specific customization. Default is \code{FALSE}.
-#' @param n_init A positive integer specifying the total number of
-#'  initializations to use. Default is 10.
+#' @param n_init A positive integer specifying the target number of
+#'  initializations. A fixed set of initializations is used, with random starts
+#'  added when \code{n_init} exceeds its size. Default is 10.
 #' @param n_best_init A positive integer specifying the total number of
 #'  initializations to carry into full convergence in \code{stepFMR()}.
 #'  Default is 2.
@@ -42,7 +43,7 @@
 #' @param irwls_max_iter A positive integer specifying the maximum number of
 #'  IRWLS iterations used for the Poisson and binomial distribution
 #'  families. Default is 50.
-#' @param irwls_tol A non-negative numeric value specifying the convergence
+#' @param irwls_tol A positive numeric value specifying the convergence
 #'  tolerance for the IRWLS iterations used for the Poisson and binomial
 #'  distribution families. Iteration stops when the largest absolute
 #'  change in coefficients falls below this value. Default is 1e-6.
@@ -99,6 +100,9 @@ fmr_control <- function(
   checkmate::assert_number(tol, lower = 1e-10, add = collection)
   checkmate::assert_int(irwls_max_iter, lower = 1, add = collection)
   checkmate::assert_number(irwls_tol, lower = 0, add = collection)
+  if (checkmate::test_number(irwls_tol) && irwls_tol == 0) {
+    collection$push("irwls_tol must be greater than 0.")
+  }
 
   if (!collection$isEmpty()) {
     err_messages <- paste0("- ", collection$getMessages(), collapse = "\n")

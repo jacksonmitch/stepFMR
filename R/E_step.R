@@ -1,7 +1,7 @@
 #' E-Step
 #'
-#' Computes each component's mixing-weighted density for every observation
-#' under the given family, normalizes across components to update the
+#' Computes each component's mixing-weighted log-density for every observation
+#' under the given family, uses log-sum-exp normalization to update the
 #' responsibilities \code{tau}, and updates the mixing proportions
 #' \code{pi_g} (floored at 1e-16 and renormalized). For \code{"zip"}, the
 #' first \code{G - 1} components are Poisson and component \code{G} is a
@@ -25,7 +25,8 @@ e_step <- function(dat, em_state, family) {
   G <- em_state$G
   eta <- em_state$eta
 
-  weights <- matrix(NA_real_, nrow = n, ncol = G)
+  log_pi <- log(pi_g)
+  log_weights <- matrix(NA_real_, nrow = n, ncol = G)
 
   # Family specific E-step quantities
 
@@ -33,21 +34,21 @@ e_step <- function(dat, em_state, family) {
     stopifnot(length(sigma_g) == G)
 
     for (g in seq_len(G)) {
-      weights[, g] <- pi_g[g] * stats::dnorm(
+      log_weights[, g] <- log_pi[g] + stats::dnorm(
         x = y,
         mean = eta[, g],
         sd = pmax(sigma_g[g], 1e-16),
-        log = FALSE
+        log = TRUE
       )
     }
   } else if (family == "poisson") {
     mu <- exp(eta)
 
     for (g in seq_len(G)) {
-      weights[, g] <- pi_g[g] * stats::dpois(
+      log_weights[, g] <- log_pi[g] + stats::dpois(
         x = y,
         lambda = mu[, g],
-        log = FALSE
+        log = TRUE
       )
     }
   } else if (family == "binomial") {
@@ -57,29 +58,42 @@ e_step <- function(dat, em_state, family) {
     mu <- pmin(pmax(mu, 1e-8), 1 - 1e-8)
 
     for (g in seq_len(G)) {
-      weights[, g] <- pi_g[g] * stats::dbinom(
+      log_weights[, g] <- log_pi[g] + stats::dbinom(
         x = y,
         size = binomial_size,
         prob = mu[, g],
-        log = FALSE
+        log = TRUE
       )
     }
   } else if (family == "zip") {
     mu <- exp(eta)
 
     for (g in seq_len(G-1)) {
-      weights[, g] <- pi_g[g] * stats::dpois(
+      log_weights[, g] <- log_pi[g] + stats::dpois(
         x = y,
         lambda = mu[, g],
-        log = FALSE
+        log = TRUE
       )
     }
-    weights[, G] <- pi_g[G] * ifelse(y == 0, 1, 0)
+    log_weights[, G] <- log_pi[G] + ifelse(y == 0, 0, -Inf)
   }
-  stopifnot(all(weights >= 0))
 
+  # Shift each row before exponentiating so small densities do not underflow.
+  log_weight_max <- log_weights[, 1L]
+  if (G > 1L) {
+    for (g in 2:G) {
+      log_weight_max <- pmax(log_weight_max, log_weights[, g])
+    }
+  }
+  if (any(!is.finite(log_weight_max))) {
+    stop(sprintf(
+      "%s mixture has no finite log-density for one or more observations.",family
+    ), call. = FALSE)
+  }
+
+  weights <- exp(log_weights - log_weight_max)
   sum_weights <- rowSums(weights)
-  loglik <- sum(log(sum_weights))
+  loglik <- sum(log_weight_max + log(sum_weights))
   tau <- weights / sum_weights
 
   pi_new <- colMeans(tau)

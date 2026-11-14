@@ -103,13 +103,6 @@ fit_fmr <- function(model,
   best_fit <- converged_fits[[winner_name]]
   em_state <- best_fit$em_state
 
-  if (family != "gaussian" && !isTRUE(em_state$irwls_converged)) {
-    warning(sprintf(
-      "Final M-step did not converge for G = %d. Consider increasing `irwls_max_iter` in fmr_control().",
-      G
-    ), call. = FALSE)
-  }
-
   k <- count_params_fmr(
     ncol_het = prepared_data$p_het,
     ncol_common = prepared_data$p_com,
@@ -158,6 +151,7 @@ failed_fit <- function(G, prepared_data, family, message) {
     num_parameters = count_params_fmr(
       prepared_data$p_het, prepared_data$p_com, G, family
     ),
+    iterations = NA_integer_,
     converged = FALSE,
     family = family,
     G = G,
@@ -165,4 +159,54 @@ failed_fit <- function(G, prepared_data, family, message) {
   )
   class(out) <- "fit_fmr"
   out
+}
+
+# Report convergence once at the public entry point. M-step history may contain
+# early failures that recovered; only the final update determines its status.
+warn_fit_convergence <- function(fits, best_fit) {
+  em_bad <- vapply(fits, function(fit) !isTRUE(fit$converged), logical(1))
+  m_step_bad <- vapply(fits, function(fit) {
+    status <- fit$irwls_converged
+    length(status) > 0L && !isTRUE(status[length(status)])
+  }, logical(1))
+  if (!any(em_bad | m_step_bad)) return(invisible(NULL))
+
+  G <- vapply(fits, function(fit) fit$G, numeric(1))
+  issues <- character()
+  controls <- character()
+  if (any(em_bad)) {
+    issues <- c(issues, sprintf(
+      "EM did not converge in %d/%d fits (G = %s)",
+      sum(em_bad), length(fits), paste(sort(unique(G[em_bad])), collapse = ", ")
+    ))
+    controls <- c(controls, "`max_iter`")
+  }
+  if (any(m_step_bad)) {
+    issues <- c(issues, sprintf(
+      "Final M-step did not converge in %d/%d fits (G = %s)",
+      sum(m_step_bad), length(fits), paste(sort(unique(G[m_step_bad])), collapse = ", ")
+    ))
+    controls <- c(controls, "`irwls_max_iter`")
+  }
+
+  selected_issues <- character()
+  if (!isTRUE(best_fit$converged)) selected_issues <- "EM"
+  status <- best_fit$irwls_converged
+  if (length(status) > 0L && !isTRUE(status[length(status)])) {
+    selected_issues <- c(selected_issues, "final M-step")
+  }
+  selected <- if (length(selected_issues)) {
+    paste(paste(selected_issues, collapse = " and "), "did not converge")
+  } else {
+    "converged"
+  }
+
+  warning(
+    paste(issues, collapse = "; "), ". ",
+    sprintf("Selected final model (G = %d): %s. ", best_fit$G, selected),
+    "Inspect convergence flags in the stored fits; consider increasing ",
+    paste(controls, collapse = " and "), " in fmr_control().",
+    call. = FALSE
+  )
+  invisible(NULL)
 }

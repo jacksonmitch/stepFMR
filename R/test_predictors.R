@@ -137,17 +137,17 @@ test_predictors <- function(
       cli::cli_progress_update(id = pb, set = step_id,
         status = if (label == "Determining effects:") {
           sprintf("Heterogeneous: %s | Homogeneous: %s",
-            cli::ansi_strtrim(format_none(heterogeneous), 30, ellipsis = "..."),
+            cli::ansi_strtrim(format_none(heterogeneous), 40, ellipsis = "..."),
             cli::ansi_strtrim(format_none(setdiff(included, heterogeneous)),
                               30, ellipsis = "...")
           )
         } else if (direction == "backward") {
           sprintf("Excluded: %s", cli::ansi_strtrim(
-            format_none(setdiff(predictors, included)), 30, ellipsis = "..."
+            format_none(setdiff(predictors, included)), 40, ellipsis = "..."
           ))
         } else {
           sprintf("Included: %s", cli::ansi_strtrim(
-            format_none(included), 30, ellipsis = "..."
+            format_none(included), 40, ellipsis = "..."
           ))
         }
       )

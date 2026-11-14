@@ -23,7 +23,7 @@
 #'   c(-2, -3, 1),
 #'   c(2, 3, 1)
 #' )
-#' sim <- simulate_fmr(n = 300, betas = betas, seed = 1)
+#' sim <- simulate_fmr(n = 300, betas = betas, seed = 2)
 #' fit <- fitFMR(sim$formula, sim$data, G = 2, common = "x2")
 #'
 #' # Fitted components may be numbered differently from the simulated ones
@@ -57,6 +57,11 @@ match_groups.fit_fmr <- function(fit, true_group) {
   )
   new_tau[, matched] <- tau[, perm[matched], drop = FALSE]
   param_values$tau <- new_tau
+
+  if (!is.null(param_values$eta)) {
+    param_values$eta <- param_values$eta[, perm, drop = FALSE]
+    colnames(param_values$eta) <- g_names
+  }
 
   new_pi_g <- stats::setNames(rep(NA_real_, true_g), g_names)
   new_pi_g[matched] <- param_values$pi_g[perm[matched]]

@@ -15,7 +15,8 @@ common_eta <- function(B, beta = numeric(0)) {
       length(beta),
       " and ncol(B) = ",
       ncol(B),
-      "."
+      ".",
+      call. = FALSE
     )
   }
 
@@ -59,7 +60,7 @@ format_none <- function(x) {
 coerce_binomial_formula <- function(formula, data) {
   # Just in case
   if (".binom_size" %in% names(data)) {
-    stop("Column name '.binom_size' is reserved; please rename your column.")
+    stop("Column name '.binom_size' is reserved; please rename your column.", call. = FALSE)
   }
 
   response <- formula[[2]]
@@ -72,10 +73,12 @@ coerce_binomial_formula <- function(formula, data) {
     failures <- eval(failure_expr, data)
 
     if (any(successes < 0) || any(failures < 0)) {
-      stop("Successes and failures must be non-negative.")
+      stop("Successes and failures must be non-negative.", call. = FALSE)
     }
 
     data$.binom_size <- successes + failures
+    if (any(data$.binom_size == 0))
+      stop("Binomial trial counts must be positive; remove zero-trial observations.", call. = FALSE)
     formula[[2]] <- success_expr # response becomes the success count only instead of an ugly cbind
 
     return(list(formula = formula, data = data))
@@ -85,7 +88,7 @@ coerce_binomial_formula <- function(formula, data) {
   y <- eval(response, data)
 
   if (!all(y %in% c(0, 1))) {
-    stop("Binomial response must be cbind(successes, failures) or a 0/1 vector.")
+    stop("Binomial response must be cbind(successes, failures) or a 0/1 vector.", call. = FALSE)
   }
 
   data$.binom_size <- rep(1, length(y))

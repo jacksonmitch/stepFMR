@@ -15,9 +15,10 @@ test_that("stepFMR runs without error with control$parallel = TRUE", {
 })
 
 test_that("stepFMR runs without error with user specified plan", {
-  future::plan(future::multisession)
+  old_plan <- future::plan(future::multisession)
+  on.exit(future::plan(old_plan), add = TRUE)
+
   expect_no_error(
     stepFMR(sim$formula, sim$data, control = fmr_control(verbose = FALSE))
   )
-  future::plan(future::sequential)
 })

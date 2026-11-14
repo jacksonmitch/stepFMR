@@ -33,8 +33,9 @@ overrides the current one, which is restored on exit. A \code{future} can be
 specified manually while setting this flag as \code{FALSE} for
 hardware-specific customization. Default is \code{FALSE}.}
 
-\item{n_init}{A positive integer specifying the total number of
-initializations to use. Default is 10.}
+\item{n_init}{A positive integer specifying the target number of
+initializations. A fixed set of initializations is used, with random starts
+added when \code{n_init} exceeds its size. Default is 10.}
 
 \item{n_best_init}{A positive integer specifying the total number of
 initializations to carry into full convergence in \code{stepFMR()}.
@@ -64,7 +65,7 @@ considered converged. Default is 1e-6.}
 IRWLS iterations used for the Poisson and binomial distribution
 families. Default is 50.}
 
-\item{irwls_tol}{A non-negative numeric value specifying the convergence
+\item{irwls_tol}{A positive numeric value specifying the convergence
 tolerance for the IRWLS iterations used for the Poisson and binomial
 distribution families. Iteration stops when the largest absolute
 change in coefficients falls below this value. Default is 1e-6.}

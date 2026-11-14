@@ -13,7 +13,7 @@ make_tau_from_partition <- function(partition, G, eps = 1e-6) {
   }
 
   if (length(unique(partition)) != G) {
-    stop("partition must contain exactly G groups.")
+    stop("partition must contain exactly G groups.", call. = FALSE)
   }
 
   partition <- match(partition, sort(unique(partition)))
@@ -132,15 +132,15 @@ make_initialization_features <- function(prepared_data, family) {
       residual = resid0
     ))
   }
-  else stop("family not found when making initialization features")
+  else stop("family not found when making initialization features", call. = FALSE)
 }
 
 # Cold starts for one G: quantile partitions of the response and residuals,
-# `control$n_kmeans_init` k-means partitions on the scaled features (plus
-# k-means on the raw design), random balanced partitions up to
-# `control$n_init`, (binomial only) quantile partitions on each
-# heterogeneous predictor, and a model-based start from mclust. Partitions
-# with a group smaller than min_size are skipped. Returns a named list of
+# k-means partitions on the scaled features and raw design, (binomial only)
+# quantile partitions on each included predictor design column, and a
+# model-based start from mclust. Random balanced partitions fill any shortfall
+# below `control$n_init`; valid non-random starts are never removed to meet it.
+# Partitions with a group smaller than min_size are skipped. Returns a named list of
 # EmState objects.
 #' @import mclust
 make_state_list <- function(prepared_data,
@@ -246,6 +246,18 @@ make_state_list <- function(prepared_data,
     colnames(tau) <- paste0("g", seq_len(G))
     tau_list[["mclust"]] <- tau
   }
+
+  if (family == "binomial") {
+    predictors <- normalized_data[, -1, drop = FALSE]
+    for (j in seq_len(ncol(predictors))) {
+      part <- rank_partition(predictors[, j], G)
+      if (min(table(part)) >= min_size) {
+        tau_list[[paste0("quantile_predictor_", colnames(predictors)[j])]] <-
+          make_tau_from_partition(partition = part, G = G, eps = control$init_eps)
+      }
+    }
+  }
+
   n_random <- max(0L, control$n_init - length(tau_list))
 
   for (s in seq_len(n_random)) {
@@ -259,7 +271,7 @@ make_state_list <- function(prepared_data,
   }
 
   if (length(tau_list) == 0L) {
-    stop("No valid initialization starts were created.")
+    stop("No valid initialization starts were created.", call. = FALSE)
   }
 
   tau_list <- lapply(tau_list, function(tau) {
@@ -312,7 +324,7 @@ select_best_initialization <- function(em_state_list,
   valid <- is.finite(logliks)
   if (!any(valid)) {
     failure_details <- paste0("  - ", names(failures), ": ", unlist(failures), collapse = "\n")
-    stop("All initialization attempts failed.\n\nCaptured Errors:\n", failure_details)
+    stop("All initialization attempts failed.\n\nCaptured Errors:\n", failure_details, call. = FALSE)
   }
 
   n_keep <- min(control$n_best_init, sum(valid))
@@ -327,14 +339,13 @@ select_best_initialization <- function(em_state_list,
   )
 }
 
-# Starts for a candidate model: a few cold k-means starts plus one start
+# Starts for a candidate model: the cold-start pool plus one start
 # taken from the shared model's fitted `tau` at the same G (named `name`).
 # Returns one list per value in model$G_values.
 make_warm_init_lists <- function(previous_fits, name, model, prepared_data) {
   G_values <- model$G_values
   family <- model$family
   control <- model$control
-  # control$n_init <- control$n_kmeans_init
 
   features <- make_initialization_features(
     prepared_data = prepared_data,
@@ -375,7 +386,14 @@ make_init_lists <- function(prepared_data, G_values, control, family) {
     )
     # These strategies added no material benefit in the cold-baseline study.
     drop <- "quantile_response"
-    if (family == "poisson") drop <- c(drop, "quantile_residual")
+    if (family %in% c("poisson", "binomial")) {
+      drop <- c(drop, "quantile_residual")
+    }
+    # Count-family variable-selection baselines are intercept-only.
+    if (family %in% c("poisson", "binomial") && prepared_data$p_het == 1L &&
+        prepared_data$p_com == 0L) {
+      drop <- c(drop, "mclust", "kmeans_raw")
+    }
     state_list[!names(state_list) %in% drop]
   })
 }

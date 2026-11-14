@@ -395,8 +395,9 @@ print.stepFMR <- function(x, ...) {
 #'   c(0, 1, 1.5, -1, 0),
 #'   c(4, 3, 1.5, 0.5, 0)
 #' )
-#' sim <- simulate_fmr(n = 300, betas = betas, pi = pi, sigma = sigma, seed = 1)
-#' fit <- stepFMR(sim$formula, sim$data, G_max = 3)
+#' sim <- simulate_fmr(n = 200, betas = betas, pi = pi, sigma = sigma, seed = 1)
+#' fit <- stepFMR(sim$formula, sim$data, G_max = 3,
+#'                control = fmr_control(parallel = TRUE))
 #' summary(fit)
 summary.stepFMR <- function(object, ...) {
   out <- list(

@@ -1,6 +1,6 @@
 Package: stepFMR
-Title: Finite Mixture Regression with Variable Selection and Effect-Type Determination
-Version: 0.1.0
+Title: Finite Mixture Regression with Variable and Effect-Type Selection
+Version: 1.0.0
 Authors@R: 
     c(person("Tulio", "Martins", email = "tbatista@uoguelph.ca", role = c("aut", "cre", "cph"),
               comment = c(ORCID = "0009-0005-9728-2044")),
@@ -19,7 +19,7 @@ Description: Implements finite mixture regression models for Gaussian, Poisson, 
     with weighted least squares and structured QR decompositions for efficient matrix inversions
     in the M-step. The weighted significance test (WEST) used for the stepwise
     procedures is described in Gan, Chen and Feng (2024)
-    <doi:10.1080/02664763.2024.2433567>.
+    <doi:10.48550/arXiv.2611.15978>.
 URL: https://github.com/jacksonmitch/stepFMR
 BugReports: https://github.com/jacksonmitch/stepFMR/issues
 License: MIT + file LICENSE

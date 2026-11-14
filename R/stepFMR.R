@@ -88,7 +88,7 @@
 #'
 #' @references Gan, C., Chen, J. and Feng, Z. (2024). Tests of covariate effects
 #'  under finite Gaussian mixture regression models. \emph{Journal of Applied
-#'  Statistics}, 52(8), 1571-1593. \doi{10.1080/02664763.2024.2433567}
+#'  Statistics}, 52(8), 1571-1593. \doi{10.48550/arXiv.2611.15978}
 #'
 #' @seealso \code{\link{fmr_control}} for tuning parameters,
 #'  \code{\link{fitFMR}} to fit a model without selection,
@@ -102,7 +102,7 @@
 #' set.seed(1)
 #'
 #' # Simulate data
-#' n <- 300
+#' n <- 200
 #' pi <- c(0.2, 0.3, 0.5)
 #' z <- sample(1:3, n, replace = TRUE, prob = pi)
 #' x1 <- rnorm(n)
@@ -125,8 +125,9 @@
 #' y <- rnorm(n, mean = eta, sd = sigma[z])
 #' dat <- data.frame(y = y, x1 = x1, x2 = x2, x3 = x3, x4 = x4)
 #'
-#' # Perform sequential stepwise procedure
-#' stepFMR(formula = y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3)
+#' # Perform the stepwise procedure in parallel
+#' stepFMR(formula = y ~ x1 + x2 + x3 + x4, data = dat, G_max = 3,
+#'         control = fmr_control(parallel = TRUE))
 #'
 stepFMR <- function(
   formula,
@@ -172,6 +173,8 @@ stepFMR <- function(
   }
 
   formula <- stats::formula(stats::terms(formula, data = data))
+  if (procedure == "effects" && length(get_predictors(formula)) == 0L)
+    stop("Effect determination requires at least one predictor.", call. = FALSE)
 
   if (family == "binomial") {
     coerced <- coerce_binomial_formula(formula, data)
@@ -236,6 +239,23 @@ stepFMR <- function(
   }
 
   best_fit <- select_best_G(final_fits, criterion = "bic")
+
+  # Count each baseline and candidate fit once, excluding repeated shared fits.
+  convergence_fits <- list()
+  for (stage in compact(list(variable_selection, effect_determination))) {
+    steps <- stage$steps
+    if (length(steps) == 0L) {
+      convergence_fits <- c(convergence_fits, stage$final_fits)
+      next
+    }
+    convergence_fits <- c(convergence_fits, steps[[1]]$tests[[1]]$shared_fits)
+    for (step in steps) {
+      for (test in step$tests) {
+        convergence_fits <- c(convergence_fits, test$candidate_fits)
+      }
+    }
+  }
+  warn_fit_convergence(convergence_fits, best_fit)
 
   out <- list(
     call = match.call(),

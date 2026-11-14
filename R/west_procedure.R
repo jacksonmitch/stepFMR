@@ -98,7 +98,6 @@ west_procedure <- function(
     model_bic <- tab$bic_alt
   }
   valid <- is.finite(model_bic) & is.finite(tab$p_value)
-
   if (!any(valid)) {
     p0 <- NA_real_
     weights <- rep(NA_real_, nrow(tab))

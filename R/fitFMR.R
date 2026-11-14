@@ -174,13 +174,7 @@ fitFMR <- function(
 
   best_fit <- select_best_G(fits, criterion = "bic")
 
-  not_converged <- fit_table$G[!fit_table$converged]
-  if (length(not_converged) > 0L) {
-    warning(sprintf(
-      "EM did not converge for G = %s. Consider increasing `max_iter`.",
-      paste(not_converged, collapse = ", ")
-    ), call. = FALSE)
-  }
+  warn_fit_convergence(fits, best_fit)
 
   out <- list(
     call = match.call(),

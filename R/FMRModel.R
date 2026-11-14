@@ -30,6 +30,11 @@ FMRModel <- R6::R6Class(
                           G_values,
                           family,
                           control) {
+      formula_terms <- stats::terms(formula, data = data)
+      if (length(attr(formula_terms, "offset")) > 0L)
+        stop("Offsets are not supported in mixture regression formulas.", call. = FALSE)
+      if (attr(formula_terms, "intercept") == 0L) # y ~ 0
+        stop("Mixture regression formulas must include an intercept.", call. = FALSE)
       self$formula <- formula # goes through active binding
       self$data <- data
       self$G_values <- G_values
@@ -82,17 +87,17 @@ FMRModel <- R6::R6Class(
     },
     predictors = function(value) {
       if (!missing(value)) stop("predictors is derived from formula;
-                                set formula instead.")
+                                set formula instead.", call. = FALSE)
       private$predictors_
     },
     response = function(value) {
       if (!missing(value)) stop("response is derived from formula;
-                                set formula instead.")
+                                set formula instead.", call. = FALSE)
       private$response_
     },
     mf = function(value) {
       if (!missing(value)) stop("mf is derived from formula/data;
-                                set formula/data instead.")
+                                set formula/data instead.", call. = FALSE)
       private$mf_
     }
   )
